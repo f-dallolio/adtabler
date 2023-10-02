@@ -3,6 +3,7 @@
 #' @param x character vector.
 #'
 #' @return character vector.
+#'
 #' @export
 #'
 rename_adintel <- function(x, named = FALSE){

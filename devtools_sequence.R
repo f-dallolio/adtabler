@@ -6,3 +6,4 @@ devtools::check()
 
 # cat(readLines("~/Documents/p620"))
 # gitcreds::gitcreds_set()
+
