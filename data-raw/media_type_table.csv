@@ -1,0 +1,25 @@
+media_type,media_type_id,media_category,media_subcategory,national_local,spanish_flag,adintel_file_type,adintel_file_name,adintel_media_definition
+network_tv,1,tv,network_tv,national,FALSE,Occurrences,NetworkTV.tsv,Network TV
+network_tv_spanish,4,tv,network_tv,national,TRUE,Occurrences,NetworkTV.tsv,Spanish Language Network TV
+cable_tv,2,tv,cable_tv,national,FALSE,Occurrences,NetworkTV.tsv,Cable TV
+cable_tv_spanish,22,tv,cable_tv,national,TRUE,Occurrences,NetworkTV.tsv,Spanish Language Cable TV
+syndicated_tv,3,tv,syndicated_tv,national,FALSE,Occurrences,NetworkTV.tsv,Syndicated TV
+spot_tv,5,tv,spot_tv,local,FALSE,Occurrences,SpotTV.tsv,Spot TV
+network_tv_clearance,13,tv,network_tv,local,FALSE,Occurrences,SpotTV.tsv,Network Clearance Spot TV
+syndicated_tv_clearance,14,tv,syndicated_tv,local,FALSE,Occurrences,SpotTV.tsv,Syndicated Clearance Spot TV
+local_cable_tv,24,tv,cable_tv,local,FALSE,Occurrences,SpotTV.tsv,Local/Regional Cable TV
+national_magazine,7,print,magazine,national,FALSE,Occurrences,Magazine.tsv,National Magazine
+local_magazine,8,print,magazine,local,FALSE,Occurrences,Magazine.tsv,Local Magazine
+fsi_coupon,12,print,coupon,national,FALSE,Occurrences,FSICoupon.tsv,FSI Coupon
+national_newspaper,9,print,newspaper,national,FALSE,Occurrences,Newspaper.tsv,National Newspaper
+national_sunday_supplement,16,print,sunday_supplement,national,FALSE,Occurrences,Newspaper.tsv,National Sunday Supplement
+local_newspaper,10,print,newspaper,local,FALSE,Occurrences,Newspaper.tsv,Local Newspaper
+local_sunday_supplement,15,print,sunday_supplement,local,FALSE,Occurrences,Newspaper.tsv,Local Sunday Supplement
+network_radio,6,radio,network_radio,national,FALSE,Occurrences,Radio.tsv,Network Radio
+spot_radio,17,radio,spot_radio,local,FALSE,Occurrences,Radio.tsv,Spot Radio
+outdoor,11,outdoor,outdoor,local,FALSE,Occurrences,Outdoor.tsv,Outdoor
+national_internet,25,online,internet,national,FALSE,Occurrences,Internet.tsv,National Internet
+local_internet,26,online,internet,local,FALSE,Occurrences,Internet.tsv,Local Internet
+national_cinema,27,cinema,cinema,national,FALSE,Occurrences,Cinema.tsv,National Cinema
+regional_cinema,28,cinema,cinema,local,FALSE,Occurrences,Cinema.tsv,Regional Cinema
+national_digital,31,online,digital,national,FALSE,Occurrences,Digital.tsv,National Digital
