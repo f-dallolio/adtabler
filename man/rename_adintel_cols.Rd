@@ -4,7 +4,7 @@
 \alias{rename_adintel_cols}
 \title{Rename Adintel Variables}
 \usage{
-rename_adintel_cols(x)
+rename_adintel_cols(x, named = F)
 }
 \arguments{
 \item{name_manual}{character vector.}
