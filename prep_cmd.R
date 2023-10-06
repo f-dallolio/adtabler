@@ -68,6 +68,15 @@ make_grep <- function(year , month){
   command
 }
 
+make_grep_file <- function(media_type_id = NULL, ad_date = NULL, market_code = NULL){
+  if(is.null(ad_date)) ad_date <- "[0-9]{4}-[0-9]{2}-[0-9]{2}"
+  if(is.null(market_code)) market_code <- "[0-9]{1,3}"
+  if(is.null(media_type_id)) media_type_id <- "[0-9]{1,2}"
+  ad_time <- "[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{7}"
+  out <- expand_grid(ad_date, ad_time, market_code, media_type_id)
+  return(out)
+}
+
 make_cmd <- function(command, input_file){
   sprintf(command, file)
 }
@@ -81,19 +90,7 @@ as_yq <- tsibble::yearquarter
 yw <- tsibble::makeyearweek
 ym <- tsibble::makeyearmonth
 yq <- tsibble::makeyearquarter
-yw_date <- function(x){
-  as.date(ywx)
-}
 
-x <- c(yw(2010,1):yw(2012,1),yw(2011,1))
-
-x |> as.Date() |> `names<-`(yw(.))
-
-,
-  "2002-01-01",
-  "2020-01-01") |> yearweek() |> range()
-
-yw(2010,1)
 
 # ------
 data("adintel_info")
