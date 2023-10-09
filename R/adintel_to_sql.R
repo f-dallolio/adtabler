@@ -15,7 +15,7 @@
 #' @examples
 #' adintel_type <- c("Tinyint", "Char", "c")
 #' adintel_to_sql(adintel_type)
-adintel_to_sql <- function(adintel_type, check = TRUE, r_out = FALSE){
+adintel_to_sql <- function(adintel_type, r_out = FALSE){
 
   var_type <- tolower(adintel_type)
 
@@ -36,10 +36,11 @@ adintel_to_sql <- function(adintel_type, check = TRUE, r_out = FALSE){
       var_type %in% c("int", "integer") ~ "integer",
       var_type %in% c("smallint", "tinyint") ~ "smallint",
       var_type %in% c("bigint")  ~ "bigint",
-      var_type %in% c("varchar") ~ "varchar",
-      var_type %in% c("char", "character") ~ "character",
+      # var_type %in% c("varchar") ~ "varchar",
+      # var_type %in% c("char", "character") ~ "character",
+      var_type %in% c("varchar", "char", "character", "text") ~ "varchar",
       var_type %in% c("num", "numeric", "decimal", "double")  ~ "numeric",
-      var_type %in% c("text") ~ "text",
+      # var_type %in% c("text") ~ "text",
       var_type %in% c("date") ~ "date",
       var_type %in% c("time") ~ "time",
       .default = NA
@@ -56,38 +57,17 @@ adintel_to_sql <- function(adintel_type, check = TRUE, r_out = FALSE){
     if(length(out_na_unique) == 1){
 
       out_na_warning <- glue("aditel_type == {out_na_adintel} resulted in NA")
+      warning(out_na_warning, call. = T, )
 
-    } else {
+    } else if (length(out_na_unique) > 1) {
 
       out_na_warning <- glue("aditel_type %in% c({out_na_adintel}) resulted in NA")
+      warning(out_na_warning, call. = T)
 
+    } else {
+      return(out) |> suppressWarnings()
     }
 
-    warning(out_na_warning, call. = FALSE)
-
-  }
-
-  if(check){
-
-    check_tbl <- dplyr::tibble(adintel = adintel_type, out = out) %>%
-      distinct()
-
-    for(i in seq_along(check_tbl$adintel)){
-
-      if(i == max(seq_along(check_tbl$adintel))){
-
-        print(
-          glue::glue("{check_tbl$adintel[i]} -> {check_tbl$out[i]} \n\n")
-        )
-
-      } else {
-
-        print(
-          glue::glue("{check_tbl$adintel[i]} -> {check_tbl$out[i]}")
-        )
-
-      }
-    }
   }
 
   return(out)
