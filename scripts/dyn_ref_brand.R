@@ -33,7 +33,8 @@ for (i in seq_along(new_dirs)){
 brand_df <- dyn_ref_df |>
   filter(file_type2 == "brand")
 
-seq <- seq_along(brand_df$input_file)
+
+seq <- seq_along(ref_nobrand_df$input_file)
 i=1
 for(i in seq) {
 

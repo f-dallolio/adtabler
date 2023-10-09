@@ -8,6 +8,13 @@ library(adtabler)
 library(bit64)
 
 
+
+sfread <- quietly(fread)
+sfread <- safely(sfread, otherwise = NA)
+
+
+
+
 adintel_dir <- "/mnt/sata_data_1/adintel/"
 new_adintel_dir <- "/mnt/sata_data_1/new_adintel/"
 
@@ -30,14 +37,28 @@ new_dirs <- unique(dyn_ref_df$new_dir)
 for (i in seq_along(new_dirs)){
   if(!dir.exists(new_dirs[[i]]))  dir.create(new_dirs[[i]], recursive = TRUE)}
 
-brand_df <- dyn_ref_df |>
-  filter(file_type2 == "brand")
 
-seq <- seq_along(brand_df$input_file)
+
+ref_digital_df_small <- dyn_ref_df |>
+  filter(file_type2 != "brand") |>
+  filter(file_type2 |> str_detect("digital_creative")) |>
+  mutate(size_gb = file.size(input_file)/1024^3,
+         .before = file_year) |>
+  filter(size_gb < 10)
+
+
+
+seq <- seq_along(ref_digital_df_small$input_file)
+bad_out <- tibble(
+  input_file = ref_digital_df_small$input_file,
+  errors = rep(NA_character_, length(seq)),
+  warnings = rep(NA_character_, length(seq))
+)
 i=1
+
 for(i in seq) {
 
-  xdf <- slice(brand_df, i)
+  xdf <- slice(ref_digital_df_small, i)
   input_file <- xdf$input_file
   new_file <- xdf$new_file
 
@@ -51,23 +72,24 @@ for(i in seq) {
   t_init <- Sys.time()
   print(glue("{ t_init } \n\n\n"))
 
-  old_df <- fread(
+  safe_df <- sfread(
     input = input_file,
-    sep = "",
-    quote = ""
+    sep = "\t",
   )
 
-  old_names <- names(old_df) |> str_split("\t") |> list_c()
+  has_error <- length(safe_df$error) != 0
+  has_warning <- length(safe_df$result$warnings) != 0
+  all_ok <- !has_error & !has_warning
 
-  new_df_chr <- old_df[[1]] |> str_replace_all('\t\"', '\"')
 
-  new_df <- fread(
-    text = new_df_chr,
-    sep = "\t"
-  )
-
-  names(new_df) <- old_names
-  fwrite(x = new_df, file = new_file)
+  if(all_ok){
+    new_df <- safe_df$result$result
+    fwrite(x = new_df, file = new_file)
+  } else if (has_warning) {
+    bad_out$warnings[i] <- safe_df$result$warnings
+  } else if (has_error){
+    bad_out$errors[i] <- safe_df$error
+  }
 
   t_end2 <- Sys.time()
   t_total2 <- t_end2- t_init
@@ -76,7 +98,7 @@ for(i in seq) {
 
 }
 
-# source("~/Documents/r_wd/adtabler/test_pcc.R")
+# source("~/Documents/r_wd/adtabler/scripts/dyn_ref_digital_small.R")
 
 
 

@@ -3,6 +3,7 @@
 export(adintel_to_sql)
 export(as_numint)
 export(chr_to_num)
+export(encoding_utf8)
 export(get_adintel_tables)
 export(get_dynamic_file)
 export(get_static_file)
