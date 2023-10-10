@@ -4,7 +4,7 @@
 \alias{adintel_to_sql}
 \title{Replace "adintel" data types with "(postgre)SQL" data types}
 \usage{
-adintel_to_sql(adintel_type, check = TRUE, r_out = FALSE)
+adintel_to_sql(adintel_type, r_out = FALSE)
 }
 \arguments{
 \item{adintel_type}{a character vector.}
