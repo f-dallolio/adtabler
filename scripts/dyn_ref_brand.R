@@ -34,7 +34,7 @@ brand_df <- dyn_ref_df |>
   filter(file_type2 == "brand")
 
 
-seq <- seq_along(ref_nobrand_df$input_file)
+seq <- seq_along(brand_df$input_file)
 i=1
 for(i in seq) {
 
@@ -77,7 +77,5 @@ for(i in seq) {
 
 }
 
-# source("~/Documents/r_wd/adtabler/test_pcc.R")
-
-
+# source("~/Documents/r_wd/adtabler/scripts/dyn_ref_brand.R")
 

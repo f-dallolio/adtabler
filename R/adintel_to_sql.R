@@ -38,9 +38,9 @@ adintel_to_sql <- function(adintel_type, r_out = FALSE){
       var_type %in% c("bigint")  ~ "bigint",
       # var_type %in% c("varchar") ~ "varchar",
       # var_type %in% c("char", "character") ~ "character",
-      var_type %in% c("varchar", "char", "character", "text") ~ "varchar",
+      var_type %in% c("varchar", "char", "character") ~ "varchar",
+      var_type %in% c("text") ~ "text",
       var_type %in% c("num", "numeric", "decimal", "double")  ~ "numeric",
-      # var_type %in% c("text") ~ "text",
       var_type %in% c("date") ~ "date",
       var_type %in% c("time") ~ "time",
       .default = NA
