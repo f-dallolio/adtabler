@@ -15,3 +15,6 @@ a character vector.
 \description{
 Turns unquoted names to strings.
 }
+\examples{
+unquoted_to_chr(a,b,c)
+}

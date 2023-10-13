@@ -7,12 +7,10 @@
 #'
 #' @examples
 #'
-#'
-# x <- c("fa\u00E7ile", "fa\xE7ile", "fa\xC3\xA7ile")
-# Encoding(x) <- c("UTF-8", "UTF-8", "bytes")
-# check_utf8(x)
-# check_utf8(data.frame(x=x, y = x))
-#
+#' x <- c("fa\u00E7ile", "fa\xE7ile", "fa\xC3\xA7ile")
+#' Encoding(x) <- c("UTF-8", "UTF-8", "bytes")
+#' check_utf8(x)
+#' check_utf8(data.frame(x=x, y = x))
 check_utf8 <- function(x){
   is_df <- is.data.frame(x)
   if (is_df) {
@@ -26,12 +24,12 @@ check_utf8 <- function(x){
     } else {
       return(glue::glue('The following columns have invalid UTF-8 elements: c({glue:: glue_collapse(no_utf8, sep = ", ")})'))
     }
-  } else {
-    out <- utf8::utf8_valid(x) |> all()
-    if(out) {
-      return("OK")
-    } else {
-      return('There are invalid UTF-8 elements')
-    }
   }
+  out <- utf8::utf8_valid(x) |> all()
+  if(out) {
+    return("OK")
+  } else {
+    return('There are invalid UTF-8 elements')
+  }
+
 }

@@ -15,3 +15,10 @@ a string reporting 'OK' if all elements can be transmated into valid UTF-8 or a 
 \description{
 Check for the elements of a character object can be translated into valid UTF-8
 }
+\examples{
+
+x <- c("fa\u00E7ile", "fa\xE7ile", "fa\xC3\xA7ile")
+Encoding(x) <- c("UTF-8", "UTF-8", "bytes")
+check_utf8(x)
+check_utf8(data.frame(x=x, y = x))
+}
