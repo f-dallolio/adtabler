@@ -48,7 +48,7 @@ for(i in seq_along(ue_df$input_file)){
   new_df_temp <- read_tsv(input_file)
   new_df <- new_df_temp |> mutate(across(where(is.character), lat1_to_utf8))
 
-  write_csv(new_df, new_file)
+  fwrite(new_df, new_file)
   print(str_c(i, file_name, sep = " - "))
 
 }

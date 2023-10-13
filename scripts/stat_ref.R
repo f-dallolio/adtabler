@@ -3,7 +3,7 @@ library(dtplyr)
 library(tidyverse)
 library(rlang)
 library(glue)
-# devtools::install_github("f-dallolio/adtabler")
+devtools::install_github("f-dallolio/adtabler")
 library(adtabler)
 library(bit64)
 
@@ -36,13 +36,15 @@ stat_ref_df <-  list.files(adintel_dir, full.names = T, recursive = T) |>
 stat_ref_df
 
 i=1
-for(i in seq_along(stat_ref_df$input_file)){
+i_seq <- seq_along(stat_ref_df$input_file)
+utf8_ok <- rep(NA, length(i_seq))
+for(i in i_seq){
   input_file <- stat_ref_df$input_file[i]
   new_file <- stat_ref_df$new_file[i]
   file_name <- new_file |> str_split_i("/", -1)
 
-  new_df_temp <- read_tsv(input_file)
-  new_df <- new_df_temp |> mutate(across(where(is.character), lat1_to_utf8))
+  new_df <- read_tsv(input_file)
+  utf8_ok[[i]] <- check_utf8(new_df)
 
   write_csv(new_df, new_file)
   print(str_c(i, file_name, sep = " - "))

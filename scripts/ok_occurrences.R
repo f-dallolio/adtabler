@@ -8,40 +8,8 @@ library(adtabler)
 library(bit64)
 
 
-fn <- function(...){
-  out <- enquos(..., .named = TRUE)
-  names(out)
-}
-
-check_utf8 <- function(x){
-  is_df <- is.data.frame(x)
-  if (is_df) {
-    x_chr <- map_vec(x, is.character) |>
-      which(useNames = TRUE)
-    out <- map_vec(x_chr, ~ utf8::utf8_valid(x[[.x]]) |> all()) |>
-      set_names(names(x_chr))
-    no_utf8 <- names(out[!out])
-    if(length(no_utf8) == 0){
-      return("OK")
-    } else {
-      return(str_c('The following columns have invalid UTF-8 elements: c(',
-                   glue:: glue_collapse(no_utf8, sep = ", "), ')'))
-    }
-  } else {
-    out <- utf8::utf8_valid(x) |> all()
-    if(out) {
-      return("OK")
-    } else {
-      return('There are invalid UTF-8 elements')
-    }
-  }
-}
-
-
-
 paths_df <- list.files(path = '/mnt/sata_data_1/new_adintel/', recursive = TRUE, full.names = TRUE) |>
   as_tibble_col(column_name = "file_path") |>
-  # mutate(size_mb = file.size(file_path)/1024^2) |>
   mutate(
     short_path = list.files(path = '/mnt/sata_data_1/new_adintel/', recursive = TRUE),
     num_subfolders = short_path |> str_count("/"),
@@ -81,30 +49,30 @@ occurrences_df <- paths_df |>
 
 
 occurrences_ukey_table <- list(
-  network_tv = fn(AdDate, AdTime, MarketCode, MediaTypeID, DistributorCode, AdCode, GrpPercentage, MonitorPlusProgramCode) |> rename_adintel(),
-  spanish_language_network_tv = fn(AdDate, AdTime, MarketCode, MediaTypeID, DistributorCode, AdCode, MonitorPlusProgramCode) |> rename_adintel(),
-  cable_tv = fn(AdDate, AdTime, MarketCode, MediaTypeID, DistributorCode, AdCode, MonitorPlusProgramCode) |> rename_adintel(),
-  spanish_language_cable_tv = fn(AdDate, AdTime, MarketCode, MediaTypeID, DistributorCode, AdCode) |> rename_adintel(),
-  syndicated_tv = fn(AdDate, AdTime, MarketCode, MediaTypeID, DistributorCode, AdCode, NielsenProgramCode, TelecastNumber) |> rename_adintel(),
-  spot_tv = fn(AdDate, AdTime, MarketCode, MediaTypeID, DistributorCode, AdCode) |> rename_adintel(),
-  network_clearance_spot_tv = fn(AdDate, AdTime, MarketCode, MediaTypeID, DistributorCode, AdCode) |> rename_adintel(),
-  syndicated_clearance_spot_tv = fn(AdDate, AdTime, MarketCode, MediaTypeID, DistributorCode, AdCode) |> rename_adintel(),
-  local_regional_cable_tv = fn(AdDate, AdTime, MarketCode, MediaTypeID, DistributorCode, AdCode) |> rename_adintel(),
-  national_magazine = fn(AdDate, MarketCode, MediaTypeID, DistributorID, Spend, AdCode, AdNumber) |> rename_adintel(),
-  local_magazine = fn(AdDate, MarketCode, MediaTypeID, DistributorCode, Spend, AdCode) |> rename_adintel(),
-  fsi_coupon = fn(AdDate, MarketCode, MediaTypeID, AdCode, SourceCode, OffValue, CouponID) |> rename_adintel(),
-  national_newspaper = fn(AdDate, MarketCode, MediaTypeID, DistributorCode, Spend, AdCode, NewspAdSize, NewspEventCode, NewspSecCode) |> rename_adintel(),
-  national_sunday_supplement = fn(AdDate, MarketCode, MediaTypeID, DistributorCode, Spend, AdCode, NewspAdSize, NewspEventCode, NewspSecCode) |> rename_adintel(),
-  local_newspaper = fn(AdDate, MarketCode, MediaTypeID, DistributorCode, Spend, AdCode, NewspAdSize, NewspEventCode, NewspSecCode) |> rename_adintel(),
-  local_sunday_supplement = fn(AdDate, MarketCode, MediaTypeID, DistributorCode, Spend, AdCode, NewspAdSize, NewspEventCode, NewspSecCode) |> rename_adintel(),
-  network_radio = fn(AdDate, MarketCode, MediaTypeID, DistributorCode, AdCode) |> rename_adintel(),
-  spot_radio = fn(AdDate, MarketCode, MediaTypeID, DistributorCode, AdCode, AdTime, RadioDaypartID) |> rename_adintel(),
-  outdoor = fn(AdDate, MarketCode, MediaTypeID, DistributorCode, AdCode) |> rename_adintel(),
-  national_internet = fn(AdDate, MarketCode, MediaTypeID, DistributorCode, AdCode) |> rename_adintel(),
-  local_internet = fn(AdDate, MarketCode, MediaTypeID, DistributorCode, AdCode) |> rename_adintel(),
-  national_cinema = fn(AdDate, MarketCode, MediaTypeID, AdCode) |> rename_adintel(),
-  regional_cinema = fn(AdDate, MarketCode, MediaTypeID, AdCode) |> rename_adintel(),
-  national_digital = fn(AdDate, MarketCode, MediaTypeID, DistributorCode, AdCode, AdPlatformId, AdTypeId) |> rename_adintel()
+  network_tv = unquoted_to_chr(AdDate, AdTime, MarketCode, MediaTypeID, DistributorCode, AdCode, GrpPercentage, MonitorPlusProgramCode) |> rename_adintel(),
+  spanish_language_network_tv = unquoted_to_chr(AdDate, AdTime, MarketCode, MediaTypeID, DistributorCode, AdCode, MonitorPlusProgramCode) |> rename_adintel(),
+  cable_tv = unquoted_to_chr(AdDate, AdTime, MarketCode, MediaTypeID, DistributorCode, AdCode, MonitorPlusProgramCode) |> rename_adintel(),
+  spanish_language_cable_tv = unquoted_to_chr(AdDate, AdTime, MarketCode, MediaTypeID, DistributorCode, AdCode) |> rename_adintel(),
+  syndicated_tv = unquoted_to_chr(AdDate, AdTime, MarketCode, MediaTypeID, DistributorCode, AdCode, NielsenProgramCode, TelecastNumber) |> rename_adintel(),
+  spot_tv = unquoted_to_chr(AdDate, AdTime, MarketCode, MediaTypeID, DistributorCode, AdCode) |> rename_adintel(),
+  network_clearance_spot_tv = unquoted_to_chr(AdDate, AdTime, MarketCode, MediaTypeID, DistributorCode, AdCode) |> rename_adintel(),
+  syndicated_clearance_spot_tv = unquoted_to_chr(AdDate, AdTime, MarketCode, MediaTypeID, DistributorCode, AdCode) |> rename_adintel(),
+  local_regional_cable_tv = unquoted_to_chr(AdDate, AdTime, MarketCode, MediaTypeID, DistributorCode, AdCode) |> rename_adintel(),
+  national_magazine = unquoted_to_chr(AdDate, MarketCode, MediaTypeID, DistributorID, Spend, AdCode, AdNumber) |> rename_adintel(),
+  local_magazine = unquoted_to_chr(AdDate, MarketCode, MediaTypeID, DistributorCode, Spend, AdCode) |> rename_adintel(),
+  fsi_coupon = unquoted_to_chr(AdDate, MarketCode, MediaTypeID, AdCode, SourceCode, OffValue, CouponID) |> rename_adintel(),
+  national_newspaper = unquoted_to_chr(AdDate, MarketCode, MediaTypeID, DistributorCode, Spend, AdCode, NewspAdSize, NewspEventCode, NewspSecCode) |> rename_adintel(),
+  national_sunday_supplement = unquoted_to_chr(AdDate, MarketCode, MediaTypeID, DistributorCode, Spend, AdCode, NewspAdSize, NewspEventCode, NewspSecCode) |> rename_adintel(),
+  local_newspaper = unquoted_to_chr(AdDate, MarketCode, MediaTypeID, DistributorCode, Spend, AdCode, NewspAdSize, NewspEventCode, NewspSecCode) |> rename_adintel(),
+  local_sunday_supplement = unquoted_to_chr(AdDate, MarketCode, MediaTypeID, DistributorCode, Spend, AdCode, NewspAdSize, NewspEventCode, NewspSecCode) |> rename_adintel(),
+  network_radio = unquoted_to_chr(AdDate, MarketCode, MediaTypeID, DistributorCode, AdCode) |> rename_adintel(),
+  spot_radio = unquoted_to_chr(AdDate, MarketCode, MediaTypeID, DistributorCode, AdCode, AdTime, RadioDaypartID) |> rename_adintel(),
+  outdoor = unquoted_to_chr(AdDate, MarketCode, MediaTypeID, DistributorCode, AdCode) |> rename_adintel(),
+  national_internet = unquoted_to_chr(AdDate, MarketCode, MediaTypeID, DistributorCode, AdCode) |> rename_adintel(),
+  local_internet = unquoted_to_chr(AdDate, MarketCode, MediaTypeID, DistributorCode, AdCode) |> rename_adintel(),
+  national_cinema = unquoted_to_chr(AdDate, MarketCode, MediaTypeID, AdCode) |> rename_adintel(),
+  regional_cinema = unquoted_to_chr(AdDate, MarketCode, MediaTypeID, AdCode) |> rename_adintel(),
+  national_digital = unquoted_to_chr(AdDate, MarketCode, MediaTypeID, DistributorCode, AdCode, AdPlatformId, AdTypeId) |> rename_adintel()
 ) |>
   imap(~ tibble(name = .y, unique_key = .x)) |>
   list_rbind() |>
