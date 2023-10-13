@@ -16,7 +16,7 @@ check_utf8 <- function(x){
   if (is_df) {
     x_chr <- purrr::map_vec(x, is.character) |>
       which(useNames = TRUE)
-    out <- purrr::map_vec(x_chr, ~ utf8::utf8_valid(x[[.x]]) |> all()) |>
+    out <- purrr::map_vec(x_chr, ~ utf8::utf8_valid(x[[.x]]) |> all(na.rm = TRUE)) |>
       purrr::set_names(names(x_chr))
     no_utf8 <- names(out[!out])
     if(length(no_utf8) == 0){
@@ -25,7 +25,7 @@ check_utf8 <- function(x){
       return(glue::glue('The following columns have invalid UTF-8 elements: c({glue:: glue_collapse(no_utf8, sep = ", ")})'))
     }
   }
-  out <- utf8::utf8_valid(x) |> all()
+  out <- utf8::utf8_valid(x) |> all(na.rm = TRUE)
   if(out) {
     return("OK")
   } else {
