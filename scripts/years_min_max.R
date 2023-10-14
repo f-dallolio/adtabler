@@ -44,7 +44,7 @@ prod_list <- prod_table |>
   split(prod_table$year) |>
   map(~ .x |> pivot_wider(names_from = file_type2, values_from = file_path))
 
-df <- prod_list[[9]]
+df <- prod_list[[10]]
 
 make_products_tbl <- function(df){
   year = df$year
@@ -91,6 +91,13 @@ for (i in seq_along(i_seq)) {
   all_products[[i]] <- make_products_tbl(prod_list[[i]])
 }
 
-all_products <- prod_list |> map(make_products_tbl, .progress = TRUE) |>
-  list_rbind()
+x <- all_products |>
+  list_rbind() |>
+  select(year, where(is.character), product_id) |>
+  relocate(adv_parent_desc, adv_subsid_desc, .after = brand_variant) |>
+  inner_join(date_year_minmax)
 
+xx <- x |> nest(.by = !c(year : date_max))
+xx |>
+  mutate(n = map(year, NROW) |> list_c(),
+         year)
