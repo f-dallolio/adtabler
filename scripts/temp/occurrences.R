@@ -7,15 +7,11 @@ devtools::install_github('f-dallolio/adtabler')
 library(adtabler)
 
 to_c <- function(...){
-  if(is.character(...)){
-    out <- str_remove_all(..., " ") |>
-      str_split(",") |>
-      unlist()
-    return(out)
-  }
   out <- rlang::enquos(..., .named = TRUE)
   names(out)
 }
+to_c(a,b,c)
+
 
 
 

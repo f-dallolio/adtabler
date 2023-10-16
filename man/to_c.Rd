@@ -15,6 +15,3 @@ a character vector.
 \description{
 To character vector
 }
-\examples{
-to_c("a,b,c")
-}
