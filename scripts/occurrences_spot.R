@@ -18,44 +18,21 @@ make_grep_file <- function(media_type_id = NULL, ad_date = NULL, market_code = N
   if(is.null(market_code)) market_code <- "[0-9]{1,3}"
   if(is.null(media_type_id)) media_type_id <- "[0-9]{1,2}"
   ad_time <- c("[0-9][0-9][:][0-9][0-9][:][0-9][0-9][.0-9]*")
-  # out <- expand_grid(ad_date, ad_time, market_code, media_type_id)
-  out <- expand_grid(ad_date, market_code, media_type_id)
+  out <- expand_grid(ad_date, ad_time, market_code, media_type_id)
   return(out)
 }
 
 
 file_df <- list.files(adintel_dir, full.names = T, recursive = T) |>
   str_subset("Occurrences") |>
-  str_subset("Digital") |>
   as_tibble_col("input_file") |>
   mutate(file_type = str_split_i(input_file, "/", -2) |> rename_adintel(),
          file_type2 = str_split_i(input_file, "/", -1) |> rename_adintel() |> str_remove_all(".tsv"),
          file_year = str_split_i(input_file, "/", -3) |> as.numeric(),
          date_min1 = str_c(file_year - 1 ,"12", "24", sep = "-") |> as.Date(),
-         date_max1 = str_c(file_year ,"01", "31", sep = "-") |> as.Date(),
+         date_max1 = str_c(file_year ,"06", "30", sep = "-") |> as.Date(),
          date_min2 = date_max1 + 1,
-         date_max2 = str_c(file_year ,"03", "01", sep = "-") |> as.Date(),
-         date_max2 = date_max2 - 1,
-         date_min3 = date_max2 + 1,
-         date_max3 = str_c(file_year ,"03", "31", sep = "-") |> as.Date(),
-         date_min4 = date_max3 + 1,
-         date_max4 = str_c(file_year ,"04", "30", sep = "-") |> as.Date(),
-         date_min5 = date_max4 + 1,
-         date_max5 = str_c(file_year ,"05", "31", sep = "-") |> as.Date(),
-         date_min6 = date_max5 + 1,
-         date_max6 = str_c(file_year ,"06", "30", sep = "-") |> as.Date(),
-         date_min7 = date_max6 + 1,
-         date_max7 = str_c(file_year ,"07", "31", sep = "-") |> as.Date(),
-         date_min8 = date_max7 + 1,
-         date_max8 = str_c(file_year ,"08", "31", sep = "-") |> as.Date(),
-         date_min9 = date_max8 + 1,
-         date_max9 = str_c(file_year ,"09", "30", sep = "-") |> as.Date(),
-         date_min10 = date_max9 + 1,
-         date_max10 = str_c(file_year ,"10", "31", sep = "-") |> as.Date(),
-         date_min11 = date_max10 + 1,
-         date_max11 = str_c(file_year ,"11", "30", sep = "-") |> as.Date(),
-         date_min12 = date_max11 + 1,
-         date_max12 = str_c(file_year + 1 ,"01", "06", sep = "-") |> as.Date()) |>
+         date_max2 = str_c(file_year + 1 ,"01", "06", sep = "-") |> as.Date()) |>
   relocate(input_file, .after = -1) |>
   pivot_longer(contains("date")) |>
   mutate(chunk = str_replace_all(name, "date_m[a-z][a-z]", "chunk"),
@@ -119,7 +96,7 @@ fn <- function(media_type_id, date_min, date_max, input_file, new_file){
 }
 
 data_df <- media_df |>
-  filter(file_type2 == "digital",
+  filter(file_type2 == "local_tv",
          file_year %in% 2010:2022)
 
 i=1
@@ -143,5 +120,4 @@ for(i in seq) {
 
 }
 
-
-# source("~/Documents/r_wd/adtabler/scripts/adtabler_fn_digital.R")
+# source('~/Documents/r_wd/adtabler/scripts/adtabler_fn.R')

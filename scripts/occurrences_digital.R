@@ -144,4 +144,4 @@ for(i in seq) {
 }
 
 
-# source("~/Documents/r_wd/adtabler/scripts/adtabler_fn_digital.R")
+# source("~/Documents/r_wd/adtabler/scripts/adtabler_fn_digital_2021.R")
