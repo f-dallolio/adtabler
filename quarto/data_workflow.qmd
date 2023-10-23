@@ -1,0 +1,171 @@
+---
+title: "Data WorkFlow"
+author: "Filippo Dall'Olio"
+format: 
+  html:
+    page-layout: full
+editor: visual
+editor_options: 
+  chunk_output_type: inline
+---
+
+# Preparation
+
+## Pakages
+
+First, I load the required packages.
+
+```{r}
+devtools::install_github("f-dallolio/adtabler", quiet = TRUE)
+
+library(tidyverse, quietly = TRUE)
+library(tsibble, quietly = TRUE)
+library(rlang, quietly = TRUE)
+library(glue, quietly = TRUE)
+library(adtabler, quietly = TRUE)
+```
+
+## Helper Functions:
+
+1.  Strings
+
+```{r}
+#| output: false
+# Ignore cases. Useful in e.g. str_detect()
+no_case <- function(pattern) {
+  stringr::regex(pattern, ignore_case = TRUE)
+}
+
+# Pad  integers with zero.
+numpad <- function(x, width = NULL) {
+  stopifnot(is.numeric(x))
+  if (is.null(x)) {
+    width <- max(nchar(as.character(x)))
+  }
+  stringr::str_pad(
+    string = x,
+    width = width,
+    side = "left",
+    pad = "0",
+  )
+}
+# Shorthand with max padding of 2. Useful for months, days, hours, etc.
+numpad2 <- function(x) {
+  numpad(x, width = 2)
+}
+# Shorthand with max padding of 4. Useful for years
+numpad4 <- function(x) {
+  numpad(x, width = 4)
+}
+```
+
+2.  Dates
+
+```{r}
+make_yearweek2 <- function(year, week = NULL, week_start = getOption("lubridate.week.start", 1)) {
+  if (is.null(week)) {
+    out <- map(year, ~ tsibble::make_yearweek(.x, 1:(52 + tsibble::is_53weeks(.x)), week_start))
+  } else {
+    out <- map(year, ~ tsibble::make_yearweek(year = .x, week = week, week_start))
+  }
+  return(out)
+}
+```
+
+## Load Data (one year at the time)
+
+Defina the directory containing the AdIntel folders and retrieve data paths:
+
+```{r}
+adintel_folder <- "/mnt/sata_data_1/adintel/ADINTEL_DATA_2010/"
+adintel_files <- list.files(adintel_folder, recursive = TRUE, full.names = TRUE)
+```
+
+Then retrieve and describe file paths for static creferences:
+
+```{r}
+static_references <- adintel_files |>
+  str_subset(pattern = no_case("master_file")) |>
+  str_subset(pattern = no_case("latest")) |>
+  as_tibble_col(column_name = "full_file_name") |>
+  mutate(
+    file_name = full_file_name |>
+      str_split_i("/", -1),
+    file_name_std = file_name |>
+      str_split_i("\\.", -2) |>
+      rename_adintel()
+  )
+# static_references
+```
+
+Retrieve and describe file paths for "dynamic" files (i.e. they can change year by year):
+
+```{r}
+dyn_files <- adintel_files |>
+  str_subset(pattern = no_case("master_file"), negate = TRUE) |>
+  as_tibble_col("full_file_name") |>
+  mutate(
+    year = full_file_name |>
+      str_split_i("/", -3) |>
+      as.integer(),
+    file_type = full_file_name |>
+      str_split_i("/", -2),
+    file_name = full_file_name |>
+      str_split_i("/", -1),
+    file_name_std = file_name |>
+      str_split_i("\\.", -2) |>
+      rename_adintel()
+  )
+# dyn_files
+```
+
+Retrieve file paths for different types of data. First check unique file_type names. Here the output is the renamed/standardized names vector of file_type names with the originals as names.
+
+```{r}
+dyn_files$file_type |>
+  unique() |>
+  rename_adintel() |>
+  set_names(dyn_files$file_type |> unique())
+```
+
+### References
+
+```{r}
+# Filter file paths
+references_files <- dyn_files |>
+  filter(str_detect(file_type, no_case("references")))
+```
+
+Retrieve file's number of rows.
+
+```{r}
+  read_nrows(df_out = FALSE, references_files$full_file_name)
+```
+
+### Impressions
+
+```{r}
+impressions_files <- dyn_files |>
+  filter(str_detect(file_type, no_case("impressions")))
+```
+
+### Market Breaks
+
+```{r}
+market_breaks_files <- dyn_files |>
+  filter(str_detect(file_type, no_case("market_breaks")))
+```
+
+### Occurrences
+
+```{r}
+occurrences_files <- dyn_files |>
+  filter(str_detect(file_type, no_case("occurrences")))
+```
+
+### Universe Estimates
+
+```{r}
+universe_estimates_files <- dyn_files |>
+  filter(str_detect(file_type, no_case("universe_estimates")))
+```

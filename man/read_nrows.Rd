@@ -4,12 +4,12 @@
 \alias{read_nrows}
 \title{Read the number of rows of a file}
 \usage{
-read_nrows(full_name, df_out = TRUE)
+read_nrows(full_name, list_out = FALSE, df_out = FALSE)
 }
 \arguments{
 \item{full_name}{a string.}
 
-\item{df_out}{logical. If TRUE (default) it returns a tibble (or data.frame).}
+\item{df_out}{logical.}
 }
 \value{
 a list or a tibble/data.frame.
