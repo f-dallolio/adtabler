@@ -75,6 +75,7 @@ make_yearweek2 <- function(year, week = NULL, week_start = getOption("lubridate.
 3.  Dates Check
 
 Check if the dates in a file include somne of the previous year.
+
 ```{r}
 # Non vectorized
 check_previous_year_i <- function(file, year){
@@ -107,13 +108,28 @@ check_previous_year_i <- function(file, year){
 }
 
 # Vectorized
-check_previous_year <- Vectorize(check_previous_year_i, 
-                                 vectorize.args = "file", 
-                                 USE.NAMES = FALSE)
+check_previous_year <- Vectorize(check_previous_year_i, USE.NAMES = FALSE)
+
+# min_date_year_i <- function(file, year){
+#   cmd_out <- glue("grep -E -o '{year}-01-[0-9][0-9]' %s") |> 
+#     as.character() |> sprintf(shQuote(file))
+#   out_temp <- check_previous_year_i(file, year)
+#   if (is.na(out_temp)) {
+#     out <-  system(cmd_out, intern = TRUE) |> 
+#       unique() |> 
+#       sort()
+#     return(out[[1]])
+#   }
+#   try(sort(out_temp, decreasing = TRUE)[[1]])
+# }
+
+# min_date_year <- Vectorize(min_date_year_i, USE.NAMES = FALSE)
 ```
 
 Check if the dates in a file include somne of the next year.
+
 ```{r}
+max_date_year_i(file, year)
 # Non Vectorized
 check_next_year_i <- function(file, year){
   
@@ -134,10 +150,10 @@ check_next_year_i <- function(file, year){
     elapsed <- t_end - t_start
     print(elapsed)
     return(
-      sort(out)[[1]]
+      sort(out, decreasing = TRUE)[[1]]
     )
   } else {
-    print(glue("There are no {year + 1} dates in {year}'s '{ file_name }'.."))
+    print(glue("There are no {year + 1} dates in {year}'s '{ file_name }'."))
     return(
       NA
     )
@@ -145,13 +161,38 @@ check_next_year_i <- function(file, year){
 }
 
 # Vectorized
-check_next_year <- Vectorize(check_next_year_i, 
-                             vectorize.args = "file", 
-                             USE.NAMES = FALSE)
+check_next_year <- Vectorize(check_next_year_i, USE.NAMES = FALSE)
+
+
+# max_date_year_i <- function(file, year){
+#   cmd_out <- glue("grep -E -o '{year}-12-[0-9][0-9]' %s") |> 
+#     as.character() |> sprintf(shQuote(file))
+#   out_temp <- check_next_year_i(file, year)
+#   if (is.na(out_temp)) {
+#     out <-  system(cmd_out, intern = TRUE) |> 
+#       unique() |> 
+#       sort(decreasing = T)
+#     return(out[[1]])
+#   } else {
+#     return(sort(out_temp, decreasing = TRUE)[[1]])
+#   }
+# }
+
+# max_date_year <- Vectorize(max_date_year_i, USE.NAMES = FALSE)
+```
+
+```{r}
+
+check_previous_year(occurrences_files$full_file_name,
+                    occurrences_files$year)
+occurrences_files |> 
+  mutate(max_date = max_date_year(full_file_name,year))
+
 ```
 
 
-3. Data Read
+
+3.  Data Read
 
 ```{r}
 # Read number of rows. 
@@ -211,15 +252,7 @@ read_row1 <- function(file, to_string = FALSE) {
   }
   out
 }
-
-
-
-
 ```
-
-
-
-
 
 ## Load Data (one year at the time)
 
