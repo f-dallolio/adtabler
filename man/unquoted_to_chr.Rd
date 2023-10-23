@@ -16,5 +16,5 @@ a character vector.
 Turns unquoted names to strings.
 }
 \examples{
-unquoted_to_chr(a,b,c)
+unquoted_to_chr(a, b, c)
 }

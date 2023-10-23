@@ -20,5 +20,5 @@ Check for the elements of a character object can be translated into valid UTF-8
 x <- c("fa\u00E7ile", "fa\xE7ile", "fa\xC3\xA7ile")
 Encoding(x) <- c("UTF-8", "UTF-8", "bytes")
 check_utf8(x)
-check_utf8(data.frame(x=x, y = x))
+check_utf8(data.frame(x = x, y = x))
 }
