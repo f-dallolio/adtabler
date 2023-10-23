@@ -81,7 +81,7 @@ adintel_folder <- "/mnt/sata_data_1/adintel/ADINTEL_DATA_2010/"
 adintel_files <- list.files(adintel_folder, recursive = TRUE, full.names = TRUE)
 ```
 
-Then retrieve and describe file paths for static creferences:
+Then retrieve and describe file paths for static references:
 
 ```{r}
 static_references <- adintel_files |>
@@ -93,7 +93,7 @@ static_references <- adintel_files |>
       str_split_i("/", -1),
     file_name_std = file_name |>
       str_split_i("\\.", -2) |>
-      rename_adintel()
+      adtabler::rename_adintel()
   )
 # static_references
 ```
@@ -139,7 +139,12 @@ references_files <- dyn_files |>
 Retrieve file's number of rows.
 
 ```{r}
-  read_nrows(df_out = FALSE, references_files$full_file_name)
+f <- Vectorize(read_nrows)
+f(references_files$full_file_name)
+references_files <- references_files |> 
+  mutate(nrows = full_file_name |)
+
+full_name = references_files$full_file_name[[1]]
 ```
 
 ### Impressions

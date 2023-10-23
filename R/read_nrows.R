@@ -6,8 +6,8 @@
 #' @return a list or a tibble/data.frame.
 #' @export
 #'
-read_nrows <- function(full_name, list_out = FALSE, df_out = FALSE){
-  cmd_out <- sprintf("wc -l %s", full_name) |>
+read_nrows <- function(full_name, header = TRUE, list_out = FALSE, df_out = FALSE){
+  cmd_out <- sprintf("wc -l %s", shQuote(full_name))|>
     system(intern = TRUE) |>
     strsplit(" ") |>
     unlist()
@@ -16,7 +16,7 @@ read_nrows <- function(full_name, list_out = FALSE, df_out = FALSE){
     return(
       list(
         full_name = cmd_out[[2]],
-        n = as.integer(cmd_out[[1]])
+        n = as.integer(cmd_out[[1]]) - header
       )
     )
   }
@@ -25,9 +25,9 @@ read_nrows <- function(full_name, list_out = FALSE, df_out = FALSE){
    return(
      dplyr::tibble(
        full_name = cmd_out[[2]],
-       n = as.integer(cmd_out[[1]])
+       n = as.integer(cmd_out[[1]]) - header
      )
    )
   }
-  as.integer(cmd_out[[1]])
+  as.integer(cmd_out[[1]]) - header
 }

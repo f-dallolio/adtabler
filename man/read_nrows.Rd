@@ -4,7 +4,7 @@
 \alias{read_nrows}
 \title{Read the number of rows of a file}
 \usage{
-read_nrows(full_name, list_out = FALSE, df_out = FALSE)
+read_nrows(full_name, header = TRUE, list_out = FALSE, df_out = FALSE)
 }
 \arguments{
 \item{full_name}{a string.}
