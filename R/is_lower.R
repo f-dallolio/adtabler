@@ -5,11 +5,10 @@
 #'
 #' @return a vector. When which is FALSE it returns a vectors with TRUE/FALSE. When which is TRUE it returns the position of lowercase characters.
 #' @export
-is_lower <- function(x, which = FALSE){
+is_lower <- function(x, which = FALSE) {
   stopifnot(is.character(x))
-  if(which){
-    return(stringr::str_which(x, "^[:lower:]+$")
-    )
+  if (which) {
+    return(stringr::str_which(x, "^[:lower:]+$"))
   }
   stringr::str_detect(x, "^[:lower:]+$")
 }

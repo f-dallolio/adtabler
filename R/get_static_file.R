@@ -8,13 +8,14 @@
 #' @return string.
 #' @export
 #'
-get_static_file <- function(dir, year, file = NULL, dir_out = FALSE){
+get_static_file <- function(dir, year, file = NULL, dir_out = FALSE) {
   out <- glue::glue("ADINTEL_DATA_{year}/nielsen_extracts/AdIntel/Master_Files/Latest")
-  if(dir_out) {
+  if (dir_out) {
     return(out)
   }
   paste(dir,
-        out,
-        file,
-        sep = "/")
+    out,
+    file,
+    sep = "/"
+  )
 }

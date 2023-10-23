@@ -5,7 +5,7 @@
 #' @return character vector.
 #' @export
 #'
-rename_adintel_cols <- function(x, named = F){
+rename_adintel_cols <- function(x, named = F) {
   x %>%
     str_sep_upper("_", named = named) %>%
     str_replace_all("_", " ") %>%

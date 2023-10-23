@@ -13,4 +13,3 @@
 # is_chr_to_num <- function(x){
 #   suppressWarnings(is.na(as.numeric(nn)))
 # }
-

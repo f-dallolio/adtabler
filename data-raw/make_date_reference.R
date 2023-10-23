@@ -1,7 +1,7 @@
 library(tidyverse)
 library(tsibble)
 date_reference <- tibble(
-  date = (as.Date('2000-01-01') : as.Date('2049-12-31')) |> as.Date(),
+  date = (as.Date("2000-01-01"):as.Date("2049-12-31")) |> as.Date(),
   ddist = seq_along(date) - 1,
   year = year(date),
   is_53w = is_53weeks(year),

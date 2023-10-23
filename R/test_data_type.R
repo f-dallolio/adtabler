@@ -7,7 +7,7 @@
 #' @return character vector.
 #' @export
 #'
-test_data_type <- function(x_data, x_manual, check = FALSE){
+test_data_type <- function(x_data, x_manual, check = FALSE) {
   stopifnot(all(c(is.vector(x_data), is.vector(x_manual))))
   stopifnot(all(c(!is.list(x_data), !is.list(x_manual))))
 
@@ -16,14 +16,18 @@ test_data_type <- function(x_data, x_manual, check = FALSE){
 
   out <- case_when(
     dat_type == "integer" &&
-      man_type %in% c("integer", "smallint", "bigint",
-                      "var_char", "character", "text") ~ "integer",
+      man_type %in% c(
+        "integer", "smallint", "bigint",
+        "var_char", "character", "text"
+      ) ~ "integer",
     dat_type == "character" &&
       man_type %in% c("var_char", "character", "text") ~ man_type,
     dat_type == "double" &&
       man_type %in% c("num", "numeric", "decimal", "double") ~ "numeric",
     .default = NA
   )
-  if(check) return(!is.na(out))
+  if (check) {
+    return(!is.na(out))
+  }
   return(out)
 }

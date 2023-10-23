@@ -5,7 +5,7 @@
 #' @return a character vector.
 #' @export
 #'
-to_c <- function(...){
+to_c <- function(...) {
   out <- rlang::enquos(..., .named = TRUE)
   names(out)
 }

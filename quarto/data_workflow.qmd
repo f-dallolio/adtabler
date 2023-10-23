@@ -72,6 +72,155 @@ make_yearweek2 <- function(year, week = NULL, week_start = getOption("lubridate.
 }
 ```
 
+3.  Dates Check
+
+Check if the dates in a file include somne of the previous year.
+```{r}
+# Non vectorized
+check_previous_year_i <- function(file, year){
+  
+  file_name <- str_split_i(file, "/", -1)
+  
+  cmd_lgl <- glue("grep -E -m 1 -c '{year - 1}-[0-9][0-9]-[0-9][0-9]' %s") |> 
+    as.character()  |> sprintf(shQuote(file))
+  cmd_out <- glue("grep -E -o '{year - 1}-[0-9][0-9]-[0-9][0-9]' %s") |> 
+    as.character() |> sprintf(shQuote(file))
+  
+  out_lgl <-  suppressWarnings(system(cmd_lgl, intern = TRUE) == "1")
+  
+  if(out_lgl){
+    print(glue("There are {year - 1} dates in {year}'s '{ file_name }'. Fetching earliest."))
+    t_start <- Sys.time()
+    out <-  system(cmd_out, intern = TRUE) |> unique()
+    t_end <- Sys.time()
+    elapsed <- t_end - t_start
+    print(elapsed)
+    return(
+      sort(out)[[1]]
+    )
+  } else {
+    print(glue("There are no {year - 1} dates in {year}'s '{ file_name }'."))
+    return(
+      NA
+      )
+  }
+}
+
+# Vectorized
+check_previous_year <- Vectorize(check_previous_year_i, 
+                                 vectorize.args = "file", 
+                                 USE.NAMES = FALSE)
+```
+
+Check if the dates in a file include somne of the next year.
+```{r}
+# Non Vectorized
+check_next_year_i <- function(file, year){
+  
+  file_name <- str_split_i(file, "/", -1)
+  
+  cmd_lgl <- glue("grep -E -m 1 -c '{year + 1}-[0-9][0-9]-[0-9][0-9]' %s") |> 
+    as.character()  |> sprintf(shQuote(file))
+  cmd_out <- glue("grep -E -o '{year + 1}-[0-9][0-9]-[0-9][0-9]' %s") |> 
+    as.character() |> sprintf(shQuote(file))
+  
+  out_lgl <-  suppressWarnings(system(cmd_lgl, intern = TRUE) == "1")
+  
+  if(out_lgl){
+    print(glue("There are {year + 1} dates in {year}'s '{ file_name }'. Fetching earliest."))
+    t_start <- Sys.time()
+    out <-  system(cmd_out, intern = TRUE) |> unique()
+    t_end <- Sys.time()
+    elapsed <- t_end - t_start
+    print(elapsed)
+    return(
+      sort(out)[[1]]
+    )
+  } else {
+    print(glue("There are no {year + 1} dates in {year}'s '{ file_name }'.."))
+    return(
+      NA
+    )
+  }
+}
+
+# Vectorized
+check_next_year <- Vectorize(check_next_year_i, 
+                             vectorize.args = "file", 
+                             USE.NAMES = FALSE)
+```
+
+
+3. Data Read
+
+```{r}
+# Read number of rows. 
+# If header is TRUE, the number of rows does not includes the first line. 
+# 
+# adtabler::read_nrows(full_name, header = TRUE, list_out = FALSE, df_out = FALSE) 
+
+# Extract header
+read_header <- function(file, to_string = FALSE) {
+  file_format <- file |>
+    stringr::str_split_i("\\.", -1)
+
+  if (file_format == "tsv") {
+    sep <- "\t"
+  } else if (file_format == "csv") {
+    sep <- ","
+  } else {
+    sep <- ""
+  }
+
+  out <- data.table::fread(
+    file = file,
+    sep = sep,
+    nrows = 1,
+    header = FALSE
+  ) |>
+    unlist(use.names = FALSE)
+  
+  if(to_string) {
+    return(paste(out, collapse = "__"))
+  }
+  out
+}
+
+# Extract first row
+read_row1 <- function(file, to_string = FALSE) {
+  file_format <- file |>
+    stringr::str_split_i("\\.", -1)
+
+  if (file_format == "tsv") {
+    sep <- "\t"
+  } else if (file_format == "csv") {
+    sep <- ","
+  } else {
+    sep <- ""
+  }
+
+  out <- data.table::fread(
+    file = file,
+    sep = sep,
+    nrows = 1
+  ) |>
+    unlist()
+  
+  if(to_string) {
+    return(paste(out, collapse = "__"))
+  }
+  out
+}
+
+
+
+
+```
+
+
+
+
+
 ## Load Data (one year at the time)
 
 Defina the directory containing the AdIntel folders and retrieve data paths:
@@ -139,12 +288,10 @@ references_files <- dyn_files |>
 Retrieve file's number of rows.
 
 ```{r}
-f <- Vectorize(read_nrows)
-f(references_files$full_file_name)
-references_files <- references_files |> 
-  mutate(nrows = full_file_name |)
+references_files <- references_files |>
+  mutate(nrows = full_file_name)
 
-full_name = references_files$full_file_name[[1]]
+full_name <- references_files$full_file_name[[1]]
 ```
 
 ### Impressions

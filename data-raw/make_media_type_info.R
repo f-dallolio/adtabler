@@ -6,7 +6,7 @@ library(stringr)
 # library(data.table)
 library(adtabler)
 
-rename_adintel <- function(x, named = FALSE){
+rename_adintel <- function(x, named = FALSE) {
   nms <- x
   out <- x %>%
     str_sep_upper("_", named = FALSE) %>%
@@ -16,7 +16,7 @@ rename_adintel <- function(x, named = FALSE){
     str_remove_all(" ") %>%
     str_replace_all("prime", "prim") %>%
     if_else(condition = str_detect(., "dim_bridge"), true = "dim_bridge_occ_imp_spot_radio_key", false = .)
-  if(named){
+  if (named) {
     names(out) <- nms
   }
   out
@@ -41,22 +41,25 @@ media2 <- media_type_table |>
     ukey = nielsen_unique_key,
   ) |>
   nest(ukey = ukey, .by = media_type_id) |>
-  mutate(ukey = map(ukey, ~ rename_adintel(.x[[1]], named = T)),
-         ukey = map(ukey, ~ c(.x[4], .x[-4])))
+  mutate(
+    ukey = map(ukey, ~ rename_adintel(.x[[1]], named = T)),
+    ukey = map(ukey, ~ c(.x[4], .x[-4]))
+  )
 
-media_tbl <- media1 |> left_join(media2) |>
+media_tbl <- media1 |>
+  left_join(media2) |>
   relocate(ukey, .after = media_type_id)
 
 
 x <- media_tbl |>
   group_by(, file_name, media_type) |>
   group_split() |>
-  map(~as.list(.x))
+  map(~ as.list(.x))
 
-for(i in seq_along(x)){
-  xx <-  x[[i]]
+for (i in seq_along(x)) {
+  xx <- x[[i]]
 
- x[[i]][["ukey"]] <- x[[i]][["ukey"]][[1]]
+  x[[i]][["ukey"]] <- x[[i]][["ukey"]][[1]]
 }
 
 
@@ -75,10 +78,10 @@ names(xxx) <- x_lst$file_name
 
 xxx[1]
 
-for(i in seq_along(xxx)){
+for (i in seq_along(xxx)) {
   x_i <- xxx[[i]]
   nms_i <- rep("a", length(x_i))
-  for(j in seq_along(x_i)){
+  for (j in seq_along(x_i)) {
     nms_j <- paste0(
       "id",
       str_pad(x_i[[j]]$media_type_id, 2, "left", pad = "0"),
@@ -98,21 +101,8 @@ media_type_info$media_info
 media_type_info$media_info[[1]]
 
 saveRDS(media_type_info,
-        file = "Documents/r_wd/adtabler/data/media_type_info.rds")
+  file = "Documents/r_wd/adtabler/data/media_type_info.rds"
+)
 save(media_type_info,
-     file = "Documents/r_wd/adtabler/data/media_type_info.rda")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  file = "Documents/r_wd/adtabler/data/media_type_info.rda"
+)

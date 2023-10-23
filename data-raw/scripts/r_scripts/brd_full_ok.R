@@ -9,7 +9,7 @@ library(adtabler)
 library(bit64)
 library(dm)
 
-new_adintel_path <- '/mnt/sata_data_1/new_adintel/'
+new_adintel_path <- "/mnt/sata_data_1/new_adintel/"
 brd_tbl <- list.files(path = new_adintel_path, recursive = TRUE, full.names = TRUE) |>
   as_tibble_col(column_name = "file_path") |>
   mutate(
@@ -21,18 +21,21 @@ brd_tbl <- list.files(path = new_adintel_path, recursive = TRUE, full.names = TR
     file_type2 = file_path |> str_split_i("/", -2),
     file = file_path |> str_split_i("/", -1)
   ) |>
-  filter(file_type ==  "references",
-         file_type2 == "brand") |>
+  filter(
+    file_type == "references",
+    file_type2 == "brand"
+  ) |>
   mutate(year = file |>
-           str_remove_all(".csv") |>
-           str_split_i("__", -1) |>
-           as.integer()) |>
+    str_remove_all(".csv") |>
+    str_split_i("__", -1) |>
+    as.integer()) |>
   select(-file, -file_type, -file_type2)
 
 brd_df_0 <- map2(
   .x = brd_tbl$file_path,
   .y = brd_tbl$year,
-  .f = ~ .x |> read_csv() |>
+  .f = ~ .x |>
+    read_csv() |>
     mutate(year = .y) |>
     rename_with(rename_adintel)
 ) |>
@@ -51,7 +54,7 @@ brd_df_0
 
 brd_df_old <- brd_df_0 |>
   filter(n > 1) |>
-  select(- c(row_id : year_chr)) |>
+  select(-c(row_id:year_chr)) |>
   arrange(brand_code)
 brd_df_old
 
@@ -62,16 +65,18 @@ brd_df <- brd_df_0 |>
   ) |>
   mutate(
     pcc_prod_code = product_id |>
-      str_pad(width = max(nchar(product_id)),
-              side = "right",
-              pad = "0"),
+      str_pad(
+        width = max(nchar(product_id)),
+        side = "right",
+        pad = "0"
+      ),
     min_year = str_split_i(year_chr, "_", 1) |>
       as.integer(),
     max_year = str_split_i(year_chr, "_", -1) |>
       as.integer(),
     .keep = "unused"
   ) |>
-  select(- c(year_chr_temp, n, row_id)) |>
+  select(-c(year_chr_temp, n, row_id)) |>
   left_join(
     date_year_minmax |>
       transmute(
@@ -95,5 +100,3 @@ brd_dm <- dm(brd_df) |>
 dm_examine_constraints(brd_dm)
 
 check_utf8(brd_df)
-
-

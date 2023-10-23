@@ -16,9 +16,9 @@ to_sql_datatype <- function(name, type, precision = NA, scale = NA, adintel = TR
     name <- name_new
     type <- type_new
   }
-  if((is.na(precision) & is.na(scale)) |
-     type_new == "DATE" |
-     type_new == "TEXT"){
+  if ((is.na(precision) & is.na(scale)) |
+    type_new == "DATE" |
+    type_new == "TEXT") {
     out <- glue::glue("{name} {type}")
   } else if (!is.na(precision) && is.na(scale)) {
     out <- glue::glue("{name} {type}({precision})")

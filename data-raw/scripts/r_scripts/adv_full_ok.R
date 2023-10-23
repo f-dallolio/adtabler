@@ -9,7 +9,7 @@ library(adtabler)
 library(bit64)
 library(dm)
 
-new_adintel_path <- '/mnt/sata_data_1/new_adintel/'
+new_adintel_path <- "/mnt/sata_data_1/new_adintel/"
 adv_tbl <- list.files(path = new_adintel_path, recursive = TRUE, full.names = TRUE) |>
   as_tibble_col(column_name = "file_path") |>
   mutate(
@@ -21,18 +21,21 @@ adv_tbl <- list.files(path = new_adintel_path, recursive = TRUE, full.names = TR
     file_type2 = file_path |> str_split_i("/", -2),
     file = file_path |> str_split_i("/", -1)
   ) |>
-  filter(file_type ==  "references",
-         file_type2 == "advertiser") |>
+  filter(
+    file_type == "references",
+    file_type2 == "advertiser"
+  ) |>
   mutate(year = file |>
-           str_remove_all(".csv") |>
-           str_split_i("__", -1) |>
-           as.integer()) |>
+    str_remove_all(".csv") |>
+    str_split_i("__", -1) |>
+    as.integer()) |>
   select(-file, -file_type, -file_type2)
 
 adv_df_0 <- map2(
   .x = adv_tbl$file_path,
   .y = adv_tbl$year,
-  .f = ~ .x |> read_csv() |>
+  .f = ~ .x |>
+    read_csv() |>
     mutate(year = .y) |>
     rename_with(rename_adintel)
 ) |>
@@ -51,7 +54,7 @@ adv_df_0
 
 adv_df_old <- adv_df_0 |>
   filter(n > 1) |>
-  select(- c(row_id : year_chr)) |>
+  select(-c(row_id:year_chr)) |>
   arrange(adv_parent_code, adv_subsid_code)
 adv_df_old
 
@@ -67,7 +70,7 @@ adv_df <- adv_df_0 |>
       as.integer(),
     .keep = "unused"
   ) |>
-  select(- c(year_chr_temp, n, row_id)) |>
+  select(-c(year_chr_temp, n, row_id)) |>
   left_join(
     date_year_minmax |>
       transmute(

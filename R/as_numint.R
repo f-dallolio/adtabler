@@ -12,9 +12,9 @@
 #' as_numint(x_noint)
 #' as_numint(x_noint, warn = FALSE)
 #' as_numint(x_int)
-as_numint <- function(x, warn = TRUE){
-  if(any(x[!is.na(x)]%%1 != 0)){
-    if(warn){
+as_numint <- function(x, warn = TRUE) {
+  if (any(x[!is.na(x)] %% 1 != 0)) {
+    if (warn) {
       warning("x is numeric but not an integer")
     }
     return(x)

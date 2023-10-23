@@ -13,10 +13,13 @@ refs <- references_tables %>%
     .by = c(file_type, file_name)
   ) %>%
   mutate(
-    across(c(var_name_manual,
-             var_type_manual,
-             precision,
-             scale), ~ map(.x, as.list)))
+    across(c(
+      var_name_manual,
+      var_type_manual,
+      precision,
+      scale
+    ), ~ map(.x, as.list))
+  )
 
 
 occs <- occurrences_tables %>%
@@ -29,22 +32,26 @@ occs <- occurrences_tables %>%
     .by = c(file_type, file_name)
   ) %>%
   mutate(
-    across(c(var_name_manual,
-             var_type_manual,
-             precision,
-             scale), ~ map(.x, as.list)))
+    across(c(
+      var_name_manual,
+      var_type_manual,
+      precision,
+      scale
+    ), ~ map(.x, as.list))
+  )
 
 
 
 adintel_tables <- get_adintel_tables(adintel_dir = "/media/filippo/One Touch/nielsen_data/adintel") %>%
   rename(path = full_path) %>%
-  nest(file_year = file_year,
-       path = path,
-       .by = c(
-         file_type,
-         file_name,
-         is_dynamic
-       )
+  nest(
+    file_year = file_year,
+    path = path,
+    .by = c(
+      file_type,
+      file_name,
+      is_dynamic
+    )
   ) %>%
   left_join(
     bind_rows(refs, occs)
@@ -61,9 +68,10 @@ adintel_tables <- get_adintel_tables(adintel_dir = "/media/filippo/One Touch/nie
         var_name_manual = var_name_manual[[.x]][[1]],
         var_type_manual = var_type_manual[[.x]][[1]],
         precision = precision[[.x]][[1]],
-        scale = scale[[.x]][[1]])
+        scale = scale[[.x]][[1]]
+      )
     )
   ) %>%
-  select( - var_name_manual : - scale)
+  select(-var_name_manual:-scale)
 
 usethis::use_data(adintel_tables, overwrite = TRUE)

@@ -12,9 +12,9 @@
 #' chr_to_num(x_nonum)
 #' chr_to_num(x_num)
 #' chr_to_num(x_int)
-chr_to_num <- function(x, to_int = TRUE){
+chr_to_num <- function(x, to_int = TRUE) {
   x <- as.numeric(x)
-  if(to_int){
+  if (to_int) {
     return(as_numint(x, warn = FALSE))
   }
   x

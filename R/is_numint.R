@@ -11,7 +11,7 @@
 #' is_numint(x_noint)
 #' is_numint(x_int)
 #'
-is_numint <- function(x){
-stopifnot("x must be numeric" = is.numeric(x))
-  all(x%%1 == 0)
+is_numint <- function(x) {
+  stopifnot("x must be numeric" = is.numeric(x))
+  all(x %% 1 == 0)
 }
