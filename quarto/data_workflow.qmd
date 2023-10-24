@@ -313,23 +313,6 @@ adintel_folder <- "/mnt/sata_data_1/adintel/ADINTEL_DATA_2010/"
 adintel_files <- list.files(adintel_folder, recursive = TRUE, full.names = TRUE)
 ```
 
-Then retrieve and describe file paths for static references:
-
-```{r}
-static_references <- adintel_files |>
-  str_subset(pattern = no_case("master_file")) |>
-  str_subset(pattern = no_case("latest")) |>
-  as_tibble_col(column_name = "full_file_name") |>
-  mutate(
-    file_name = full_file_name |>
-      str_split_i("/", -1),
-    file_name_std = file_name |>
-      str_split_i("\\.", -2) |>
-      adtabler::rename_adintel()
-  )
-# static_references
-```
-
 Retrieve and describe file paths for "dynamic" files (i.e. they can change year by year):
 
 ```{r}
@@ -337,6 +320,8 @@ dyn_files <- adintel_files |>
   str_subset(pattern = no_case("master_file"), negate = TRUE) |>
   as_tibble_col("full_file_name") |>
   mutate(
+    file_size_mb = file.size(full_file_name)/(1024^2),
+    file_size_mb = file_size_mb |> round(2),
     year = full_file_name |>
       str_split_i("/", -3) |>
       as.integer(),
@@ -380,55 +365,86 @@ occurrences_files <- dyn_files |>
 
 
 ```{r}
-occurrences_files <- occurrences_files |>
-  mutate(
-    n_rows = read_nrows(full_file_name),
-    min_date = min_date_year(full_file_name, year),
-    max_date = max_date_year(full_file_name, year),
-    col_names_man = full_file_name |>
-      map_vec(
-        ~ read_header(.x) |>
-          paste(collapse = "___")
-      )
-  )
-
-  # 'media_unique_keys' contains the unique keys of each occurence table by 'media_type_id'
-occurrences_files <-   occurrences_files |> left_join( media_unique_keys )
+# occurrences_files <- occurrences_files |>
+#   mutate(
+#     n_rows = read_nrows(full_file_name),
+#     min_date = min_date_year(full_file_name, year),
+#     max_date = max_date_year(full_file_name, year),
+#     col_names_man = full_file_name |>
+#       map_vec(
+#         ~ read_header(.x) |>
+#           paste(collapse = "___")
+#       )
+#   )
+# 
+#   # 'media_unique_keys' contains the unique keys of each occurence table by 'media_type_id'
+# occurrences_files <-   occurrences_files |> left_join( media_unique_keys )
 ```
 
 
 
 ### References
 
+Retrieve info for dynamic references.
+
 ```{r}
-# Filter file paths
-references_files <- dyn_files |>
+dynamic_references_files <- dyn_files |>
   filter(str_detect(file_type, no_case("references"))) |> 
   mutate(
     n_rows = read_nrows(full_file_name),
     col_name_man = full_file_name |>
       map(
         ~ read_header(.x)
-        # |>
-        #   paste(collapse = "___")
       )
   ) |> 
   unnest(everything()) |> 
   mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man)
-
-references_files <- references_columns |> 
-  inner_join(references_files) |> 
-  relocate(col_name_man : description, .after = col_pos) |> 
-  relocate(file_name_std, .after = file_name)
-  
-  
 ```
 
-Retrieve file's number of rows.
+Retrieve info for static references.
 
 ```{r}
-references_files <- references_files |>
-  mutate(nrows = full_file_name)
+static_references_files <- adintel_files |>
+  str_subset(pattern = no_case("master_file")) |>
+  str_subset(pattern = no_case("latest")) |>
+  as_tibble_col(column_name = "full_file_name") |>
+  mutate(
+    file_size_mb = file.size(full_file_name)/(1024^2),
+    file_size_mb = file_size_mb |> round(2),
+    year = NA,
+    file_type = "References",
+    file_name = full_file_name |>
+      str_split_i("/", -1),
+    file_name_std = file_name |>
+      str_split_i("\\.", -2) |>
+      adtabler::rename_adintel(),
+    n_rows = read_nrows(full_file_name),
+    col_name_man = full_file_name |>
+      map(
+        ~ read_header(.x)
+      )
+  ) |> 
+  unnest(everything()) |> 
+  mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man)
+```
+
+Bind rows of static and dynamic references and merge with "reference_columns" (lookup table with info about all variables in references tables).
+
+```{r}
+references_columns
+```
+
+
+```{r}
+references_files <- references_columns |> 
+  inner_join(
+    bind_rows(dynamic_references_files, static_references_files)
+  ) |> 
+  relocate(col_name_man : description, .after = col_pos) |> 
+  relocate(file_name_std, .after = file_name) |> 
+  nest(col_info = col_pos : description)
+
+references_files
 ```
 
 ### Impressions
