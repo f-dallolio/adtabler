@@ -370,30 +370,24 @@ occurrences_files <- dyn_files |>
 'media_unique_keys' contains the unique keys of each occurence table by 'media_type_id'
 
 ```{r}
-media_unique_keys <- media_unique_keys |> 
-      select(file_name,
-             media_type_id,
-             nielsen_unique_key,
-             unique_key)
-head(media_unique_keys)
+# media_unique_keys <- media_unique_keys |> 
+#       select(file_name,
+#              media_type_id,
+#              nielsen_unique_key,
+#              unique_key)
+# head(media_unique_keys)
 ```
 
 
 ```{r}
-occurrences_files <- occurrences_files |> 
+occurrences_files <- occurrences_files |>
   mutate(
     n_rows = read_nrows(full_file_name),
     min_date = min_date_year(full_file_name, year),
     max_date = max_date_year(full_file_name, year),
-    col_names_og = full_file_name |>
+    col_names_man = full_file_name |>
       map_vec(
         ~ read_header(.x) |>
-          paste(collapse = "___")
-      ),
-    col_names = full_file_name |>
-      map_vec(
-        ~ read_header(.x) |>
-          rename_adintel() |>
           paste(collapse = "___")
       )
   )
@@ -409,7 +403,25 @@ occurrences_files <-   occurrences_files |> left_join( media_unique_keys )
 ```{r}
 # Filter file paths
 references_files <- dyn_files |>
-  filter(str_detect(file_type, no_case("references")))
+  filter(str_detect(file_type, no_case("references"))) |> 
+  mutate(
+    n_rows = read_nrows(full_file_name),
+    col_name_man = full_file_name |>
+      map(
+        ~ read_header(.x)
+        # |>
+        #   paste(collapse = "___")
+      )
+  ) |> 
+  unnest(everything()) |> 
+  mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man)
+
+references_files <- references_columns |> 
+  inner_join(references_files) |> 
+  relocate(col_name_man : description, .after = col_pos) |> 
+  relocate(file_name_std, .after = file_name)
+  
+  
 ```
 
 Retrieve file's number of rows.
@@ -417,8 +429,6 @@ Retrieve file's number of rows.
 ```{r}
 references_files <- references_files |>
   mutate(nrows = full_file_name)
-
-full_name <- references_files$full_file_name[[1]]
 ```
 
 ### Impressions
