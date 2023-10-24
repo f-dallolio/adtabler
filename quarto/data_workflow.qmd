@@ -352,7 +352,15 @@ dyn_files$file_type |>
 
 ```{r}
 occurrences_files <- dyn_files |>
-  filter(str_detect(file_type, no_case("occurrences"))) |>
+  filter(str_detect(file_type, no_case("occurrences")))
+
+occurrences_files |> 
+  inner_join(media_unique_keys)
+```
+
+
+```{r}
+|>
   # rename(nielsen_file_name = file_name) |> 
   mutate(
     n_rows = read_nrows(full_file_name),
@@ -379,8 +387,13 @@ occurrences_files$col_names |>
   unique()
 ```
 
+
+
 ```{r}
-media_type_table |> 
+media_type_table 
+
+media_type_table |> filter(nielsen_file_name |> str_detect(no_case("fsi")))
+|> 
   transmute(file_name = nielsen_file_name, 
             media_type_id,
             unique_key) |> 
