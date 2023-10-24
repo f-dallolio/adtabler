@@ -169,8 +169,14 @@ min_date_year_i <- function(file, year){
 }
 
 # Vectorized
-check_previous_year <- Vectorize(check_previous_year_i, USE.NAMES = FALSE)
-min_date_year <- Vectorize(min_date_year_i, USE.NAMES = FALSE)
+check_previous_year <- function(file, year){
+  purrr::map2(file, year, ~ check_previous_year_i(file = .x, year = .y)) |> 
+    purrr::list_c()
+}
+min_date_year <- function(file, year){
+  purrr::map2(file, year, ~ min_date_year_i(file = .x, year = .y)) |> 
+    purrr::list_c()
+}
 ```
 
 Check if the dates in a file include some of the next year.
@@ -226,8 +232,14 @@ max_date_year_i <- function(file, year){
 }
 
 # Vectorized
-check_next_year <- Vectorize(check_next_year_i, USE.NAMES = FALSE)
-max_date_year <- Vectorize(max_date_year_i, USE.NAMES = FALSE)
+check_next_year <- function(file, year){
+  purrr::map2(file, year, ~ check_next_year_i(file = .x, year = .y)) |> 
+    purrr::list_c()
+}
+max_date_year <- function(file, year){
+  purrr::map2(file, year, ~ max_date_year_i(file = .x, year = .y)) |> 
+    purrr::list_c()
+}
 ```
 
 3.  Data Read
@@ -352,10 +364,22 @@ dyn_files$file_type |>
 
 ```{r}
 occurrences_files <- dyn_files |>
-  filter(str_detect(file_type, no_case("occurrences"))) |> 
-  # 'media_unique_keys' contains the unique keys of each occurence table by 'media_type_id'
-  left_join(media_unique_keys)
+  filter(str_detect(file_type, no_case("occurrences")))
+```
 
+'media_unique_keys' contains the unique keys of each occurence table by 'media_type_id'
+
+```{r}
+media_unique_keys <- media_unique_keys |> 
+      select(file_name,
+             media_type_id,
+             nielsen_unique_key,
+             unique_key)
+head(media_unique_keys)
+```
+
+
+```{r}
 occurrences_files <- occurrences_files |> 
   mutate(
     n_rows = read_nrows(full_file_name),
@@ -373,51 +397,12 @@ occurrences_files <- occurrences_files |>
           paste(collapse = "___")
       )
   )
-```
 
-```{r}
-head(media_unique_keys)
-```
-
-
-```{r}
-occurrences_files |> 
-  inner_join(media_unique_keys)
+  # 'media_unique_keys' contains the unique keys of each occurence table by 'media_type_id'
+occurrences_files <-   occurrences_files |> left_join( media_unique_keys )
 ```
 
 
-```{r}
-|>
-  # rename(nielsen_file_name = file_name) |> 
- 
-```
-
-```{r}
-occurrences_files$col_names |> 
-  str_split("___") |> 
-  unlist() |> 
-  unique()
-```
-
-
-
-```{r}
-media_type_table 
-
-media_type_table |> filter(nielsen_file_name |> str_detect(no_case("fsi")))
-|> 
-  transmute(file_name = nielsen_file_name, 
-            media_type_id,
-            unique_key) |> 
-  nest(unique_key = unique_key) |> 
-  mutate(unique_key = unique_key |> 
-           map(~ .x[[1]] |>  paste(collapse = "___")) |> 
-           list_c()) |> 
-  distinct() |> 
-  nest(media_type_id = media_type_id) |> 
-  left_join(occurrences_files) |> 
-  unnest(everything())
-```
 
 ### References
 
