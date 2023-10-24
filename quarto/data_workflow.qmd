@@ -357,9 +357,9 @@ dyn_files$file_type |>
 occurrences_files <- dyn_files |>
   filter(str_detect(file_type, no_case("occurrences")))
 occurrences_files <- occurrences_files |> 
-  mutate(n_rows = full_file_name |> map_vec(read_nrows))
+  mutate(n_rows = full_file_name |> read_nrows_vec())
 
-read_nrows_vec <- Vectorize(FUN = read_nrows, ows, vectorize.args = )
+read_nrows_vec <- Vectorize(FUN = read_nrows, vectorize.args = "file", SIMPLIFY = TRUE, USE.NAMES = FALSE)
 ```
 
 ### References
