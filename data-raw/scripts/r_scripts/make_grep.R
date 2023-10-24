@@ -28,7 +28,7 @@ grep_ad_date_ymd <- function(year = NULL, month = NULL, day = NULL) {
       stop("day must be NULL or integer")
     }
   }
-  paste(year, month, day, sep = "[-]")
+  paste(year, month, day, sep = "-")
 }
 grep_ad_date_ymd(year = 2010:2012, month = 2, day = 1)
 grep_ad_date_ymd()
@@ -53,9 +53,11 @@ grep_ad_time <- function(h = NULL, m = NULL, s = NULL) {
   if (is.null(h)) h <- "[0-9]{2}"
   if (is.null(m)) m <- "[0-9]{2}"
   if (is.null(s)) s <- "[0-9]{2}"
-  paste(h, m, s, sep = "[-]") |>
+  paste(h, m, s, sep = ":") |>
     paste0("[.0-9]*")
 }
+grep_ad_time(h = 12,38,12)
+
 grep_market_code <- function(market_code = NULL) {
   if (is.null(market_code)) market_code <- "[0-9A-Za-z]{1,3}"
 }

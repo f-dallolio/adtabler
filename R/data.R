@@ -46,7 +46,7 @@
 
 #' Lookup Table for Dates (2009 - 2030)
 #'
-#' @format ## `date_reference`
+#' @format ## `reference_date`
 #' A data frame (tibble) with 152 rows and 3 columns.
 #' \describe{
 #'   \item{date}{Date.}
@@ -61,4 +61,4 @@
 #'   \item{wday_lbl}{integer/numeric. Day of the week as character.}
 #'   \item{is_leap}{logical. TRUE if leap year.}
 #' }
-"date_reference"
+"reference_date"
