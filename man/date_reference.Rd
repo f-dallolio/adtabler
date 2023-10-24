@@ -10,16 +10,16 @@
 A data frame (tibble) with 152 rows and 3 columns.
 \describe{
 \item{date}{Date.}
-\item{year}{integer. Year.}
-\item{month}{integer. Month.}
-\item{mday}{integer. Day of the month.}
+\item{year}{integer/numeric Year.}
+\item{month}{integer/numeric Month.}
+\item{mday}{integer/numeric Day of the month.}
 \item{yquarter}{character. Ready for tsibble::yearquarter.}
 \item{ymonth}{character. Ready for tsibble::yearmonth.}
 \item{yweek}{character. Ready for tsibble::yearweek.}
-\item{is_53weeks}{logical. True if yweek has 53 weeks.}
+\item{is_53weeks}{logical. TRUE if yweek has 53 weeks.}
 \item{wday}{integer/numeric. Day of the week. Monday = 1.}
 \item{wday_lbl}{integer/numeric. Day of the week as character.}
-\item{is_leap}{logical. True if leap year.}
+\item{is_leap}{logical. TRUE if leap year.}
 }
 }
 }
