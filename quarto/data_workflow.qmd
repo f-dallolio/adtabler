@@ -359,7 +359,7 @@ occurrences_files <- dyn_files |>
 occurrences_files <- occurrences_files |> 
   mutate(n_rows = full_file_name |> map_vec(read_nrows))
 
-read_nrows_vec <- Vectorize(read_nrows, vectorize.args = )
+read_nrows_vec <- Vectorize(FUN = read_nrows, ows, vectorize.args = )
 ```
 
 ### References
