@@ -3,18 +3,18 @@
 \docType{data}
 \name{occurrences_columns}
 \alias{occurrences_columns}
-\title{Nielsen Adintel Dataset - Useful 'Occurrences' Lookup Tables}
+\title{Nielsen Adintel Dataset - Description of Variables in 'Occurrences' Tables}
 \format{
 \subsection{\code{occurrences_columns}}{
 
-A data frame (tibble) with 460 rows and 8 columns.
+A data frame (tibble) with 460 rows and 8 columns. If a column name ends in "_man" it indicates that the value is as reported in the Adintel manual.
 \describe{
 \item{file_name}{Type: character.The file name for the data on a specific media. Format looks like 'XXX.tsv' where XXX stands for 'NetworkTV', 'SpotTV', etc.}
-\item{media_type_id}{Type: integer. The id for each specific media.}
-\item{col_pos}{Type: integer. The position of the column name in 'col_name_man'. }
+\item{media_type_id}{Type: integer/numeric. The id for each specific media.}
+\item{col_pos}{Type: integer/numeric. The position of the column name in 'col_name_man'. }
 \item{col_name_man}{Type: character. The name used in the AdIntel manual (and the original data).}
 \item{col_class_man}{Type: character. The description of the column SQL data type provided by Nielsen.}
-\item{col_p, col_n}{Type: integer. The expected length of the data in the column. Usually, 'p' (col_p) is referred to as 'precision' and 'n' (col_n) as scale. For the SQL type NUMERIC,
+\item{col_p, col_n}{Type: integer/numeric. The expected length of the data in the column. Usually, 'p' (col_p) is referred to as 'precision' and 'n' (col_n) as scale. For the SQL type NUMERIC,
 col_p is the total number of digits while col_n is the number of decimals.}
 \item{description}{Type: The column description provided by Nielsen}
 }
@@ -24,6 +24,6 @@ col_p is the total number of digits while col_n is the number of decimals.}
 occurrences_columns
 }
 \description{
-These tables provide information and lookpup keys for AdIntel 'occurrences' data.
+This table describes AdIntel 'occurrences' data.
 }
 \keyword{datasets}
