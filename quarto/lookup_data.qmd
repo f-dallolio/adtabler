@@ -4,4 +4,17 @@ format: html
 editor: visual
 ---
 
+```{r}
+library(tidyverse)
+```
+
+
 # Occurrences
+
+## Media Categories
+```{r}
+readRDS("~")
+```
+
+
+
