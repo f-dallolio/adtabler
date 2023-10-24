@@ -11,8 +11,8 @@ xxx
 
 year = 2010
 file <-  "/mnt/sata_data_1/adintel/ADINTEL_DATA_2010//nielsen_extracts/AdIntel/2010/Occurrences/SpotTV.tsv"
-y <- rep(seq(year - 1, year + 1), each = 12) |> numpad4()
-m <- rep(seq(1, 12), length(unique(y))) |> numpad2()
+y <- c(year - 1, rep(year, 12), year + 1) |> numpad4()
+m <- c(12, 1 : 12, 1) |>  numpad2()
 # length(y) == length(m)
 
 ym_in_data <- function(y, m, file){
@@ -21,7 +21,76 @@ ym_in_data <- function(y, m, file){
   suppressWarnings(system(cmd_lgl, intern = TRUE) == "1")
 }
 
-x <- ymd_min
+ymd_in_data <- function(y, m, d, file){
+  y <- numpad4(y)
+  m <- numpad2(m)
+  d <- numpad2(d)
+  cmd_lgl <- glue("grep -E -m 1 -c '{ y }-{ m }-{ d }' %s") |>
+    as.character()  |> sprintf(shQuote(file))
+  # print(cmd_lgl)
+  suppressWarnings(system(cmd_lgl, intern = TRUE) == "1")
+}
+
+library(furrr)
+plan( multisession, workers = floor(parallel::detectCores() * 0.8) )
+ym_out <- future_map2(.x = y, .y = m, .f = ~ ym_in_data(y = .x, m = .y, file = file), .progress = TRUE) |>
+  list_c()
+plan( sequential )
+ym_true <- which(ym_out)
+n_min <- min(ym_true)
+n_max <- max(ym_true)
+
+y_min <- as.integer(y[n_min])
+y_max <- as.integer(y[n_max])
+
+m_min <- as.integer(m[n_min])
+m_max <- as.integer(m[n_max])
+
+d_min <- seq(31, 1)
+d_max <- seq(1, 31)
+
+i=2
+out_min <- out_max <- NA
+for(i in seq_along(d_min)) {
+
+  if (is.na(out_min)) {
+    out_min_0 <- ymd_in_data(y_min, m_min, d_min[[i]], file)
+    if ( !out_min_0 ) {
+      if (i == 1) {
+        id <- i
+      } else {
+        id <- i - 1
+      }
+      out_min <- paste(
+        y_min |> numpad4(),
+        m_min |> numpad2(),
+        d_min[[id]] |> numpad2(),
+        sep = "-")
+    }
+  }
+
+  if (is.na(out_max)) {
+    out_max_0 <- ymd_in_data(y_max, m_max, d_max[[i]], file)
+    if ( !out_max_0 ) {
+      if (i == 1) {
+        id <- i
+      } else {
+        id <- i - 1
+      }
+      out_max <- paste(
+        y_max |> numpad4(),
+        m_max |> numpad2(),
+        d_max[[id]] |> numpad2(),
+        sep = "-")
+    }
+  }
+
+  print( c(out_min, out_max) )
+
+  if ( all( c( !is.na(out_min), !is.na(out_max) ) ) ) break
+}
+
+
 
 ymd_in_data <- function(x, file){
   cmd_lgl <- glue("grep -E -m 1 -c '{ x }' %s") |>
@@ -31,11 +100,7 @@ ymd_in_data <- function(x, file){
 }
 
 
-library(furrr)
-plan( multisession, workers = floor(parallel::detectCores()/2) )
-ym0 <- future_map2(.x = y, .y = m, .f = ~ ym_in_data(y = .x, m = .y, file = file), .progress = TRUE) |>
-  list_c()
-plan( sequential )
+
 
 ym1 <-  paste(y[ym0], m[ym0], sep = "-") |> sort()
 ymd_min <- ym1[1] |> paste(numpad2(31:1), sep = "-")

@@ -117,7 +117,7 @@ yweek_to_date <- function(x, simplify = TRUE, week_start = getOption("lubridate.
 
 
 
-### Dates Check
+### Data Check
 
 Check if the dates in a file include somne of the previous year.
 
@@ -355,12 +355,48 @@ dyn_files$file_type |>
 
 ```{r}
 occurrences_files <- dyn_files |>
-  filter(str_detect(file_type, no_case("occurrences")))
-occurrences_files <- occurrences_files |> 
-  mutate(n_rows = full_file_name |> read_nrows_vec())
-
-read_nrows_vec <- Vectorize(FUN = read_nrows, vectorize.args = "file", SIMPLIFY = TRUE, USE.NAMES = FALSE)
+  filter(str_detect(file_type, no_case("occurrences"))) |>
+  # rename(nielsen_file_name = file_name) |> 
+  mutate(
+    n_rows = read_nrows(full_file_name),
+    min_date = min_date_year(full_file_name, year),
+    max_date = max_date_year(full_file_name, year),
+    col_names_og = full_file_name |>
+      map_vec(
+        ~ read_header(.x) |>
+          paste(collapse = "___")
+      ),
+    col_names = full_file_name |>
+      map_vec(
+        ~ read_header(.x) |>
+          rename_adintel() |>
+          paste(collapse = "___")
+      )
+  )
 ```
+
+```{r}
+occurrences_files$col_names |> 
+  str_split("___") |> 
+  unlist() |> 
+  unique()
+```
+
+```{r}
+media_type_table |> 
+  transmute(file_name = nielsen_file_name, 
+            media_type_id,
+            unique_key) |> 
+  nest(unique_key = unique_key) |> 
+  mutate(unique_key = unique_key |> 
+           map(~ .x[[1]] |>  paste(collapse = "___")) |> 
+           list_c()) |> 
+  distinct() |> 
+  nest(media_type_id = media_type_id) |> 
+  left_join(occurrences_files) |> 
+  unnest(everything())
+```
+
 
 ### References
 
