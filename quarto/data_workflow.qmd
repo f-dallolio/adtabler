@@ -27,7 +27,7 @@ library(adtabler, quietly = TRUE)
 
 ## Helper Functions:
 
-1.  Strings
+### Strings
 
 ```{r}
 #| output: false
@@ -59,7 +59,7 @@ numpad4 <- function(x) {
 }
 ```
 
-2.  Dates
+### Dates
 
 ```{r}
 make_yearweek2 <- function(year, week = NULL, week_start = getOption("lubridate.week.start", 1)) {
@@ -68,11 +68,56 @@ make_yearweek2 <- function(year, week = NULL, week_start = getOption("lubridate.
   } else {
     out <- map(year, ~ tsibble::make_yearweek(year = .x, week = week, week_start))
   }
-  return(out)
+  return(out[[1]])
 }
 ```
 
-3.  Dates Check
+```{r}
+date_to_yweek <- function(x, w_day = TRUE, week_start = getOption("lubridate.week.start", 1)){
+  x <- as.Date(x)
+  
+  if(w_day){
+    wd_n <- lubridate::wday(x, week_start = week_start) |> numpad2()
+    wd_c <- lubridate::wday(x, label = TRUE, abbr = TRUE, week_start = week_start)
+    
+    out <- tsibble::yearweek(x, week_start = week_start) |> 
+      paste0(" D", wd_n, " (", wd_c, ")")
+    out[is.na(x)] <- NA
+    return(out)
+  }
+  tsibble::yearweek(x, week_start = week_start)
+}
+```
+
+```{r}
+yweek_to_date_i <- function(x, week_start = getOption("lubridate.week.start", 1)){
+  if(is.na(x)){
+    return(NA)
+  }
+  x0 <- as.character(x) |> strsplit(" ") |> unlist()
+  n <- length(x0)
+    x0 <- x0[1 : 3] |> 
+      str_remove_all('[A-Z]') |> 
+      as.integer() |> 
+      as.list()
+    names(x0) <- c("year", "week", "wday")
+    
+    out <- make_yearweek(year = x0$year, week = x0$week)
+    return(as.Date(out) + x0$wday - 1)
+}
+
+yweek_to_date <- function(x, simplify = TRUE, week_start = getOption("lubridate.week.start", 1)){
+  if(simplify){
+    return(map(.x = x, .f = ~ yweek_to_date_i(.x)) |> purrr::list_c())
+  }
+  map(.x = x, .f = ~ yweek_to_date_i(.x))
+}
+```
+
+
+
+
+### Dates Check
 
 Check if the dates in a file include somne of the previous year.
 
@@ -106,30 +151,34 @@ check_previous_year_i <- function(file, year){
       )
   }
 }
+min_date_year_i <- function(file, year){
+  cmd_out <- glue("grep -E -o '{year}-01-[0-9][0-9]' %s") |>
+    as.character() |>
+    sprintf(shQuote(file))
+  out_temp <- check_previous_year_i(file, year)
+  if (is.na(out_temp)) {
+    out <-  system(cmd_out, intern = TRUE) |>
+      unique() |>
+      sort() |>
+      suppressWarnings()
+    if(length(out) == 0){
+      return(NA)
+    } else {
+      return(out[[1]])
+    }
+  } else {
+    out_temp
+  }
+}
 
 # Vectorized
 check_previous_year <- Vectorize(check_previous_year_i, USE.NAMES = FALSE)
-
-# min_date_year_i <- function(file, year){
-#   cmd_out <- glue("grep -E -o '{year}-01-[0-9][0-9]' %s") |> 
-#     as.character() |> sprintf(shQuote(file))
-#   out_temp <- check_previous_year_i(file, year)
-#   if (is.na(out_temp)) {
-#     out <-  system(cmd_out, intern = TRUE) |> 
-#       unique() |> 
-#       sort()
-#     return(out[[1]])
-#   }
-#   try(sort(out_temp, decreasing = TRUE)[[1]])
-# }
-
-# min_date_year <- Vectorize(min_date_year_i, USE.NAMES = FALSE)
+min_date_year <- Vectorize(min_date_year_i, USE.NAMES = FALSE)
 ```
 
 Check if the dates in a file include somne of the next year.
 
 ```{r}
-max_date_year_i(file, year)
 # Non Vectorized
 check_next_year_i <- function(file, year){
   
@@ -159,38 +208,30 @@ check_next_year_i <- function(file, year){
     )
   }
 }
+max_date_year_i <- function(file, year){
+  cmd_out <- glue("grep -E -o '{year}-12-[0-9][0-9]' %s") |>
+    as.character() |>
+    sprintf(shQuote(file))
+  out_temp <- check_next_year_i(file, year)
+  if (is.na(out_temp)) {
+    out <-  system(cmd_out, intern = TRUE) |>
+      unique() |>
+      sort(decreasing = TRUE) |>
+      suppressWarnings()
+    if(length(out) == 0){
+      return(NA)
+    } else {
+      return(out[[1]])
+    }
+  } else {
+    out_temp
+  }
+}
 
 # Vectorized
 check_next_year <- Vectorize(check_next_year_i, USE.NAMES = FALSE)
-
-
-# max_date_year_i <- function(file, year){
-#   cmd_out <- glue("grep -E -o '{year}-12-[0-9][0-9]' %s") |> 
-#     as.character() |> sprintf(shQuote(file))
-#   out_temp <- check_next_year_i(file, year)
-#   if (is.na(out_temp)) {
-#     out <-  system(cmd_out, intern = TRUE) |> 
-#       unique() |> 
-#       sort(decreasing = T)
-#     return(out[[1]])
-#   } else {
-#     return(sort(out_temp, decreasing = TRUE)[[1]])
-#   }
-# }
-
-# max_date_year <- Vectorize(max_date_year_i, USE.NAMES = FALSE)
+max_date_year <- Vectorize(max_date_year_i, USE.NAMES = FALSE)
 ```
-
-```{r}
-
-check_previous_year(occurrences_files$full_file_name,
-                    occurrences_files$year)
-occurrences_files |> 
-  mutate(max_date = max_date_year(full_file_name,year))
-
-```
-
-
 
 3.  Data Read
 
@@ -310,6 +351,17 @@ dyn_files$file_type |>
   set_names(dyn_files$file_type |> unique())
 ```
 
+### Occurrences
+
+```{r}
+occurrences_files <- dyn_files |>
+  filter(str_detect(file_type, no_case("occurrences")))
+occurrences_files <- occurrences_files |> 
+  mutate(n_rows = full_file_name |> map_vec(read_nrows))
+
+read_nrows_vec <- Vectorize(read_nrows, vectorize.args = )
+```
+
 ### References
 
 ```{r}
@@ -339,13 +391,6 @@ impressions_files <- dyn_files |>
 ```{r}
 market_breaks_files <- dyn_files |>
   filter(str_detect(file_type, no_case("market_breaks")))
-```
-
-### Occurrences
-
-```{r}
-occurrences_files <- dyn_files |>
-  filter(str_detect(file_type, no_case("occurrences")))
 ```
 
 ### Universe Estimates

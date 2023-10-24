@@ -1,13 +1,13 @@
 #' Read the number of rows of a file
 #'
-#' @param full_name a string.
+#' @param file a string.
 #' @param df_out logical.
 #'
 #' @return a list or a tibble/data.frame.
 #' @export
 #'
-read_nrows <- function(full_name, header = TRUE, list_out = FALSE, df_out = FALSE) {
-  cmd_out <- sprintf("wc -l %s", shQuote(full_name)) |>
+read_nrows <- function(file, header = TRUE, list_out = FALSE, df_out = FALSE) {
+  cmd_out <- sprintf("wc -l %s", shQuote(file)) |>
     system(intern = TRUE) |>
     strsplit(" ") |>
     unlist()
