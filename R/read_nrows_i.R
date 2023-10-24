@@ -3,7 +3,7 @@
 #' @param file a string.
 #' @param header logical.
 #' @param list_out logical.
-#' @df_out logical.
+#' @param df_out logical.
 #' @param df_out logical.
 #'
 #' @return a list or a tibble/data.frame.
