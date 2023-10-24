@@ -352,16 +352,11 @@ dyn_files$file_type |>
 
 ```{r}
 occurrences_files <- dyn_files |>
-  filter(str_detect(file_type, no_case("occurrences")))
+  filter(str_detect(file_type, no_case("occurrences"))) |> 
+  # 'media_unique_keys' contains the unique keys of each occurence table by 'media_type_id'
+  left_join(media_unique_keys)
 
-occurrences_files |> 
-  inner_join(media_unique_keys)
-```
-
-
-```{r}
-|>
-  # rename(nielsen_file_name = file_name) |> 
+occurrences_files <- occurrences_files |> 
   mutate(
     n_rows = read_nrows(full_file_name),
     min_date = min_date_year(full_file_name, year),
@@ -378,6 +373,23 @@ occurrences_files |>
           paste(collapse = "___")
       )
   )
+```
+
+```{r}
+head(media_unique_keys)
+```
+
+
+```{r}
+occurrences_files |> 
+  inner_join(media_unique_keys)
+```
+
+
+```{r}
+|>
+  # rename(nielsen_file_name = file_name) |> 
+ 
 ```
 
 ```{r}

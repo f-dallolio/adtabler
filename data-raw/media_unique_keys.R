@@ -8,6 +8,8 @@ media_unique_keys <- read_csv("data-raw/media_unique_keys.csv")
 names(media_unique_keys) <- adtabler::to_c(media_type_id, media_type, file_name, nielsen_unique_key)
 media_unique_keys <- media_unique_keys |>
   mutate(
+    nielsen_unique_key = nielsen_unique_key |>
+      str_replace_all("Mediat", "Media"),
     file_name = file_name |>
       str_replace_all("National", "Network"),
     nielsen_unique_key = nielsen_unique_key |>
@@ -18,5 +20,5 @@ media_unique_keys <- media_unique_keys |>
       map(~ str_c(.x, collapse = "___")) |>
       list_c()
   )
-
+media_unique_keys
 usethis::use_data(media_unique_keys, overwrite = TRUE)
