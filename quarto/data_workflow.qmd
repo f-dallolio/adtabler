@@ -114,9 +114,6 @@ yweek_to_date <- function(x, simplify = TRUE, week_start = getOption("lubridate.
 }
 ```
 
-
-
-
 ### Data Check
 
 Check if the dates in a file include somne of the previous year.
@@ -176,7 +173,7 @@ check_previous_year <- Vectorize(check_previous_year_i, USE.NAMES = FALSE)
 min_date_year <- Vectorize(min_date_year_i, USE.NAMES = FALSE)
 ```
 
-Check if the dates in a file include somne of the next year.
+Check if the dates in a file include some of the next year.
 
 ```{r}
 # Non Vectorized
@@ -396,7 +393,6 @@ media_type_table |>
   left_join(occurrences_files) |> 
   unnest(everything())
 ```
-
 
 ### References
 
