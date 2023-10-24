@@ -11,7 +11,7 @@ A data frame (tibble) with 152 rows and 3 columns.
 \describe{
 \item{media_type_id}{integer/numeric. The id for each specific media.}
 \item{ukey_pos}{Type: integer/numeric. Positions of the columns forming the unique key.}
-\item{ukey_man}{Type: character. Names (as per the AdIntel manual) of the columns forming the unique key for a specific 'media_type_id'}
+\item{ukey_man}{Type: character. Names (as per the AdIntel manual) of the columns forming the unique key for a specific 'media_type_id'.}
 }
 }
 }

@@ -12,7 +12,7 @@
 #'   \item{col_class_man}{Type: character. The description of the column SQL data type provided by Nielsen.}
 #'   \item{col_p, col_n}{Type: integer/numeric. The expected length of the data in the column. Usually, 'p' (col_p) is referred to as 'precision' and 'n' (col_n) as scale. For the SQL type NUMERIC,
 #'   col_p is the total number of digits while col_n is the number of decimals.}
-#'   \item{description}{Type: The column description provided by Nielsen}
+#'   \item{description}{Type: The column description provided by Nielsen.}
 #' }
 "occurrences_columns"
 
@@ -40,6 +40,6 @@
 #' \describe{
 #'   \item{media_type_id}{integer/numeric. The id for each specific media.}
 #'   \item{ukey_pos}{Type: integer/numeric. Positions of the columns forming the unique key.}
-#'   \item{ukey_man}{Type: character. Names (as per the AdIntel manual) of the columns forming the unique key for a specific 'media_type_id'}
+#'   \item{ukey_man}{Type: character. Names (as per the AdIntel manual) of the columns forming the unique key for a specific 'media_type_id'.}
 #' }
 "occurrences_ukey"
