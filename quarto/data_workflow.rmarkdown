@@ -9,11 +9,13 @@ editor_options:
   chunk_output_type: inline
 ---
 
+
 # Preparation
 
 ## Pakages
 
 First, I load the required packages.
+
 
 ```{r}
 devtools::install_github("f-dallolio/adtabler", quiet = TRUE)
@@ -25,9 +27,11 @@ library(glue, quietly = TRUE)
 library(adtabler, quietly = TRUE)
 ```
 
+
 ## Helper Functions:
 
 ### Strings
+
 
 ```{r}
 #| output: false
@@ -59,7 +63,9 @@ numpad4 <- function(x) {
 }
 ```
 
+
 ### Dates
+
 
 ```{r}
 make_yearweek2 <- function(year, week = NULL, week_start = getOption("lubridate.week.start", 1)) {
@@ -114,9 +120,11 @@ yweek_to_date <- function(x, simplify = TRUE, week_start = getOption("lubridate.
 }
 ```
 
+
 ### Data Check
 
 Check if the dates in a file include somne of the previous year.
+
 
 ```{r}
 # Non vectorized
@@ -179,7 +187,9 @@ min_date_year <- function(file, year){
 }
 ```
 
+
 Check if the dates in a file include some of the next year.
+
 
 ```{r}
 # Non Vectorized
@@ -242,7 +252,9 @@ max_date_year <- function(file, year){
 }
 ```
 
+
 3.  Data Read
+
 
 ```{r}
 # Read number of rows. 
@@ -304,16 +316,20 @@ read_row1 <- function(file, to_string = FALSE) {
 }
 ```
 
+
 ## Load Data (one year at the time)
 
 Defina the directory containing the AdIntel folders and retrieve data paths:
+
 
 ```{r}
 adintel_folder <- "/mnt/sata_data_1/adintel/ADINTEL_DATA_2010/"
 adintel_files <- list.files(adintel_folder, recursive = TRUE, full.names = TRUE)
 ```
 
+
 Retrieve and describe file paths for "dynamic" files (i.e. they can change year by year):
+
 
 ```{r}
 dyn_files <- adintel_files |>
@@ -336,7 +352,9 @@ dyn_files <- adintel_files |>
 # dyn_files
 ```
 
+
 Retrieve file paths for different types of data. First check unique file_type names. Here the output is the renamed/standardized names vector of file_type names with the originals as names.
+
 
 ```{r}
 dyn_files$file_type |>
@@ -345,7 +363,9 @@ dyn_files$file_type |>
   set_names(dyn_files$file_type |> unique())
 ```
 
+
 ### Occurrences
+
 
 ```{r}
 occurrences_files <- dyn_files |>
@@ -365,26 +385,25 @@ occurrences_files <- dyn_files |>
         descripton = descripton |> map(~.x[[1]]) )
 ```
 
+
 Min and max dates.
 
+
 ```{r}
-# occurrences_date <- occurrences_files |> 
-#   select(full_file_name, year) |> 
-#   distinct() |> 
-#   mutate(
-#     min_date = min_date_year(full_file_name, year),
-#     max_date = max_date_year(full_file_name, year),
-#   )
-# occurrences_date_2010 <- occurrences_date
-# write_rds(occurrences_date_2010, "~/Documents/r_wd/adtabler/data-raw/lookup_data/occurrences_date_2010.rds")
-# usethis::use_data(occurrences_date_2010)
-# occurrences_files$full_file_name |> rep(2)
+occurrences_date <- occurrences_files |> 
+  select(full_file_name, year) |> 
+  mutate(
+    min_date = min_date_year(full_file_name, year),
+    max_date = max_date_year(full_file_name, year),
+  )
 ```
+
 
 
 ### References
 
 Retrieve info for dynamic references.
+
 
 ```{r}
 dynamic_references_files <- dyn_files |>
@@ -400,7 +419,9 @@ dynamic_references_files <- dyn_files |>
   mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man)
 ```
 
+
 Retrieve info for static references.
+
 
 ```{r}
 static_references_files <- adintel_files |>
@@ -427,7 +448,9 @@ static_references_files <- adintel_files |>
   mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man)
 ```
 
+
 Bind rows of static and dynamic references and merge with "reference_columns" (lookup table with info about all variables in references tables).
+
 
 ```{r}
 references_columns
@@ -456,7 +479,9 @@ references_files <- references_columns |>
 references_files
 ```
 
+
 ### Impressions
+
 
 ```{r}
 impressions_files <- dyn_files |>
@@ -477,7 +502,9 @@ impressions_files <- dyn_files |>
 impressions_files
 ```
 
+
 ### Market Breaks
+
 
 ```{r}
 market_breaks_files <- dyn_files |>
@@ -498,7 +525,9 @@ market_breaks_files <- dyn_files |>
 market_breaks_files
 ```
 
+
 ### Universe Estimates
+
 
 ```{r}
 universe_estimates_files <- dyn_files |>
@@ -518,3 +547,4 @@ universe_estimates_files <- dyn_files |>
          col_name_man = col_name_man |> map(~.x[[1]]))
 universe_estimates_files
 ```
+

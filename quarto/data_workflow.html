@@ -468,109 +468,111 @@ The following objects are masked from 'package:purrr':
 <h3 class="anchored" data-anchor-id="occurrences">Occurrences</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>occurrences_files <span class="ot">&lt;-</span> dyn_files <span class="sc">|&gt;</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(file_type, <span class="fu">no_case</span>(<span class="st">"occurrences"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(file_type, <span class="fu">no_case</span>(<span class="st">"occurrences"</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(occurrences_columns) <span class="sc">|&gt;</span> </span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>(<span class="at">col_pos =</span> col_pos,</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">col_name_man =</span> col_name_man,</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">col_class_man =</span> col_class_man,</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">col_p =</span> col_p,</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">col_n =</span> col_n,</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">descripton =</span> description) <span class="sc">|&gt;</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a> <span class="fu">mutate</span>(<span class="at">col_pos =</span> col_pos <span class="sc">|&gt;</span> <span class="fu">map</span>(<span class="sc">~</span>.x[[<span class="dv">1</span>]]),</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">col_name_man =</span> col_name_man <span class="sc">|&gt;</span> <span class="fu">map</span>(<span class="sc">~</span>.x[[<span class="dv">1</span>]]),</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">col_class_man =</span> col_class_man <span class="sc">|&gt;</span> <span class="fu">map</span>(<span class="sc">~</span>.x[[<span class="dv">1</span>]]),</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">col_p =</span> col_p <span class="sc">|&gt;</span> <span class="fu">map</span>(<span class="sc">~</span>.x[[<span class="dv">1</span>]]),</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">col_n =</span> col_n <span class="sc">|&gt;</span> <span class="fu">map</span>(<span class="sc">~</span>.x[[<span class="dv">1</span>]]),</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">descripton =</span> descripton <span class="sc">|&gt;</span> <span class="fu">map</span>(<span class="sc">~</span>.x[[<span class="dv">1</span>]]) )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Joining with `by = join_by(file_name)`</code></pre>
 </div>
-<p>‘media_unique_keys’ contains the unique keys of each occurence table by ‘media_type_id’</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># media_unique_keys &lt;- media_unique_keys |&gt; </span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co">#       select(file_name,</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co">#              media_type_id,</span></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co">#              nielsen_unique_key,</span></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="co">#              unique_key)</span></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="co"># head(media_unique_keys)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># occurrences_files &lt;- occurrences_files |&gt;</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   mutate(</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="co">#     n_rows = read_nrows(full_file_name),</span></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co">#     min_date = min_date_year(full_file_name, year),</span></span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="co">#     max_date = max_date_year(full_file_name, year),</span></span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="co">#     col_names_man = full_file_name |&gt;</span></span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="co">#       map_vec(</span></span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="co">#         ~ read_header(.x) |&gt;</span></span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co">#           paste(collapse = "___")</span></span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co">#       )</span></span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="co">#   )</span></span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="co">#   # 'media_unique_keys' contains the unique keys of each occurence table by 'media_type_id'</span></span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="co"># occurrences_files &lt;-   occurrences_files |&gt; left_join( media_unique_keys )</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="references" class="level3">
 <h3 class="anchored" data-anchor-id="references">References</h3>
 <p>Retrieve info for dynamic references.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>dynamic_references_files <span class="ot">&lt;-</span> dyn_files <span class="sc">|&gt;</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(file_type, <span class="fu">no_case</span>(<span class="st">"references"</span>))) <span class="sc">|&gt;</span> </span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_rows =</span> <span class="fu">read_nrows</span>(full_file_name),</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">col_name_man =</span> full_file_name <span class="sc">|&gt;</span></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">map</span>(</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>        <span class="sc">~</span> <span class="fu">read_header</span>(.x)</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="fu">everything</span>()) <span class="sc">|&gt;</span> </span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">col_pos =</span> <span class="fu">seq_along</span>(col_name_man), <span class="at">.by =</span> file_name, <span class="at">.before =</span> col_name_man)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>dynamic_references_files <span class="ot">&lt;-</span> dyn_files <span class="sc">|&gt;</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(file_type, <span class="fu">no_case</span>(<span class="st">"references"</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_rows =</span> <span class="fu">read_nrows</span>(full_file_name),</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">col_name_man =</span> full_file_name <span class="sc">|&gt;</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">map</span>(</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>        <span class="sc">~</span> <span class="fu">read_header</span>(.x)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="fu">everything</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">col_pos =</span> <span class="fu">seq_along</span>(col_name_man), <span class="at">.by =</span> file_name, <span class="at">.before =</span> col_name_man)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Retrieve info for static references.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>static_references_files <span class="ot">&lt;-</span> adintel_files <span class="sc">|&gt;</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_subset</span>(<span class="at">pattern =</span> <span class="fu">no_case</span>(<span class="st">"master_file"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_subset</span>(<span class="at">pattern =</span> <span class="fu">no_case</span>(<span class="st">"latest"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble_col</span>(<span class="at">column_name =</span> <span class="st">"full_file_name"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_size_mb =</span> <span class="fu">file.size</span>(full_file_name)<span class="sc">/</span>(<span class="dv">1024</span><span class="sc">^</span><span class="dv">2</span>),</span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_size_mb =</span> file_size_mb <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">2</span>),</span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> <span class="cn">NA</span>,</span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_type =</span> <span class="st">"References"</span>,</span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_name =</span> full_file_name <span class="sc">|&gt;</span></span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">str_split_i</span>(<span class="st">"/"</span>, <span class="sc">-</span><span class="dv">1</span>),</span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_name_std =</span> file_name <span class="sc">|&gt;</span></span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">str_split_i</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">."</span>, <span class="sc">-</span><span class="dv">2</span>) <span class="sc">|&gt;</span></span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>      adtabler<span class="sc">::</span><span class="fu">rename_adintel</span>(),</span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_rows =</span> <span class="fu">read_nrows</span>(full_file_name),</span>
-<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">col_name_man =</span> full_file_name <span class="sc">|&gt;</span></span>
-<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>      <span class="fu">map</span>(</span>
-<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>        <span class="sc">~</span> <span class="fu">read_header</span>(.x)</span>
-<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="fu">everything</span>()) <span class="sc">|&gt;</span> </span>
-<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">col_pos =</span> <span class="fu">seq_along</span>(col_name_man), <span class="at">.by =</span> file_name, <span class="at">.before =</span> col_name_man)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>static_references_files <span class="ot">&lt;-</span> adintel_files <span class="sc">|&gt;</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_subset</span>(<span class="at">pattern =</span> <span class="fu">no_case</span>(<span class="st">"master_file"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_subset</span>(<span class="at">pattern =</span> <span class="fu">no_case</span>(<span class="st">"latest"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble_col</span>(<span class="at">column_name =</span> <span class="st">"full_file_name"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_size_mb =</span> <span class="fu">file.size</span>(full_file_name)<span class="sc">/</span>(<span class="dv">1024</span><span class="sc">^</span><span class="dv">2</span>),</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_size_mb =</span> file_size_mb <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">2</span>),</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> <span class="cn">NA</span>,</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_type =</span> <span class="st">"References"</span>,</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_name =</span> full_file_name <span class="sc">|&gt;</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">str_split_i</span>(<span class="st">"/"</span>, <span class="sc">-</span><span class="dv">1</span>),</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_name_std =</span> file_name <span class="sc">|&gt;</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">str_split_i</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">."</span>, <span class="sc">-</span><span class="dv">2</span>) <span class="sc">|&gt;</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>      adtabler<span class="sc">::</span><span class="fu">rename_adintel</span>(),</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_rows =</span> <span class="fu">read_nrows</span>(full_file_name),</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">col_name_man =</span> full_file_name <span class="sc">|&gt;</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>      <span class="fu">map</span>(</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>        <span class="sc">~</span> <span class="fu">read_header</span>(.x)</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="fu">everything</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">col_pos =</span> <span class="fu">seq_along</span>(col_name_man), <span class="at">.by =</span> file_name, <span class="at">.before =</span> col_name_man)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Bind rows of static and dynamic references and merge with “reference_columns” (lookup table with info about all variables in references tables).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>references_columns</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>references_columns</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 82 × 6
-   file_name_std col_name_man  col_class_man col_p col_n description            
-   &lt;chr&gt;         &lt;chr&gt;         &lt;chr&gt;         &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;                  
- 1 advertiser    AdvParentCode Integer       10    &lt;NA&gt;  Code of Advertising Pa…
- 2 advertiser    AdvParentDesc Character     38    &lt;NA&gt;  Description of Adverti…
- 3 advertiser    AdvSubsidCode Integer       10    &lt;NA&gt;  Code of Advertising Su…
- 4 advertiser    AdvSubsidDesc Character     38    &lt;NA&gt;  Description of Adverti…
- 5 brand         BrandCode     Integer       10    &lt;NA&gt;  Code of Brand (Ex: 665…
- 6 brand         BrandDesc     Character     128   &lt;NA&gt;  Description of Brand (…
- 7 brand         BrandVariant  Character     128   &lt;NA&gt;  BrandVariant = Brand D…
- 8 brand         AdvParentCode Integer       10    &lt;NA&gt;  Code of Advertising Pa…
- 9 brand         AdvSubsidCode Integer       10    &lt;NA&gt;  Code of Advertising Su…
-10 brand         PCCSubCode    Char          4     &lt;NA&gt;  Product Category Code …
+<pre><code># A tibble: 82 × 7
+   file_name_std col_pos col_name_man  col_class_man col_p col_n description    
+   &lt;chr&gt;           &lt;int&gt; &lt;chr&gt;         &lt;chr&gt;         &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;          
+ 1 advertiser          1 AdvParentCode Integer       10    &lt;NA&gt;  Code of Advert…
+ 2 advertiser          2 AdvParentDesc Character     38    &lt;NA&gt;  Description of…
+ 3 advertiser          3 AdvSubsidCode Integer       10    &lt;NA&gt;  Code of Advert…
+ 4 advertiser          4 AdvSubsidDesc Character     38    &lt;NA&gt;  Description of…
+ 5 brand               1 BrandCode     Integer       10    &lt;NA&gt;  Code of Brand …
+ 6 brand               2 BrandDesc     Character     128   &lt;NA&gt;  Description of…
+ 7 brand               3 BrandVariant  Character     128   &lt;NA&gt;  BrandVariant =…
+ 8 brand               4 AdvParentCode Integer       10    &lt;NA&gt;  Code of Advert…
+ 9 brand               5 AdvSubsidCode Integer       10    &lt;NA&gt;  Code of Advert…
+10 brand               6 PCCSubCode    Char          4     &lt;NA&gt;  Product Catego…
 # ℹ 72 more rows</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>references_files <span class="ot">&lt;-</span> references_columns <span class="sc">|&gt;</span> </span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">bind_rows</span>(dynamic_references_files, static_references_files)</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(col_name_man <span class="sc">:</span> description, <span class="at">.after =</span> col_pos) <span class="sc">|&gt;</span> </span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(file_name_std, <span class="at">.after =</span> file_name) <span class="sc">|&gt;</span> </span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>(<span class="at">col_info =</span> col_pos <span class="sc">:</span> description)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>references_files <span class="ot">&lt;-</span> references_columns <span class="sc">|&gt;</span> </span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">bind_rows</span>(dynamic_references_files, static_references_files)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(col_name_man <span class="sc">:</span> description, <span class="at">.after =</span> col_pos) <span class="sc">|&gt;</span> </span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(file_name_std, <span class="at">.after =</span> file_name) <span class="sc">|&gt;</span> </span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>(<span class="at">col_pos =</span> col_pos,</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">col_name_man =</span> col_name_man,</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">col_class_man =</span> col_class_man,</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">col_p =</span> col_p,</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">col_n =</span> col_n,</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">descripton =</span> description) <span class="sc">|&gt;</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a> <span class="fu">mutate</span>(<span class="at">col_pos =</span> col_pos <span class="sc">|&gt;</span> <span class="fu">map</span>(<span class="sc">~</span>.x[[<span class="dv">1</span>]]),</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">col_name_man =</span> col_name_man <span class="sc">|&gt;</span> <span class="fu">map</span>(<span class="sc">~</span>.x[[<span class="dv">1</span>]]),</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">col_class_man =</span> col_class_man <span class="sc">|&gt;</span> <span class="fu">map</span>(<span class="sc">~</span>.x[[<span class="dv">1</span>]]),</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">col_p =</span> col_p <span class="sc">|&gt;</span> <span class="fu">map</span>(<span class="sc">~</span>.x[[<span class="dv">1</span>]]),</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">col_n =</span> col_n <span class="sc">|&gt;</span> <span class="fu">map</span>(<span class="sc">~</span>.x[[<span class="dv">1</span>]]),</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>        <span class="at">descripton =</span> descripton <span class="sc">|&gt;</span> <span class="fu">map</span>(<span class="sc">~</span>.x[[<span class="dv">1</span>]]) )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Joining with `by = join_by(file_name_std, col_name_man)`</code></pre>
+<pre><code>Joining with `by = join_by(file_name_std, col_pos, col_name_man)`</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>references_files</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>references_files</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 25 × 8
+<pre><code># A tibble: 25 × 13
    full_file_name    file_size_mb  year file_type file_name file_name_std n_rows
    &lt;chr&gt;                    &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;          &lt;int&gt;
  1 /mnt/sata_data_1…         21.3  2010 Referenc… Advertis… advertiser    358446
@@ -584,29 +586,98 @@ The following objects are masked from 'package:purrr':
  9 /mnt/sata_data_1…          0      NA Referenc… DigitalB… digital_buy_…      3
 10 /mnt/sata_data_1…          0      NA Referenc… DigitalG… digital_genre     86
 # ℹ 15 more rows
-# ℹ 1 more variable: col_info &lt;list&gt;</code></pre>
+# ℹ 6 more variables: col_pos &lt;list&gt;, col_name_man &lt;list&gt;,
+#   col_class_man &lt;list&gt;, col_p &lt;list&gt;, col_n &lt;list&gt;, descripton &lt;list&gt;</code></pre>
 </div>
 </div>
 </section>
 <section id="impressions" class="level3">
 <h3 class="anchored" data-anchor-id="impressions">Impressions</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>impressions_files <span class="ot">&lt;-</span> dyn_files <span class="sc">|&gt;</span></span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(file_type, <span class="fu">no_case</span>(<span class="st">"impressions"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>impressions_files <span class="ot">&lt;-</span> dyn_files <span class="sc">|&gt;</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(file_type, <span class="fu">no_case</span>(<span class="st">"impressions"</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_rows =</span> <span class="fu">read_nrows</span>(full_file_name),</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">col_name_man =</span> full_file_name <span class="sc">|&gt;</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">map</span>(</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>        <span class="sc">~</span> <span class="fu">read_header</span>(.x)</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="fu">everything</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">col_pos =</span> <span class="fu">seq_along</span>(col_name_man), <span class="at">.by =</span> file_name, <span class="at">.before =</span> col_name_man) <span class="sc">|&gt;</span> </span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>(<span class="at">col_pos =</span> col_pos, </span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">col_name_man =</span> col_name_man) <span class="sc">|&gt;</span> </span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">col_pos =</span> col_pos <span class="sc">|&gt;</span> <span class="fu">map</span>(<span class="sc">~</span>.x[[<span class="dv">1</span>]]),</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>         <span class="at">col_name_man =</span> col_name_man <span class="sc">|&gt;</span> <span class="fu">map</span>(<span class="sc">~</span>.x[[<span class="dv">1</span>]]))</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>impressions_files</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 9
+  full_file_name     file_size_mb  year file_type file_name file_name_std n_rows
+  &lt;chr&gt;                     &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;          &lt;int&gt;
+1 /mnt/sata_data_1/…        2819.  2010 Impressi… ImpNatio… imp_national… 1.70e7
+2 /mnt/sata_data_1/…        5371.  2010 Impressi… ImpSpotR… imp_spot_rad… 4.58e7
+3 /mnt/sata_data_1/…         668.  2010 Impressi… ImpSpotT… imp_spot_tv   7.07e6
+# ℹ 2 more variables: col_pos &lt;list&gt;, col_name_man &lt;list&gt;</code></pre>
+</div>
 </div>
 </section>
 <section id="market-breaks" class="level3">
 <h3 class="anchored" data-anchor-id="market-breaks">Market Breaks</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>market_breaks_files <span class="ot">&lt;-</span> dyn_files <span class="sc">|&gt;</span></span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(file_type, <span class="fu">no_case</span>(<span class="st">"market_breaks"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(file_type, <span class="fu">no_case</span>(<span class="st">"market_breaks"</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_rows =</span> <span class="fu">read_nrows</span>(full_file_name),</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">col_name_man =</span> full_file_name <span class="sc">|&gt;</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">map</span>(</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>        <span class="sc">~</span> <span class="fu">read_header</span>(.x)</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="fu">everything</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">col_pos =</span> <span class="fu">seq_along</span>(col_name_man), <span class="at">.by =</span> file_name, <span class="at">.before =</span> col_name_man) <span class="sc">|&gt;</span> </span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>(<span class="at">col_pos =</span> col_pos, </span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">col_name_man =</span> col_name_man) <span class="sc">|&gt;</span> </span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">col_pos =</span> col_pos <span class="sc">|&gt;</span> <span class="fu">map</span>(<span class="sc">~</span>.x[[<span class="dv">1</span>]]),</span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>         <span class="at">col_name_man =</span> col_name_man <span class="sc">|&gt;</span> <span class="fu">map</span>(<span class="sc">~</span>.x[[<span class="dv">1</span>]]))</span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>market_breaks_files</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 9
+  full_file_name     file_size_mb  year file_type file_name file_name_std n_rows
+  &lt;chr&gt;                     &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;          &lt;int&gt;
+1 /mnt/sata_data_1/…        7916.  2010 Market_B… IMPMarke… imp_market_b… 4.19e7
+# ℹ 2 more variables: col_pos &lt;list&gt;, col_name_man &lt;list&gt;</code></pre>
+</div>
 </div>
 </section>
 <section id="universe-estimates" class="level3">
 <h3 class="anchored" data-anchor-id="universe-estimates">Universe Estimates</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>universe_estimates_files <span class="ot">&lt;-</span> dyn_files <span class="sc">|&gt;</span></span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(file_type, <span class="fu">no_case</span>(<span class="st">"universe_estimates"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>universe_estimates_files <span class="ot">&lt;-</span> dyn_files <span class="sc">|&gt;</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(file_type, <span class="fu">no_case</span>(<span class="st">"universe_estimates"</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_rows =</span> <span class="fu">read_nrows</span>(full_file_name),</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">col_name_man =</span> full_file_name <span class="sc">|&gt;</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">map</span>(</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>        <span class="sc">~</span> <span class="fu">read_header</span>(.x)</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="fu">everything</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">col_pos =</span> <span class="fu">seq_along</span>(col_name_man), <span class="at">.by =</span> file_name, <span class="at">.before =</span> col_name_man) <span class="sc">|&gt;</span> </span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>(<span class="at">col_pos =</span> col_pos, </span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">col_name_man =</span> col_name_man) <span class="sc">|&gt;</span> </span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">col_pos =</span> col_pos <span class="sc">|&gt;</span> <span class="fu">map</span>(<span class="sc">~</span>.x[[<span class="dv">1</span>]]),</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>         <span class="at">col_name_man =</span> col_name_man <span class="sc">|&gt;</span> <span class="fu">map</span>(<span class="sc">~</span>.x[[<span class="dv">1</span>]]))</span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>universe_estimates_files</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 9
+  full_file_name     file_size_mb  year file_type file_name file_name_std n_rows
+  &lt;chr&gt;                     &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;          &lt;int&gt;
+1 /mnt/sata_data_1/…         3.97  2010 Universe… UEMarket… ue_market_br…  15406
+2 /mnt/sata_data_1/…         0.01  2010 Universe… UENation… ue_national_…     22
+3 /mnt/sata_data_1/…         0.22  2010 Universe… UESpotRa… ue_spot_radio   1652
+4 /mnt/sata_data_1/…         0.61  2010 Universe… UESpotTV… ue_spot_tv      4620
+# ℹ 2 more variables: col_pos &lt;list&gt;, col_name_man &lt;list&gt;</code></pre>
+</div>
 </div>
 </section>
 </section>
