@@ -381,7 +381,6 @@ Min and max dates.
 # occurrences_files$full_file_name |> rep(2)
 ```
 
-
 ### References
 
 Retrieve info for dynamic references.
