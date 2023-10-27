@@ -32,7 +32,7 @@ grep_ad_date_ymd <- function(year = NULL, month = NULL, day = NULL) {
 }
 grep_ad_date_ymd(year = 2010:2012, month = 2, day = 1)
 grep_ad_date_ymd()
-grep_ad_date_ymd(month = 2:4)
+grep_ad_date_ymd(year = 2010, month = 2:4)
 
 grep_ad_date <- function(x = NULL) {
   if (is.null(x)) {

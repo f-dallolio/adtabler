@@ -2,20 +2,27 @@
 title: "Data WorkFlow"
 author: "Filippo Dall'Olio"
 format: 
-  html:
-    page-layout: full
+ html:
+    toc: true
+    toc-location: left
+    df-print: paged
+    code-fold: true
+    grid:
+      sidebar-width: 300px
+      body-width: 1400px
+      margin-width: 20px
+      gutter-width: 1.5rem
 editor: visual
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 ---
 
-# Preparation
-
-## Pakages
+# Pakages
 
 First, I load the required packages.
 
 ```{r}
+#| output: false
 devtools::install_github("f-dallolio/adtabler", quiet = TRUE)
 
 library(tidyverse, quietly = TRUE)
@@ -23,20 +30,26 @@ library(tsibble, quietly = TRUE)
 library(rlang, quietly = TRUE)
 library(glue, quietly = TRUE)
 library(adtabler, quietly = TRUE)
+library(furrr)
 ```
 
-## Helper Functions:
+# Helper Functions:
 
-### Strings
+## Strings
+
+### Ignore cases.
+
+Useful in e.g. str_detect():
 
 ```{r}
-#| output: false
-# Ignore cases. Useful in e.g. str_detect()
 no_case <- function(pattern) {
   stringr::regex(pattern, ignore_case = TRUE)
 }
+```
 
-# Pad  integers with zero.
+Converting numbers into characters and padding on the left with "0". First the general function:
+
+```{r}
 numpad <- function(x, width = NULL) {
   stopifnot(is.numeric(x))
   if (is.null(x)) {
@@ -49,17 +62,40 @@ numpad <- function(x, width = NULL) {
     pad = "0",
   )
 }
-# Shorthand with max padding of 2. Useful for months, days, hours, etc.
 numpad2 <- function(x) {
   numpad(x, width = 2)
 }
-# Shorthand with max padding of 4. Useful for years
 numpad4 <- function(x) {
   numpad(x, width = 4)
 }
 ```
 
-### Dates
+## Dates
+
+```{r}
+is_month <- function(x){
+  if( all(as.integer(x) %in% seq(1L, 31L), na.rm = TRUE) ){
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+}
+as_month <- function(x){
+  stopifnot("x must be coercible to a numeric between 1 and 12" = is_month(x))
+  numpad(as.integer(x), width = 2)
+}
+is_day <- function(x){
+  if( all(as.integer(x) %in% seq(1L, 31L)) ){
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+}
+as_day <- function(x){
+  stopifnot("x must be coercible to a numeric between 1 and 31" = is_day(x))
+  numpad(as.integer(x), width = 2)
+}
+```
 
 ```{r}
 make_yearweek2 <- function(year, week = NULL, week_start = getOption("lubridate.week.start", 1)) {
@@ -70,17 +106,14 @@ make_yearweek2 <- function(year, week = NULL, week_start = getOption("lubridate.
   }
   return(out[[1]])
 }
-```
-
-```{r}
-date_to_yweek <- function(x, w_day = TRUE, week_start = getOption("lubridate.week.start", 1)){
+date_to_yweek <- function(x, w_day = TRUE, week_start = getOption("lubridate.week.start", 1)) {
   x <- as.Date(x)
-  
-  if(w_day){
+
+  if (w_day) {
     wd_n <- lubridate::wday(x, week_start = week_start) |> numpad2()
     wd_c <- lubridate::wday(x, label = TRUE, abbr = TRUE, week_start = week_start)
-    
-    out <- tsibble::yearweek(x, week_start = week_start) |> 
+
+    out <- tsibble::yearweek(x, week_start = week_start) |>
       paste0(" D", wd_n, " (", wd_c, ")")
     out[is.na(x)] <- NA
     return(out)
@@ -89,115 +122,26 @@ date_to_yweek <- function(x, w_day = TRUE, week_start = getOption("lubridate.wee
 }
 ```
 
-```{r}
-yweek_to_date_i <- function(x, week_start = getOption("lubridate.week.start", 1)){
-  if(is.na(x)){
-    return(NA)
-  }
-  x0 <- as.character(x) |> strsplit(" ") |> unlist()
-  n <- length(x0)
-    x0 <- x0[1 : 3] |> 
-      str_remove_all('[A-Z]') |> 
-      as.integer() |> 
-      as.list()
-    names(x0) <- c("year", "week", "wday")
-    
-    out <- make_yearweek(year = x0$year, week = x0$week)
-    return(as.Date(out) + x0$wday - 1)
-}
-
-yweek_to_date <- function(x, simplify = TRUE, week_start = getOption("lubridate.week.start", 1)){
-  if(simplify){
-    return(map(.x = x, .f = ~ yweek_to_date_i(.x)) |> purrr::list_c())
-  }
-  map(.x = x, .f = ~ yweek_to_date_i(.x))
-}
-```
-
-### Data Check
-
-Check if the dates in a file include somne of the previous year.
-
-```{r}
-# Non vectorized
-check_previous_year_i <- function(file, year){
-  
-  file_name <- str_split_i(file, "/", -1)
-  
-  cmd_lgl <- glue("grep -E -m 1 -c '{year - 1}-[0-9][0-9]-[0-9][0-9]' %s") |> 
-    as.character()  |> sprintf(shQuote(file))
-  cmd_out <- glue("grep -E -o '{year - 1}-[0-9][0-9]-[0-9][0-9]' %s") |> 
-    as.character() |> sprintf(shQuote(file))
-  
-  out_lgl <-  suppressWarnings(system(cmd_lgl, intern = TRUE) == "1")
-  
-  if(out_lgl){
-    print(glue("There are {year - 1} dates in {year}'s '{ file_name }'. Fetching earliest."))
-    t_start <- Sys.time()
-    out <-  system(cmd_out, intern = TRUE) |> unique()
-    t_end <- Sys.time()
-    elapsed <- t_end - t_start
-    print(elapsed)
-    return(
-      sort(out)[[1]]
-    )
-  } else {
-    print(glue("There are no {year - 1} dates in {year}'s '{ file_name }'."))
-    return(
-      NA
-      )
-  }
-}
-min_date_year_i <- function(file, year){
-  cmd_out <- glue("grep -E -o '{year}-01-[0-9][0-9]' %s") |>
-    as.character() |>
-    sprintf(shQuote(file))
-  out_temp <- check_previous_year_i(file, year)
-  if (is.na(out_temp)) {
-    out <-  system(cmd_out, intern = TRUE) |>
-      unique() |>
-      sort() |>
-      suppressWarnings()
-    if(length(out) == 0){
-      return(NA)
-    } else {
-      return(out[[1]])
-    }
-  } else {
-    out_temp
-  }
-}
-
-# Vectorized
-check_previous_year <- function(file, year){
-  purrr::map2(file, year, ~ check_previous_year_i(file = .x, year = .y)) |> 
-    purrr::list_c()
-}
-min_date_year <- function(file, year){
-  purrr::map2(file, year, ~ min_date_year_i(file = .x, year = .y)) |> 
-    purrr::list_c()
-}
-```
-
 Check if the dates in a file include some of the next year.
 
 ```{r}
 # Non Vectorized
-check_next_year_i <- function(file, year){
-  
+check_next_year_i <- function(file, year) {
   file_name <- str_split_i(file, "/", -1)
-  
-  cmd_lgl <- glue("grep -E -m 1 -c '{year + 1}-[0-9][0-9]-[0-9][0-9]' %s") |> 
-    as.character()  |> sprintf(shQuote(file))
-  cmd_out <- glue("grep -E -o '{year + 1}-[0-9][0-9]-[0-9][0-9]' %s") |> 
-    as.character() |> sprintf(shQuote(file))
-  
-  out_lgl <-  suppressWarnings(system(cmd_lgl, intern = TRUE) == "1")
-  
-  if(out_lgl){
+
+  cmd_lgl <- glue("grep -E -m 1 -c '{year + 1}-[0-9][0-9]-[0-9][0-9]' %s") |>
+    as.character() |>
+    sprintf(shQuote(file))
+  cmd_out <- glue("grep -E -o '{year + 1}-[0-9][0-9]-[0-9][0-9]' %s") |>
+    as.character() |>
+    sprintf(shQuote(file))
+
+  out_lgl <- suppressWarnings(system(cmd_lgl, intern = TRUE) == "1")
+
+  if (out_lgl) {
     print(glue("There are {year + 1} dates in {year}'s '{ file_name }'. Fetching earliest."))
     t_start <- Sys.time()
-    out <-  system(cmd_out, intern = TRUE) |> unique()
+    out <- system(cmd_out, intern = TRUE) |> unique()
     t_end <- Sys.time()
     elapsed <- t_end - t_start
     print(elapsed)
@@ -211,17 +155,17 @@ check_next_year_i <- function(file, year){
     )
   }
 }
-max_date_year_i <- function(file, year){
+max_date_year_i <- function(file, year) {
   cmd_out <- glue("grep -E -o '{year}-12-[0-9][0-9]' %s") |>
     as.character() |>
     sprintf(shQuote(file))
   out_temp <- check_next_year_i(file, year)
   if (is.na(out_temp)) {
-    out <-  system(cmd_out, intern = TRUE) |>
+    out <- system(cmd_out, intern = TRUE) |>
       unique() |>
       sort(decreasing = TRUE) |>
       suppressWarnings()
-    if(length(out) == 0){
+    if (length(out) == 0) {
       return(NA)
     } else {
       return(out[[1]])
@@ -232,288 +176,494 @@ max_date_year_i <- function(file, year){
 }
 
 # Vectorized
-check_next_year <- function(file, year){
-  purrr::map2(file, year, ~ check_next_year_i(file = .x, year = .y)) |> 
+check_next_year <- function(file, year) {
+  purrr::map2(file, year, ~ check_next_year_i(file = .x, year = .y)) |>
     purrr::list_c()
 }
-max_date_year <- function(file, year){
-  purrr::map2(file, year, ~ max_date_year_i(file = .x, year = .y)) |> 
+max_date_year <- function(file, year) {
+  purrr::map2(file, year, ~ max_date_year_i(file = .x, year = .y)) |>
     purrr::list_c()
 }
 ```
 
-3.  Data Read
+## Read Data
+
+### Read Number of Rows
 
 ```{r}
-# Read number of rows. 
-# If header is TRUE, the number of rows does not includes the first line. 
-# 
-# adtabler::read_nrows(full_name, header = TRUE, list_out = FALSE, df_out = FALSE) 
-
-# Extract header
-read_header <- function(file, to_string = FALSE) {
-  file_format <- file |>
-    stringr::str_split_i("\\.", -1)
-
-  if (file_format == "tsv") {
-    sep <- "\t"
-  } else if (file_format == "csv") {
-    sep <- ","
-  } else {
-    sep <- ""
-  }
-
-  out <- data.table::fread(
-    file = file,
-    sep = sep,
-    nrows = 1,
-    header = FALSE
-  ) |>
-    unlist(use.names = FALSE)
-  
-  if(to_string) {
-    return(paste(out, collapse = "__"))
-  }
-  out
+read_nrows <- function(file, header = TRUE) {
+  cmd_out <- sprintf("wc -l %s", shQuote(file)) |>
+      system(intern = TRUE) |> 
+      str_split_i(" ", 1) |> 
+      as.numeric()
+  # 
+  # if(length(file) == 1){
+  #   cmd_out <- sprintf("wc -l %s", shQuote(file)) |>
+  #     system(intern = TRUE) |> 
+  #     str_split_i(" ", 1) |> 
+  #     as.numeric()
+  #   
+  # } else {
+  #   plan(multisession, workers = floor(parallel::detectCores()-2)) 
+  #   cmd_out <- future_map(file, 
+  #                  ~ sprintf("wc -l %s", shQuote(.x)) |>
+  #                    system(intern = TRUE) |> 
+  #                    str_split_i(" ", 1) |> 
+  #                    as.numeric(),
+  #                  .progress = TRUE) |> unlist()
+  #    plan(sequential)
+  #   return(cmd_out - header)
+  # }
 }
 
-# Extract first row
-read_row1 <- function(file, to_string = FALSE) {
-  file_format <- file |>
-    stringr::str_split_i("\\.", -1)
+```
 
-  if (file_format == "tsv") {
-    sep <- "\t"
-  } else if (file_format == "csv") {
-    sep <- ","
-  } else {
-    sep <- ""
-  }
+# Load Data (one year at the time)
 
-  out <- data.table::fread(
-    file = file,
-    sep = sep,
-    nrows = 1
-  ) |>
-    unlist()
+Define the directory containing the AdIntel folders and retrieve data paths.
+
+```{r}
+adintel_dir_home <- "/mnt/sata_data_1/adintel/"
+adintel_folder <-list.files(adintel_dir_home, full.names = TRUE) |> 
+  stringr::str_replace_all("//","/")
+adintel_year <- str_split_i(adintel_folder, pattern = "_",i = -1) |> 
+  as.numeric()
+```
+
+Find years available in the Adintel dataset.
+
+```{r}
+year_range <- range(adintel_year)
+year_1 <- year_range[1]
+year_last <- year_range[2]
+print(year_range)
+```
+
+Get all files for all years.
+
+```{r}
+adintel_all_files <- list.files(adintel_dir_home, 
+                                full.names = TRUE,
+                                all.files = TRUE,
+                                recursive = TRUE)
+```
+
+Extract those about **2020** (arbitrary).
+
+```{r}
+adintel_files_2020 <- adintel_all_files |> 
+  str_subset("2020") |> 
+  str_subset(pattern = no_case("master_file"), negate = TRUE) |> 
+  stringr::str_replace_all("//", "/") |> 
+  as_tibble_col("full_file_name")
+```
+
+### Dynamic Files
+
+Retrieve and describe file paths for 2020 "dynamic" files (i.e. they can change year by year):
+
+```{r}
+num_sep <- max(adintel_files_2020$full_file_name |> str_count("/"))
+
+all_dyn_files <- adintel_files_2020 |> 
+  separate_wider_delim(cols = full_file_name,
+                       delim = "/",
+                       names = paste0("V", 1 : (num_sep + 1)),
+                       cols_remove = FALSE) |> 
+  transmute(full_file_name,
+            year = as.numeric(V4),
+            file_type = V5,
+            file_name = V6)
+```
+
+Description of each file. The function returns a nested tibble with the name of the file (`file`), the string used (`sep`) to separate columns, the number of rows (`n_rows`), the number of columns (`n_cols`), and the column names (`col_names_man`). I use `"_man` at the end of the column indicating the column names in the original files to indicate that it is the name used in the Adintel `_man`ual. The column `col_names_std` contains standardized column names. Standardization is performed by the function `adtabler::rename_adintel()`.
+
+```{r}
+#| output: false
+describe_dyn_files <- function(file, header = TRUE){
+  num_rows <- read_nrows(file, header)
+  first_row <- data.table::fread(file = file,
+                                 skip = as.numeric(!header),
+                                 nrows = 1) |> 
+    as.list() |>  
+    unlist(use.names = TRUE)
   
-  if(to_string) {
-    return(paste(out, collapse = "__"))
+  nms <- names(first_row)
+  header_nosep <- readLines(file, n = 1, skipNul = TRUE) 
+  
+  sep0 = header_nosep
+  for(i in seq_along(nms)){
+    sep0 <- str_remove_all(sep0, nms[i])
   }
-  out
+  
+  sep = sep0 |> 
+    str_remove_all(" ") |> 
+    str_split("") |> 
+    unlist() |> 
+    unique()
+  
+  out <- tibble(file,
+                sep = sep,
+                n_row = num_rows,
+                n_col = length(nms),
+                col_names_man = list(nms),
+                col_names_std = list(adtabler::rename_adintel(nms)))
+  return(out)  
 }
-```
-
-## Load Data (one year at the time)
-
-Defina the directory containing the AdIntel folders and retrieve data paths:
-
-```{r}
-adintel_folder <- "/mnt/sata_data_1/adintel/ADINTEL_DATA_2010/"
-adintel_files <- list.files(adintel_folder, recursive = TRUE, full.names = TRUE)
-```
-
-Retrieve and describe file paths for "dynamic" files (i.e. they can change year by year):
-
-```{r}
-dyn_files <- adintel_files |>
-  str_subset(pattern = no_case("master_file"), negate = TRUE) |>
-  as_tibble_col("full_file_name") |>
-  mutate(
-    file_size_mb = file.size(full_file_name)/(1024^2),
-    file_size_mb = file_size_mb |> round(2),
-    year = full_file_name |>
-      str_split_i("/", -3) |>
-      as.integer(),
-    file_type = full_file_name |>
-      str_split_i("/", -2),
-    file_name = full_file_name |>
-      str_split_i("/", -1),
-    file_name_std = file_name |>
-      str_split_i("\\.", -2) |>
-      rename_adintel()
-  )
-# dyn_files
-```
-
-Retrieve file paths for different types of data. First check unique file_type names. Here the output is the renamed/standardized names vector of file_type names with the originals as names.
-
-```{r}
-dyn_files$file_type |>
-  unique() |>
-  rename_adintel() |>
-  set_names(dyn_files$file_type |> unique())
-```
-
-### Occurrences
-
-```{r}
-occurrences_files <- dyn_files |>
-  filter(str_detect(file_type, no_case("occurrences"))) |> 
-  inner_join(occurrences_columns) |> 
-  nest(col_pos = col_pos,
-       col_name_man = col_name_man,
-       col_class_man = col_class_man,
-       col_p = col_p,
-       col_n = col_n,
-       descripton = description) |>
- mutate(col_pos = col_pos |> map(~.x[[1]]),
-        col_name_man = col_name_man |> map(~.x[[1]]),
-        col_class_man = col_class_man |> map(~.x[[1]]),
-        col_p = col_p |> map(~.x[[1]]),
-        col_n = col_n |> map(~.x[[1]]),
-        descripton = descripton |> map(~.x[[1]]) )
-```
-
-Min and max dates.
-
-```{r}
-# occurrences_date <- occurrences_files |> 
-#   select(full_file_name, year) |> 
-#   distinct() |> 
-#   mutate(
-#     min_date = min_date_year(full_file_name, year),
-#     max_date = max_date_year(full_file_name, year),
-#   )
-# occurrences_date_2010 <- occurrences_date
-# write_rds(occurrences_date_2010, "~/Documents/r_wd/adtabler/data-raw/lookup_data/occurrences_date_2010.rds")
-# usethis::use_data(occurrences_date_2010)
-# occurrences_files$full_file_name |> rep(2)
-```
-
-### References
-
-Retrieve info for dynamic references.
-
-```{r}
-dynamic_references_files <- dyn_files |>
-  filter(str_detect(file_type, no_case("references"))) |> 
-  mutate(
-    n_rows = read_nrows(full_file_name),
-    col_name_man = full_file_name |>
-      map(
-        ~ read_header(.x)
-      )
-  ) |> 
-  unnest(everything()) |> 
-  mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man)
-```
-
-Retrieve info for static references.
-
-```{r}
-static_references_files <- adintel_files |>
-  str_subset(pattern = no_case("master_file")) |>
-  str_subset(pattern = no_case("latest")) |>
-  as_tibble_col(column_name = "full_file_name") |>
-  mutate(
-    file_size_mb = file.size(full_file_name)/(1024^2),
-    file_size_mb = file_size_mb |> round(2),
-    year = NA,
-    file_type = "References",
-    file_name = full_file_name |>
-      str_split_i("/", -1),
-    file_name_std = file_name |>
-      str_split_i("\\.", -2) |>
-      adtabler::rename_adintel(),
-    n_rows = read_nrows(full_file_name),
-    col_name_man = full_file_name |>
-      map(
-        ~ read_header(.x)
-      )
-  ) |> 
-  unnest(everything()) |> 
-  mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man)
-```
-
-Bind rows of static and dynamic references and merge with "reference_columns" (lookup table with info about all variables in references tables).
-
-```{r}
-references_columns
+# plan(multisession, workers = 30)
+# tictoc::tic()
+# dyn_files_desc_thread <- future_map(all_dyn_files$full_file_name, describe_dyn_files, .progress = TRUE)
+# tictoc::toc()
+# plan(sequential)
 ```
 
 ```{r}
-references_files <- references_columns |> 
-  inner_join(
-    bind_rows(dynamic_references_files, static_references_files)
-  ) |> 
-  relocate(col_name_man : description, .after = col_pos) |> 
-  relocate(file_name_std, .after = file_name) |> 
-  nest(col_pos = col_pos,
-       col_name_man = col_name_man,
-       col_class_man = col_class_man,
-       col_p = col_p,
-       col_n = col_n,
-       descripton = description) |>
- mutate(col_pos = col_pos |> map(~.x[[1]]),
-        col_name_man = col_name_man |> map(~.x[[1]]),
-        col_class_man = col_class_man |> map(~.x[[1]]),
-        col_p = col_p |> map(~.x[[1]]),
-        col_n = col_n |> map(~.x[[1]]),
-        descripton = descripton |> map(~.x[[1]]) )
-
-references_files
+#| output: false
+tictoc::tic()
+dyn_files_desc <- map(all_dyn_files$full_file_name, describe_dyn_files, .progress = TRUE) |> 
+  list_rbind()
 ```
-
-### Impressions
 
 ```{r}
-impressions_files <- dyn_files |>
-  filter(str_detect(file_type, no_case("impressions"))) |> 
-  mutate(
-    n_rows = read_nrows(full_file_name),
-    col_name_man = full_file_name |>
-      map(
-        ~ read_header(.x)
-      )
-  ) |> 
-  unnest(everything()) |> 
-  mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man) |> 
-  nest(col_pos = col_pos, 
-       col_name_man = col_name_man) |> 
-  mutate(col_pos = col_pos |> map(~.x[[1]]),
-         col_name_man = col_name_man |> map(~.x[[1]]))
-impressions_files
+tictoc::toc()
 ```
-
-### Market Breaks
 
 ```{r}
-market_breaks_files <- dyn_files |>
-  filter(str_detect(file_type, no_case("market_breaks"))) |> 
-  mutate(
-    n_rows = read_nrows(full_file_name),
-    col_name_man = full_file_name |>
-      map(
-        ~ read_header(.x)
-      )
-  ) |> 
-  unnest(everything()) |> 
-  mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man) |> 
-  nest(col_pos = col_pos, 
-       col_name_man = col_name_man) |> 
-  mutate(col_pos = col_pos |> map(~.x[[1]]),
-         col_name_man = col_name_man |> map(~.x[[1]]))
-market_breaks_files
+dyn_files_desc |> 
+  unnest(everything())
 ```
 
-### Universe Estimates
+<!-- Retrieve file paths for different types of data. First check unique file_type names. Here the output is the renamed/standardized names vector of file_type names with the originals as names. -->
 
 ```{r}
-universe_estimates_files <- dyn_files |>
-  filter(str_detect(file_type, no_case("universe_estimates"))) |> 
-  mutate(
-    n_rows = read_nrows(full_file_name),
-    col_name_man = full_file_name |>
-      map(
-        ~ read_header(.x)
-      )
-  ) |> 
-  unnest(everything()) |> 
-  mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man) |> 
-  nest(col_pos = col_pos, 
-       col_name_man = col_name_man) |> 
-  mutate(col_pos = col_pos |> map(~.x[[1]]),
-         col_name_man = col_name_man |> map(~.x[[1]]))
-universe_estimates_files
+# dyn_files$file_type |>
+#   unique() |>
+#   rename_adintel() |>
+#   set_names(dyn_files$file_type |> unique())
 ```
+
+<!-- ### Occurrences -->
+
+<!-- ```{r} -->
+
+<!-- occurrences_files <- dyn_files |> -->
+
+<!--   filter(str_detect(file_type, no_case("occurrences"))) |> -->
+
+<!--   inner_join(occurrences_columns) |> -->
+
+<!--   nest( -->
+
+<!--     col_pos = col_pos, -->
+
+<!--     col_name_man = col_name_man, -->
+
+<!--     col_class_man = col_class_man, -->
+
+<!--     col_p = col_p, -->
+
+<!--     col_n = col_n, -->
+
+<!--     descripton = description -->
+
+<!--   ) |> -->
+
+<!--   mutate( -->
+
+<!--     col_pos = col_pos |> map(~ .x[[1]]), -->
+
+<!--     col_name_man = col_name_man |> map(~ .x[[1]]), -->
+
+<!--     col_class_man = col_class_man |> map(~ .x[[1]]), -->
+
+<!--     col_p = col_p |> map(~ .x[[1]]), -->
+
+<!--     col_n = col_n |> map(~ .x[[1]]), -->
+
+<!--     descripton = descripton |> map(~ .x[[1]]) -->
+
+<!--   ) -->
+
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- str(occurrences_files) -->
+
+<!-- ``` -->
+
+<!-- ### References -->
+
+<!-- Retrieve info for dynamic references. -->
+
+<!-- ```{r} -->
+
+<!-- dynamic_references_files <- dyn_files |> -->
+
+<!--   filter(str_detect(file_type, no_case("references"))) |> -->
+
+<!--   mutate( -->
+
+<!--     n_rows = read_nrows(full_file_name), -->
+
+<!--     col_name_man = full_file_name |> -->
+
+<!--       map( -->
+
+<!--         ~ read_header(.x) -->
+
+<!--       ) -->
+
+<!--   ) |> -->
+
+<!--   unnest(everything()) |> -->
+
+<!--   mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man) -->
+
+<!-- ``` -->
+
+<!-- Retrieve info for static references. -->
+
+<!-- ```{r} -->
+
+<!-- static_references_files <- adintel_files |> -->
+
+<!--   str_subset(pattern = no_case("master_file")) |> -->
+
+<!--   str_subset(pattern = no_case("latest")) |> -->
+
+<!--   as_tibble_col(column_name = "full_file_name") |> -->
+
+<!--   mutate( -->
+
+<!--     file_size_mb = file.size(full_file_name) / (1024^2), -->
+
+<!--     file_size_mb = file_size_mb |> round(2), -->
+
+<!--     year = NA, -->
+
+<!--     file_type = "References", -->
+
+<!--     file_name = full_file_name |> -->
+
+<!--       str_split_i("/", -1), -->
+
+<!--     file_name_std = file_name |> -->
+
+<!--       str_split_i("\\.", -2) |> -->
+
+<!--       adtabler::rename_adintel(), -->
+
+<!--     n_rows = read_nrows(full_file_name), -->
+
+<!--     col_name_man = full_file_name |> -->
+
+<!--       map( -->
+
+<!--         ~ read_header(.x) -->
+
+<!--       ) -->
+
+<!--   ) |> -->
+
+<!--   unnest(everything()) |> -->
+
+<!--   mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man) -->
+
+<!-- ``` -->
+
+<!-- Bind rows of static and dynamic references and merge with "reference_columns" (lookup table with info about all variables in references tables). -->
+
+<!-- ```{r} -->
+
+<!-- references_columns |> print(width = Inf) -->
+
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- references_files <- references_columns |> -->
+
+<!--   inner_join( -->
+
+<!--     bind_rows(dynamic_references_files, static_references_files) -->
+
+<!--   ) |> -->
+
+<!--   relocate(col_name_man:description, .after = col_pos) |> -->
+
+<!--   relocate(file_name_std, .after = file_name) |> -->
+
+<!--   nest( -->
+
+<!--     col_pos = col_pos, -->
+
+<!--     col_name_man = col_name_man, -->
+
+<!--     col_class_man = col_class_man, -->
+
+<!--     col_p = col_p, -->
+
+<!--     col_n = col_n, -->
+
+<!--     descripton = description -->
+
+<!--   ) |> -->
+
+<!--   mutate( -->
+
+<!--     col_pos = col_pos |> map(~ .x[[1]]), -->
+
+<!--     col_name_man = col_name_man |> map(~ .x[[1]]), -->
+
+<!--     col_class_man = col_class_man |> map(~ .x[[1]]), -->
+
+<!--     col_p = col_p |> map(~ .x[[1]]), -->
+
+<!--     col_n = col_n |> map(~ .x[[1]]), -->
+
+<!--     descripton = descripton |> map(~ .x[[1]]) -->
+
+<!--   ) -->
+
+<!-- references_files -->
+
+<!-- ``` -->
+
+<!-- ### Impressions -->
+
+<!-- ```{r} -->
+
+<!-- impressions_files <- dyn_files |> -->
+
+<!--   filter(str_detect(file_type, no_case("impressions"))) |> -->
+
+<!--   mutate( -->
+
+<!--     n_rows = read_nrows(full_file_name), -->
+
+<!--     col_name_man = full_file_name |> -->
+
+<!--       map( -->
+
+<!--         ~ read_header(.x) -->
+
+<!--       ) -->
+
+<!--   ) |> -->
+
+<!--   unnest(everything()) |> -->
+
+<!--   mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man) |> -->
+
+<!--   nest( -->
+
+<!--     col_pos = col_pos, -->
+
+<!--     col_name_man = col_name_man -->
+
+<!--   ) |> -->
+
+<!--   mutate( -->
+
+<!--     col_pos = col_pos |> map(~ .x[[1]]), -->
+
+<!--     col_name_man = col_name_man |> map(~ .x[[1]]) -->
+
+<!--   ) -->
+
+<!-- impressions_files -->
+
+<!-- ``` -->
+
+<!-- ### Market Breaks -->
+
+<!-- ```{r} -->
+
+<!-- market_breaks_files <- dyn_files |> -->
+
+<!--   filter(str_detect(file_type, no_case("market_breaks"))) |> -->
+
+<!--   mutate( -->
+
+<!--     n_rows = read_nrows(full_file_name), -->
+
+<!--     col_name_man = full_file_name |> -->
+
+<!--       map( -->
+
+<!--         ~ read_header(.x) -->
+
+<!--       ) -->
+
+<!--   ) |> -->
+
+<!--   unnest(everything()) |> -->
+
+<!--   mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man) |> -->
+
+<!--   nest( -->
+
+<!--     col_pos = col_pos, -->
+
+<!--     col_name_man = col_name_man -->
+
+<!--   ) |> -->
+
+<!--   mutate( -->
+
+<!--     col_pos = col_pos |> map(~ .x[[1]]), -->
+
+<!--     col_name_man = col_name_man |> map(~ .x[[1]]) -->
+
+<!--   ) -->
+
+<!-- market_breaks_files -->
+
+<!-- ``` -->
+
+<!-- ### Universe Estimates -->
+
+<!-- ```{r} -->
+
+<!-- universe_estimates_files <- dyn_files |> -->
+
+<!--   filter(str_detect(file_type, no_case("universe_estimates"))) |> -->
+
+<!--   mutate( -->
+
+<!--     n_rows = read_nrows(full_file_name), -->
+
+<!--     col_name_man = full_file_name |> -->
+
+<!--       map( -->
+
+<!--         ~ read_header(.x) -->
+
+<!--       ) -->
+
+<!--   ) |> -->
+
+<!--   unnest(everything()) |> -->
+
+<!--   mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man) |> -->
+
+<!--   nest( -->
+
+<!--     col_pos = col_pos, -->
+
+<!--     col_name_man = col_name_man -->
+
+<!--   ) |> -->
+
+<!--   mutate( -->
+
+<!--     col_pos = col_pos |> map(~ .x[[1]]), -->
+
+<!--     col_name_man = col_name_man |> map(~ .x[[1]]) -->
+
+<!--   ) -->
+
+<!-- universe_estimates_files -->
+
+<!-- ``` -->
