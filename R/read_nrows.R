@@ -2,17 +2,25 @@
 #'
 #' @param file a character vector.
 #' @param header logical.
-#' @param list_out logical.
-#' @param df_out logical.
-#' @param df_out logical.
 #'
 #' @return a list or a tibble/data.frame.
-#' @export
 #'
-read_nrows <- function(file, header = TRUE, list_out = FALSE, df_out = FALSE){
-  if(length(file) == 1){
-    return(read_nrows_i(file, header, list_out, df_out))
-  } else {
-    return(map_vec(.x = file, .f = ~ .x |> read_nrows_i(header, list_out, df_out)))
-  }
+#' @name read_nrows
+NULL
+
+#' @rdname read_nrows
+read_nrows_1 <- function(x, header){
+  cmd_out <- sprintf("wc -l %s", x) |>
+    system(intern = TRUE) |>
+    strsplit(" ") |>
+    unlist() |>
+    as.numeric() |>
+    suppressWarnings()
+  cmd_out[!is.na(cmd_out)] - header
+}
+
+#' @rdname read_nrows
+#' @export
+read_nrows <- function(file, header = TRUE){
+  purrr::map_vec(file, read_nrows_1)
 }

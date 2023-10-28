@@ -37,17 +37,6 @@ library(furrr)
 
 ## Strings
 
-### Ignore cases.
-
-Useful in e.g. str_detect():
-
-```{r}
-no_case <- function(pattern) {
-  stringr::regex(pattern, ignore_case = TRUE)
-}
-```
-
-
 ## Read Data
 
 ### Read Number of Rows
@@ -58,24 +47,6 @@ read_nrows <- function(file, header = TRUE) {
       system(intern = TRUE) |> 
       str_split_i(" ", 1) |> 
       as.numeric()
-  # 
-  # if(length(file) == 1){
-  #   cmd_out <- sprintf("wc -l %s", shQuote(file)) |>
-  #     system(intern = TRUE) |> 
-  #     str_split_i(" ", 1) |> 
-  #     as.numeric()
-  #   
-  # } else {
-  #   plan(multisession, workers = floor(parallel::detectCores()-2)) 
-  #   cmd_out <- future_map(file, 
-  #                  ~ sprintf("wc -l %s", shQuote(.x)) |>
-  #                    system(intern = TRUE) |> 
-  #                    str_split_i(" ", 1) |> 
-  #                    as.numeric(),
-  #                  .progress = TRUE) |> unlist()
-  #    plan(sequential)
-  #   return(cmd_out - header)
-  # }
 }
 
 ```
@@ -144,9 +115,9 @@ Description of each file. The function returns a nested tibble with the name of 
 #| output: false
 describe_dyn_files <- function(file, header = TRUE){
   num_rows <- read_nrows(file, header)
-  first_row <- data.table::fread(file = file,
+  first_1k_row <- data.table::fread(file = file,
                                  skip = as.numeric(!header),
-                                 nrows = 1) |> 
+                                 nrows = 1000) |> 
     as.list() |>  
     unlist(use.names = TRUE)
   

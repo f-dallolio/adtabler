@@ -2,18 +2,17 @@
 % Please edit documentation in R/read_nrows.R
 \name{read_nrows}
 \alias{read_nrows}
+\alias{read_nrows_1}
 \title{Read the number of rows of a file}
 \usage{
-read_nrows(file, header = TRUE, list_out = FALSE, df_out = FALSE)
+read_nrows_1(x, header)
+
+read_nrows(file, header = TRUE)
 }
 \arguments{
-\item{file}{a character vector.}
-
 \item{header}{logical.}
 
-\item{list_out}{logical.}
-
-\item{df_out}{logical.}
+\item{file}{a character vector.}
 }
 \value{
 a list or a tibble/data.frame.
