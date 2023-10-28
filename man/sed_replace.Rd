@@ -35,8 +35,3 @@ a list indicating: input file, output file, pattern: replacement, exit code.
 \description{
 Replace string (gsub) in file using 'sed'
 }
-\section{Functions}{
-\itemize{
-\item \code{sed_replace_all()}: Replace string (gsub) in file using 'sed'
-
-}}

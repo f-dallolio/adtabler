@@ -6,8 +6,12 @@
 #' @param replacement string.
 #' @param all logical.
 #' @param tmp_pattern string.
-#'
 #' @return a list indicating: input file, output file, pattern: replacement, exit code.
+#'
+#' @name sed_replace
+NULL
+
+#' @rdname sed_replace
 #' @export
 sed_replace <- function(file_in, file_out = NULL, pattern, replacement, all = FALSE, tmp_pattern = "sed_temp_") {
   if (all) {
@@ -32,7 +36,7 @@ sed_replace <- function(file_in, file_out = NULL, pattern, replacement, all = FA
   list_out
 }
 
-#' @describeIn sed_replace Replace string (gsub) in file using 'sed'
+#' @rdname sed_replace
 sed_replace_all <- function(file_in, file_out = NULL, pattern, replacement){
   sed_replace(file_in, file_out, pattern, replacement, all = TRUE)
 }
