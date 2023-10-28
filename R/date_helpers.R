@@ -60,9 +60,8 @@ as_day <- function(x){
   numpad(as.integer(x), width = 2)
 }
 
-
-
-
+#' @rdname date_helpers
+#' @export
 make_date <- function(y, m = NULL, d = NULL, as_chr = FALSE){
   stopifnot( is_year(y),
              "m must be coercible to a numeric between 1 and 12 or left empty" = is_month(m) | is.null(m),
@@ -79,6 +78,8 @@ make_date <- function(y, m = NULL, d = NULL, as_chr = FALSE){
   as.character( out )
 }
 
+#' @rdname date_helpers
+#' @export
 ad_date_grep <- function(y = NULL, m = NULL, d = NULL, sep = "-"){
   stopifnot( "y must be coercible to a numeric between 1 and 9999" = is_month(m) | is.null(m),
              "m must be coercible to a numeric between 1 and 12 or left empty" = is_month(m) | is.null(m),

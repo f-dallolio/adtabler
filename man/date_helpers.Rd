@@ -8,6 +8,8 @@
 \alias{as_month}
 \alias{is_day}
 \alias{as_day}
+\alias{make_date}
+\alias{ad_date_grep}
 \title{Helpers for dates}
 \usage{
 is_year(x)
@@ -21,6 +23,10 @@ as_month(x)
 is_day(x)
 
 as_day(x)
+
+make_date(y, m = NULL, d = NULL, as_chr = FALSE)
+
+ad_date_grep(y = NULL, m = NULL, d = NULL, sep = "-")
 }
 \arguments{
 \item{x}{numeric or character.}
