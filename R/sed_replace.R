@@ -9,7 +9,6 @@
 #'
 #' @return a list indicating: input file, output file, pattern: replacement, exit code.
 #' @export
-#'
 sed_replace <- function(file_in, file_out = NULL, pattern, replacement, all = FALSE, tmp_pattern = "sed_temp_") {
   if (all) {
     opts <- "g"
@@ -17,13 +16,13 @@ sed_replace <- function(file_in, file_out = NULL, pattern, replacement, all = FA
     opts <- ""
   }
   if (is.null(file_out)) {
-    file_out <- tempfile(pattern = "sed_temp_")
+    file_out <- tempfile(pattern = tmp_pattern)
   }
   sed_cmd <- glue::glue("s/{pattern}/{replacement}/{opts}")
-  sed_cmd <- glue::glue("s/{pattern}/{replacement}/")
-  sys_cmd <- sprintf(glue::glue("sed '{sed_cmd}' {file_in} > {file_out}"))
-  out <- system(sys_cmd)
+  sys_cmd <- sprintf(glue::glue("sed {shQuote(sed_cmd)} {file_in} > {file_out}"))
+  out <- system(command = sys_cmd)
   list_out <- list(
+    sed_cmd,
     file_in = file_in,
     file_out = file_out,
     pattern = pattern,
