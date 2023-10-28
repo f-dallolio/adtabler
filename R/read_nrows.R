@@ -5,11 +5,11 @@
 #'
 #' @return a list or a tibble/data.frame.
 #'
-#' @name read_nrows
+#' @name read_files
 NULL
 
-#' @rdname read_nrows
-read_nrows_1 <- function(x, header){
+#' @rdname read_files
+read_nrows <- function(x, header = TRUE){
   cmd_out <- sprintf("wc -l %s", x) |>
     system(intern = TRUE) |>
     strsplit(" ") |>
@@ -17,10 +17,4 @@ read_nrows_1 <- function(x, header){
     as.numeric() |>
     suppressWarnings()
   cmd_out[!is.na(cmd_out)] - header
-}
-
-#' @rdname read_nrows
-#' @export
-read_nrows <- function(file, header = TRUE){
-  purrr::map_vec(file, read_nrows_1)
 }
