@@ -9,6 +9,7 @@
 NULL
 
 #' @rdname read_files
+#' @export
 read_nrows <- function(file, header = TRUE){
   has_space <- stringr::str_detect(file, " ")
   if ( has_space ){
