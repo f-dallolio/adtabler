@@ -6,6 +6,7 @@
 #' @param replacement string.
 #' @param all logical.
 #' @param tmp_pattern string.
+#'
 #' @return a list indicating: input file, output file, pattern: replacement, exit code.
 #'
 #' @name sed_replace

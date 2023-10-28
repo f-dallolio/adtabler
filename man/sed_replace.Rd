@@ -14,7 +14,13 @@ sed_replace(
   tmp_pattern = "sed_temp_"
 )
 
-sed_replace_all(file_in, file_out = NULL, pattern, replacement)
+sed_replace_all(
+  file_in,
+  file_out = NULL,
+  pattern,
+  replacement,
+  mp_pattern = "sed_temp_"
+)
 }
 \arguments{
 \item{file_in}{character.}
