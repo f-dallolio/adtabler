@@ -5,7 +5,7 @@
 \alias{read_nrows}
 \title{Read the number of rows of a file}
 \usage{
-read_nrows(file, header = TRUE)
+read_nrows(file)
 }
 \arguments{
 \item{file}{a character vector.}
