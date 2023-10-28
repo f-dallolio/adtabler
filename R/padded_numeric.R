@@ -5,13 +5,13 @@
 #'
 #' @return a character
 #'
-#' @name numpad
+#' @name padded_numeric
 NULL
 
-#' @rdname numpad
+#' @rdname padded_numeric
 #' @export
 numpad <- function(x, width = NULL) {
-  x <- as.numeric(x)
+  x <- as_numeric2(x)
   stopifnot(is.numeric(x))
   if (is.null(x)) {
     width <- max(nchar(as.character(x)))
@@ -24,13 +24,13 @@ numpad <- function(x, width = NULL) {
   )
 }
 
-#' @rdname numpad
+#' @rdname padded_numeric
 #' @export
 numpad2 <- function(x) {
   numpad(x, width = 2)
 }
 
-#' @rdname numpad
+#' @rdname padded_numeric
 #' @export
 numpad4 <- function(x) {
   numpad(x, width = 4)
