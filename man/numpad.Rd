@@ -4,7 +4,7 @@
 \alias{numpad}
 \alias{numpad2}
 \alias{numpad4}
-\title{Numeric values as chracters with '0' padding}
+\title{Numeric values as characters with '0' padding}
 \usage{
 numpad(x, width = NULL)
 
@@ -21,5 +21,5 @@ numpad4(x)
 a character
 }
 \description{
-Numeric values as chracters with '0' padding
+Numeric values as characters with '0' padding
 }

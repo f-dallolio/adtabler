@@ -1,4 +1,4 @@
-#' Numeric values as chracters with '0' padding
+#' Numeric values as characters with '0' padding
 #'
 #' @param x numeric or character coercible to numeric.
 #' @param width numeric.
