@@ -115,13 +115,21 @@ Description of each file. The function returns a nested tibble with the name of 
 
 ```{r}
 library(furrr)
+library(tictoc)
 plan(multisession, workers = 30)
 
+tic()
 adintel_files |> 
-  mutate(file_size_mb = file.size(full_file_name) / 1024^2,
-         file_size_mb = round(file_size_mb, 2)) |> 
-  mutate(n_rows = future_map(full_file_name, read_nrows, .progress = T) |> list_c())
-         
+  pull(full_file_name) |> 
+  future_map(full_file_name, read_nrows, .progress = T) |> 
+  list_c() |> 
+  save("~/Documents/r_wd/adtabler/data/row_numers.rda")
+  # mutate(file_size_mb = file.size(full_file_name) / 1024^2,
+  #        file_size_mb = round(file_size_mb, 2)) |> 
+  # filter(year == 2020) |> 
+  # mutate(n_rows = future_map(full_file_name, read_nrows, .progress = T) |> list_c())
+    
+toc()     
 plan(sequential)
 ```
 
