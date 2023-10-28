@@ -34,6 +34,6 @@ is_numeric2 <- function(x){
 #' @export
 as_numeric2 <- function(x){
   out <- as.double(x)
-  if (out %% 1 != 0) return(out)
-  return(as.integer(out))
+  if(rlang::is_integerish(out)) return(as.integer(out))
+  out
 }

@@ -33,13 +33,6 @@ library(adtabler, quietly = TRUE)
 library(furrr)
 ```
 
-# Helper Functions:
-
-## Strings
-
-## Read Data
-
-
 # Load Data (one year at the time)
 
 Define the directory containing the AdIntel folders and retrieve data paths.
@@ -48,15 +41,20 @@ Define the directory containing the AdIntel folders and retrieve data paths.
 adintel_dir_home <- "/mnt/sata_data_1/adintel/"
 adintel_folder <-list.files(adintel_dir_home, full.names = TRUE) |> 
   stringr::str_replace_all("//","/")
-adintel_year <- str_split_i(adintel_folder, pattern = "_",i = -1) |> 
-  as.numeric()
 ```
 
 Find years available in the Adintel dataset.
 
 ```{r}
+adintel_year <- str_split_i(
+  adintel_folder, 
+  pattern = "_",
+  i = -1
+) |> as.numeric()
+
 year_range <- range(adintel_year)
-year_1 <- year_range[1]
+
+year_first <- year_range[1]
 year_last <- year_range[2]
 print(year_range)
 ```
@@ -64,10 +62,12 @@ print(year_range)
 Get all files for all years.
 
 ```{r}
-adintel_all_files <- list.files(adintel_dir_home, 
-                                full.names = TRUE,
-                                all.files = TRUE,
-                                recursive = TRUE)
+adintel_all_files <- list.files(
+  adintel_dir_home, 
+  full.names = TRUE,
+  all.files = TRUE,
+  recursive = TRUE
+)
 ```
 
 Extract those about **2020** (arbitrary).
@@ -85,17 +85,20 @@ adintel_files_2020 <- adintel_all_files |>
 Retrieve and describe file paths for 2020 "dynamic" files (i.e. they can change year by year):
 
 ```{r}
-num_sep <- max(adintel_files_2020$full_file_name |> str_count("/"))
+n_col_separate <- str_count(
+  string = adintel_files_2020$full_file_name,
+  pattern = "/"
+) |> max()
+names_col_separate <- paste0("V", seq(1, n_col_separate))
 
 all_dyn_files <- adintel_files_2020 |> 
-  separate_wider_delim(cols = full_file_name,
-                       delim = "/",
-                       names = paste0("V", 1 : (num_sep + 1)),
-                       cols_remove = FALSE) |> 
-  transmute(full_file_name,
-            year = as.numeric(V4),
-            file_type = V5,
-            file_name = V6)
+  mutate(
+    year = as_numeric2(str_split_i(full_file_name, "/", -3)),
+    file_type = str_split_i(full_file_name, "/", -2),
+    file_name = str_split_i(full_file_name, "/", -1),
+    file_type_std = rename_adintel(file_type),
+    file_name_std = rename_adintel(file_name)
+  )
 ```
 
 Description of each file. The function returns a nested tibble with the name of the file (`file`), the string used (`sep`) to separate columns, the number of rows (`n_rows`), the number of columns (`n_cols`), and the column names (`col_names_man`). I use `"_man` at the end of the column indicating the column names in the original files to indicate that it is the name used in the Adintel `_man`ual. The column `col_names_std` contains standardized column names. Standardization is performed by the function `adtabler::rename_adintel()`.
