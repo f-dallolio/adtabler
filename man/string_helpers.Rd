@@ -20,10 +20,18 @@ str_upper_uscore(x, to_lower = TRUE)
 rename_adintel(x, named = TRUE)
 }
 \arguments{
-\item{pattern}{character.}
+\item{pattern}{a string The pattern for which to ignore case.}
+
+\item{x}{a character vector.}
+
+\item{which}{logical. It returns indices instead of the actual characters.}
+
+\item{to_lower}{logical. If TRUE (default) the output is all lower case.}
+
+\item{named}{logical. If TRUE, the output vector has the original strings as names.}
 }
 \value{
-a character
+Same type as input.
 }
 \description{
 String helpers

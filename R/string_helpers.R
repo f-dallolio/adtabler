@@ -1,8 +1,12 @@
 #' String helpers
 #'
-#' @param pattern character.
+#' @param pattern a string The pattern for which to ignore case.
+#' @param x a character vector.
+#' @param which logical. It returns indices instead of the actual characters.
+#' @param to_lower logical. If TRUE (default) the output is all lower case.
+#' @param named logical. If TRUE, the output vector has the original strings as names.
 #'
-#' @return a character
+#' @return Same type as input.
 #'
 #' @name string_helpers
 NULL
