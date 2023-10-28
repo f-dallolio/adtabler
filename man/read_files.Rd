@@ -5,12 +5,12 @@
 \alias{read_nrows}
 \title{Read the number of rows of a file}
 \usage{
-read_nrows(x, header = TRUE)
+read_nrows(file, header = TRUE)
 }
 \arguments{
-\item{header}{logical.}
-
 \item{file}{a character vector.}
+
+\item{header}{logical.}
 }
 \value{
 a list or a tibble/data.frame.
