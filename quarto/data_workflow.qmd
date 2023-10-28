@@ -39,17 +39,6 @@ library(furrr)
 
 ## Read Data
 
-### Read Number of Rows
-
-```{r}
-read_nrows <- function(file, header = TRUE) {
-  cmd_out <- sprintf("wc -l %s", shQuote(file)) |>
-      system(intern = TRUE) |> 
-      str_split_i(" ", 1) |> 
-      as.numeric()
-}
-
-```
 
 # Load Data (one year at the time)
 

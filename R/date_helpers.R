@@ -80,7 +80,7 @@ make_date <- function(y, m = NULL, d = NULL, as_chr = FALSE){
 
 #' @rdname date_helpers
 #' @export
-ad_date_grep <- function(y = NULL, m = NULL, d = NULL, sep = "-"){
+make_date_grep <- function(y = NULL, m = NULL, d = NULL, sep = "-"){
   stopifnot( "y must be coercible to a numeric between 1 and 9999" = is_month(m) | is.null(m),
              "m must be coercible to a numeric between 1 and 12 or left empty" = is_month(m) | is.null(m),
              "d must be coercible to a numeric between 1 and 31 or left empty" = is_day(d) ||  is.null(d) )
