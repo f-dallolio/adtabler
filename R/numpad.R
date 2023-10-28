@@ -1,9 +1,10 @@
-#' Numeric values as chracters with '0' 0padding
+#' Numeric values as chracters with '0' padding
 #'
 #' @param x numeric or character coercible to numeric.
 #' @param width numeric.
 #'
 #' @return a character
+#'
 #' @name numpad
 NULL
 
