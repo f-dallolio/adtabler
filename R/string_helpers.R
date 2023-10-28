@@ -40,12 +40,23 @@ is_lower <- function(x, which = FALSE) {
 #' @rdname string_helpers
 #' @export
 str_upper_uscore <- function(x, to_lower = TRUE){
-  x <- unlist(strsplit(x, ""))
-  id <- which(is_upper(x))
-  x[id[id!=1]] <- paste0("_", x[id[id!=1]])
-  out <- paste0(x, collapse = "")
-  if( to_lower ) return(tolower(out))
-  out
+  purrr::map_vec(x, ~ str_upper_uscore_i(.x, to_lower = to_lower))
+}
+
+str_upper_uscore_i <- function(x, to_lower = TRUE){
+  x <-  unlist(strsplit(x,""))
+  no_alnum <- which( !grepl("[A-Za-z0-9]", x) )
+  x[no_alnum + 1] <- toupper(x[no_alnum + 1])
+  z <- grep(pattern = "[A-Za-z0-9]", x = unlist(strsplit(x,"")), value = TRUE)
+  n <- length(z)
+  id <- seq_along(z)[-c(1,n)]
+  z1 <- z[id]
+  id1 <- (is_upper(z[id]) & is_lower(z[(id - 1)])) |
+    (is_upper(z[id])  & is_lower(z[(id + 1)]) )
+  z1[id1] <- paste0("_", z1[id1])
+  out <- paste0(c(z[1], z1, z[n]), collapse = "")
+  if(to_lower) return(tolower(out))
+  return(out)
 }
 
 #' @rdname string_helpers
