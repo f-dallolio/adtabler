@@ -37,6 +37,7 @@ sed_replace <- function(file_in, file_out = NULL, pattern, replacement, all = FA
 }
 
 #' @rdname sed_replace
-sed_replace_all <- function(file_in, file_out = NULL, pattern, replacement){
+#' @export
+sed_replace_all <- function(file_in, file_out = NULL, pattern, replacement, mp_pattern = "sed_temp_"){
   sed_replace(file_in, file_out, pattern, replacement, all = TRUE)
 }
