@@ -3,5 +3,5 @@ devtools::document()
 devtools::install()
 1
 devtools::check()
-# cat(readLines("~/Documents/p620"))
-# gitcreds::gitcreds_set()
+cat(readLines("~/Documents/p620"))
+gitcreds::gitcreds_set()
