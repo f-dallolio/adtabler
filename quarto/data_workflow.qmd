@@ -101,17 +101,38 @@ adintel_files_static <- adintel_all_files |>
 
 ### Reunite all files
 
+Description of each file. The function returns a nested tibble with the name of the file (`file`), the string used (`sep`) to separate columns, the number of rows (`n_rows`), the number of columns (`n_cols`), and the column names (`col_names_man`). I use `"_man` at the end of the column indicating the column names in the original files to indicate that it is the name used in the Adintel `_man`ual. The column `col_names_std` contains standardized column names. Standardization is performed by the function `adtabler::rename_adintel()`.
+
 ```{r}
-adintel_files <- bind_rows(adintel_files_dyn, adintel_files_static)
+adintel_files <- bind_rows(adintel_files_dyn, adintel_files_static) |>
+  inner_join(row_numbers) |>
+  select(-n_lines_w_header) |>
+  mutate(
+    col_names_man = map(
+      .x = full_file_name,
+      .f = ~ data.table::fread(
+        file = .x,
+        nrows = 100,
+        encoding = "UTF-8"
+      ) |> names()
+    ),
+    col_names_std = map(col_names_man, rename_adintel)
+  ) |>
+  mutate(
+    n_cols = map_int(col_names_man, length),
+    col_pos = map(col_names_man, seq_along),
+    .after = n_rows
+  ) |> 
+  relocate(full_file_name, .after = last_col())
+
+write_csv(adintel_files, "~/Documents/r_wd/adtabler/data-raw/various_data/adinte_files_quarto.csv")
 ```
 
 ```{r}
 adintel_files |> 
-  mutate(across(-full_file_name, as_factor)) |> 
+  mutate(across(year : file_name_std, as_factor)) |> 
   datatable(rownames = FALSE, filter = "top")
 ```
-
-Description of each file. The function returns a nested tibble with the name of the file (`file`), the string used (`sep`) to separate columns, the number of rows (`n_rows`), the number of columns (`n_cols`), and the column names (`col_names_man`). I use `"_man` at the end of the column indicating the column names in the original files to indicate that it is the name used in the Adintel `_man`ual. The column `col_names_std` contains standardized column names. Standardization is performed by the function `adtabler::rename_adintel()`.
 
 ```{r}
 #| eval: false
@@ -247,10 +268,6 @@ Description of each file. The function returns a nested tibble with the name of 
 # lst <- map(file, read_nrows, .progress = T) |> list_c()
 # save(lst, file = file_out)
 # toc()
-```
-
-```{r}
-
 ```
 
 
