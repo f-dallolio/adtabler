@@ -28,17 +28,16 @@ data("adintel_files")
 #   mutate(row = row_number(),
 #          .before = 1)
 
-layout_lookup <- layout_list |>
-  select(row, contains("_std"))
+layout_list <- layout_list |>
+  # select(row, contains("_std")) |>
 
-adintel_files <- adintel_files |>
+adintel_files |>
   unnest(everything()) |>
-  rename_with(.fn = ~ .x |> str_replace("_man", "_data"))
-
-usethis::use_data("adintel_files", overwrite = TRUE)
-
-select(contains("_std"), col_pos) |>
-  full_join(layout_lookup)
+  filter(str_detect(file_name, "lock", negate = T)) |>
+  select(contains("_std"), col_pos) |>
+  distinct() |>
+  filter(str_detect(file_name_std, "market_break")) |> print(n=500)
+  full_join(layout_lookup)|> view()
 
 
 # save(layout_list0, file = "~/Documents/r_wd/adtabler/data/layout_list.rda")
