@@ -47,7 +47,6 @@ adintel_folder <-list.files(adintel_dir_home, full.names = TRUE) |>
 
 adintel_all_files_old <- list.files(adintel_dir_home, 
                                 full.names = TRUE,
-                                all.files = TRUE,
                                 recursive = TRUE) 
 
 adintel_all_files_new <- adintel_all_files_old |> 
