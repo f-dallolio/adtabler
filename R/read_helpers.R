@@ -13,14 +13,7 @@ NULL
 read_nrows <- function(file){
   cmd_out <- sprintf("wc -l %s", file) |>
     system(intern = TRUE)
-  # |>
-  #   strsplit(" ")
-  # |>
-  #   unlist() |>
-  #   as.numeric() |>
-  #   suppressWarnings()
   cmd_out
-  # cmd_out[!is.na(cmd_out)] - header
 }
 
 
