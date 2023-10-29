@@ -57,7 +57,6 @@ file.rename(from = adintel_all_files_old, to = adintel_all_files_new)
 
 adintel_all_files <- list.files(adintel_dir_home, 
                                 full.names = TRUE,
-                                all.files = TRUE,
                                 recursive = TRUE) 
 ```
 
@@ -144,8 +143,9 @@ layout_list
 adintel_files |>
   nest(.by = c(contains("_std"), col_pos)) |>
   distinct() |>
-  full_join(layout_list |>
-              mutate(file_type_std = if_else(file_name_std == "ue_market_breaks", "universe_estimates", file_type_std))) |>
+  
+  inner_join(layout_list) |>
+  
   arrange(row) |>
   unnest(everything())
 ```
