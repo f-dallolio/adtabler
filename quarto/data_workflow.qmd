@@ -34,7 +34,7 @@ library(furrr)
 
 ```
 
-# Load Data
+# Data Info
 
 Define the directory containing the AdIntel folders and retrieve data paths.
 
@@ -60,7 +60,7 @@ adintel_all_files <- list.files(adintel_dir_home,
                                 recursive = TRUE) 
 ```
 
-### Dynamic Files
+## Info - Dynamic Files
 
 Retrieve file paths for 2020 "dynamic" files (i.e. they can change year by year):
 
@@ -79,7 +79,7 @@ adintel_files_dyn <- adintel_all_files |>
   arrange(year, file_type_data, file_name_data)
 ```
 
-### Static Files
+## Info - Static Files
 
 Retrieve file paths for "static" files (i.e. they do not change year by year):
 
@@ -100,7 +100,13 @@ adintel_files_static <- adintel_all_files |>
   arrange(file_type_data, file_name_data)
 ```
 
-### Reunite all files
+# Data Description and Checks
+
+## Description
+
+Description of each file. The function returns a nested tibble with the name of the file (`file`), the string used (`sep`) to separate columns, the number of rows (`n_rows`), the number of columns (`n_cols`), and the column names (`col_name_man`). I use `"_man` at the end of the column indicating the column names in the original files to indicate that it is the name used in the Adintel `_man`ual. The column `col_name_std` contains standardized column names. Standardization is performed by the function `adtabler::rename_adintel()`.
+
+The data frame `row_numbers` below is a pre-calculated table that contains the number of rows for each file. The number of rows was efficiently computed with the `read_nrows` function.
 
 ```{r}
 data("row_numbers")
@@ -108,17 +114,17 @@ data("row_numbers")
 fn_col_info <- function(x,.name){
   df <- data.table::fread(file = x,
                           nrows = 100)
-  col_names_data <- names(df)
+  col_name_data <- names(df)
   n_cols <-NCOL(df)
-  col_pos <- seq_along(col_names_data)
-  col_names_std <- rename_adintel(col_names_data)
+  col_pos <- seq_along(col_name_data)
+  col_name_std <- rename_adintel(col_name_data)
   tibble(n_cols,
          col_pos,
-         col_names_data,
-         col_names_std)
+         col_name_data,
+         col_name_std)
 }
 
-adintel_files <- bind_rows(adintel_files_dyn, 
+data_info <- bind_rows(adintel_files_dyn, 
                            adintel_files_static) |> 
   mutate(data = map(full_file_name, 
                     ~ fn_col_info(.x, .name = full_file_name))) |> 
@@ -131,16 +137,13 @@ adintel_files <- bind_rows(adintel_files_dyn,
   relocate(full_file_name, .after = last_col()) 
 ```
 
-Description of each file. The function returns a nested tibble with the name of the file (`file`), the string used (`sep`) to separate columns, the number of rows (`n_rows`), the number of columns (`n_cols`), and the column names (`col_names_man`). I use `"_man` at the end of the column indicating the column names in the original files to indicate that it is the name used in the Adintel `_man`ual. The column `col_names_std` contains standardized column names. Standardization is performed by the function `adtabler::rename_adintel()`.
-
-The data frame `row_numbers` above is a pre-calculated table that contains the number of rows for each file. The number of rows was efficiently computed with the `read_nrows` function.
+## Check Against AdIntel layout Tables
 
 ```{r}
 data("layout_list")
-
 layout_list
 
-adintel_files |>
+data_info_layout <- data_info |>
   nest(.by = c(contains("_std"), col_pos)) |>
   distinct() |>
   
@@ -152,440 +155,16 @@ adintel_files |>
 
 
 ```{r}
-#| eval: false
-save(adintel_files, file = "~/Documents/r_wd/adtabler/data/adadintel_files.rda")
+rm(list = setdiff(ls(), "data_info"))
 ```
 
-<!-- ```{r} -->
+## Column Description from AdIntel Manual
 
-<!-- #| output: false -->
+```{r}
+data("references_columns")
+data("occurrences_columns")
 
-<!-- describe_dyn_files <- function(file, header = TRUE){ -->
+references_columns
+occurrences_columns
+```
 
-<!--   num_rows <- read_nrows(file, header) -->
-
-<!--   first_1k_row <- data.table::fread(file = file, -->
-
-<!--                                  skip = as.numeric(!header), -->
-
-<!--                                  nrows = 1000) |> -->
-
-<!--     as.list() |> -->
-
-<!--     unlist(use.names = TRUE) -->
-
-<!--   nms <- names(first_row) -->
-
-<!--   header_nosep <- readLines(file, n = 1, skipNul = TRUE) -->
-
-<!--   sep0 = header_nosep -->
-
-<!--   for(i in seq_along(nms)){ -->
-
-<!--     sep0 <- str_remove_all(sep0, nms[i]) -->
-
-<!--   } -->
-
-<!--   sep = sep0 |> -->
-
-<!--     str_remove_all(" ") |> -->
-
-<!--     str_split("") |> -->
-
-<!--     unlist() |> -->
-
-<!--     unique() -->
-
-<!--   out <- tibble(file, -->
-
-<!--                 sep = sep, -->
-
-<!--                 n_row = num_rows, -->
-
-<!--                 n_col = length(nms), -->
-
-<!--                 col_names_man = list(nms), -->
-
-<!--                 col_names_std = list(adtabler::rename_adintel(nms))) -->
-
-<!--   return(out) -->
-
-<!-- } -->
-
-<!-- # plan(multisession, workers = 30) -->
-
-<!-- # tictoc::tic() -->
-
-<!-- # dyn_files_desc_thread <- future_map(all_dyn_files$full_file_name, describe_dyn_files, .progress = TRUE) -->
-
-<!-- # tictoc::toc() -->
-
-<!-- # plan(sequential) -->
-
-<!-- ``` -->
-
-<!-- ```{r} -->
-
-<!-- #| output: false -->
-
-<!-- tictoc::tic() -->
-
-<!-- dyn_files_desc <- map(all_dyn_files$full_file_name, describe_dyn_files, .progress = TRUE) |> -->
-
-<!--   list_rbind() -->
-
-<!-- ``` -->
-
-<!-- ```{r} -->
-
-<!-- tictoc::toc() -->
-
-<!-- ``` -->
-
-<!-- ```{r} -->
-
-<!-- dyn_files_desc |> -->
-
-<!--   unnest(everything()) -->
-
-<!-- ``` -->
-
-<!-- Retrieve file paths for different types of data. First check unique file_type names. Here the output is the renamed/standardized names vector of file_type names with the originals as names. -->
-
-<!-- ```{r} -->
-
-<!-- # dyn_files$file_type |> -->
-
-<!-- #   unique() |> -->
-
-<!-- #   rename_adintel() |> -->
-
-<!-- #   set_names(dyn_files$file_type |> unique()) -->
-
-<!-- ``` -->
-
-<!-- ### Occurrences -->
-
-<!-- ```{r} -->
-
-<!-- occurrences_files <- dyn_files |> -->
-
-<!--   filter(str_detect(file_type, no_case("occurrences"))) |> -->
-
-<!--   inner_join(occurrences_columns) |> -->
-
-<!--   nest( -->
-
-<!--     col_pos = col_pos, -->
-
-<!--     col_name_man = col_name_man, -->
-
-<!--     col_class_man = col_class_man, -->
-
-<!--     col_p = col_p, -->
-
-<!--     col_n = col_n, -->
-
-<!--     descripton = description -->
-
-<!--   ) |> -->
-
-<!--   mutate( -->
-
-<!--     col_pos = col_pos |> map(~ .x[[1]]), -->
-
-<!--     col_name_man = col_name_man |> map(~ .x[[1]]), -->
-
-<!--     col_class_man = col_class_man |> map(~ .x[[1]]), -->
-
-<!--     col_p = col_p |> map(~ .x[[1]]), -->
-
-<!--     col_n = col_n |> map(~ .x[[1]]), -->
-
-<!--     descripton = descripton |> map(~ .x[[1]]) -->
-
-<!--   ) -->
-
-<!-- ``` -->
-
-<!-- ```{r} -->
-
-<!-- str(occurrences_files) -->
-
-<!-- ``` -->
-
-<!-- ### References -->
-
-<!-- Retrieve info for dynamic references. -->
-
-<!-- ```{r} -->
-
-<!-- dynamic_references_files <- dyn_files |> -->
-
-<!--   filter(str_detect(file_type, no_case("references"))) |> -->
-
-<!--   mutate( -->
-
-<!--     n_rows = read_nrows(full_file_name), -->
-
-<!--     col_name_man = full_file_name |> -->
-
-<!--       map( -->
-
-<!--         ~ read_header(.x) -->
-
-<!--       ) -->
-
-<!--   ) |> -->
-
-<!--   unnest(everything()) |> -->
-
-<!--   mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man) -->
-
-<!-- ``` -->
-
-<!-- Retrieve info for static references. -->
-
-<!-- ```{r} -->
-
-<!-- static_references_files <- adintel_files |> -->
-
-<!--   str_subset(pattern = no_case("master_file")) |> -->
-
-<!--   str_subset(pattern = no_case("latest")) |> -->
-
-<!--   as_tibble_col(column_name = "full_file_name") |> -->
-
-<!--   mutate( -->
-
-<!--     file_size_mb = file.size(full_file_name) / (1024^2), -->
-
-<!--     file_size_mb = file_size_mb |> round(2), -->
-
-<!--     year = NA, -->
-
-<!--     file_type = "References", -->
-
-<!--     file_name = full_file_name |> -->
-
-<!--       str_split_i("/", -1), -->
-
-<!--     file_name_std = file_name |> -->
-
-<!--       str_split_i("\\.", -2) |> -->
-
-<!--       adtabler::rename_adintel(), -->
-
-<!--     n_rows = read_nrows(full_file_name), -->
-
-<!--     col_name_man = full_file_name |> -->
-
-<!--       map( -->
-
-<!--         ~ read_header(.x) -->
-
-<!--       ) -->
-
-<!--   ) |> -->
-
-<!--   unnest(everything()) |> -->
-
-<!--   mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man) -->
-
-<!-- ``` -->
-
-<!-- Bind rows of static and dynamic references and merge with "reference_columns" (lookup table with info about all variables in references tables). -->
-
-<!-- ```{r} -->
-
-<!-- references_columns |> print(width = Inf) -->
-
-<!-- ``` -->
-
-<!-- ```{r} -->
-
-<!-- references_files <- references_columns |> -->
-
-<!--   inner_join( -->
-
-<!--     bind_rows(dynamic_references_files, static_references_files) -->
-
-<!--   ) |> -->
-
-<!--   relocate(col_name_man:description, .after = col_pos) |> -->
-
-<!--   relocate(file_name_std, .after = file_name) |> -->
-
-<!--   nest( -->
-
-<!--     col_pos = col_pos, -->
-
-<!--     col_name_man = col_name_man, -->
-
-<!--     col_class_man = col_class_man, -->
-
-<!--     col_p = col_p, -->
-
-<!--     col_n = col_n, -->
-
-<!--     descripton = description -->
-
-<!--   ) |> -->
-
-<!--   mutate( -->
-
-<!--     col_pos = col_pos |> map(~ .x[[1]]), -->
-
-<!--     col_name_man = col_name_man |> map(~ .x[[1]]), -->
-
-<!--     col_class_man = col_class_man |> map(~ .x[[1]]), -->
-
-<!--     col_p = col_p |> map(~ .x[[1]]), -->
-
-<!--     col_n = col_n |> map(~ .x[[1]]), -->
-
-<!--     descripton = descripton |> map(~ .x[[1]]) -->
-
-<!--   ) -->
-
-<!-- references_files -->
-
-<!-- ``` -->
-
-<!-- ### Impressions -->
-
-<!-- ```{r} -->
-
-<!-- impressions_files <- dyn_files |> -->
-
-<!--   filter(str_detect(file_type, no_case("impressions"))) |> -->
-
-<!--   mutate( -->
-
-<!--     n_rows = read_nrows(full_file_name), -->
-
-<!--     col_name_man = full_file_name |> -->
-
-<!--       map( -->
-
-<!--         ~ read_header(.x) -->
-
-<!--       ) -->
-
-<!--   ) |> -->
-
-<!--   unnest(everything()) |> -->
-
-<!--   mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man) |> -->
-
-<!--   nest( -->
-
-<!--     col_pos = col_pos, -->
-
-<!--     col_name_man = col_name_man -->
-
-<!--   ) |> -->
-
-<!--   mutate( -->
-
-<!--     col_pos = col_pos |> map(~ .x[[1]]), -->
-
-<!--     col_name_man = col_name_man |> map(~ .x[[1]]) -->
-
-<!--   ) -->
-
-<!-- impressions_files -->
-
-<!-- ``` -->
-
-<!-- ### Market Breaks -->
-
-<!-- ```{r} -->
-
-<!-- market_breaks_files <- dyn_files |> -->
-
-<!--   filter(str_detect(file_type, no_case("market_breaks"))) |> -->
-
-<!--   mutate( -->
-
-<!--     n_rows = read_nrows(full_file_name), -->
-
-<!--     col_name_man = full_file_name |> -->
-
-<!--       map( -->
-
-<!--         ~ read_header(.x) -->
-
-<!--       ) -->
-
-<!--   ) |> -->
-
-<!--   unnest(everything()) |> -->
-
-<!--   mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man) |> -->
-
-<!--   nest( -->
-
-<!--     col_pos = col_pos, -->
-
-<!--     col_name_man = col_name_man -->
-
-<!--   ) |> -->
-
-<!--   mutate( -->
-
-<!--     col_pos = col_pos |> map(~ .x[[1]]), -->
-
-<!--     col_name_man = col_name_man |> map(~ .x[[1]]) -->
-
-<!--   ) -->
-
-<!-- market_breaks_files -->
-
-<!-- ``` -->
-
-<!-- ### Universe Estimates -->
-
-<!-- ```{r} -->
-
-<!-- universe_estimates_files <- dyn_files |> -->
-
-<!--   filter(str_detect(file_type, no_case("universe_estimates"))) |> -->
-
-<!--   mutate( -->
-
-<!--     n_rows = read_nrows(full_file_name), -->
-
-<!--     col_name_man = full_file_name |> -->
-
-<!--       map( -->
-
-<!--         ~ read_header(.x) -->
-
-<!--       ) -->
-
-<!--   ) |> -->
-
-<!--   unnest(everything()) |> -->
-
-<!--   mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man) |> -->
-
-<!--   nest( -->
-
-<!--     col_pos = col_pos, -->
-
-<!--     col_name_man = col_name_man -->
-
-<!--   ) |> -->
-
-<!--   mutate( -->
-
-<!--     col_pos = col_pos |> map(~ .x[[1]]), -->
-
-<!--     col_name_man = col_name_man |> map(~ .x[[1]]) -->
-
-<!--   ) -->
-
-<!-- universe_estimates_files -->
-
-<!-- ``` -->
