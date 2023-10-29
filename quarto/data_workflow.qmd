@@ -165,6 +165,14 @@ data("references_columns")
 data("occurrences_columns")
 
 references_columns
-occurrences_columns
+occurrences_columns |> 
+  rename(file_name_man = file_name) |> 
+  mutate(file_name_std = file_name_man |> 
+           str_remove_all(".tsv") |> 
+           rename_adintel(),
+         .before = 1) |> 
+  mutate(col_name_std = rename_adintel(col_name_man),
+         .after = col_pos) |> 
+  relocate(file_name_man, col_name_man, col_class_man, .after = description)
 ```
 
