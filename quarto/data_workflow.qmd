@@ -163,27 +163,43 @@ rm(list = setdiff(ls(), "data_info"))
 ```{r}
 data("references_columns")
 data("occurrences_columns")
+references_columns
+# <- references_columns |> 
+#   mutate(col_name_std = rename_adintel(col_name_man))
+# # |> names() |> unique() |> sort()
+occurrences_columns 
+# <- occurrences_columns 
+# |> 
+#   select( - file_name_man)
+# |> names() |> unique() |> sort()
+# 
+# 
+# usethis::use_data(references_columns, overwrite = T)
+# usethis::use_data(occurrences_columns, overwrite = T)
 
-references_columns <- references_columns |> 
-  rename(datatype_man = col_class_man,
-         # datatype_std = col_class_lower,
-         sql_precision = col_p,
-         sql_scale = col_n)
-usethis::use_data(references_columns, overwrite = T)
+bind_rows(references_columns, occurrences_columns)
+```
 
-occurrences_columns <- occurrences_columns |> 
-  rename(datatype_man = col_class_man,
-         # datatype_std = col_class_lower,
-         sql_precision = col_p,
-         sql_scale = col_n,
-         file_name_man = file_name) |> 
-  mutate(file_name_std = file_name_man |> 
-           str_remove_all(".tsv") |> 
-           rename_adintel(),
-         .before = 1) |> 
-  mutate(col_name_std = rename_adintel(col_name_man),
-         .after = col_pos) |> 
-  relocate(file_name_man, col_name_man, datatype_man, .after = description)
-usethis::use_data(occurrences_columns, overwrite = T)
+
+```{r}
+
+
+data_info |> 
+  nest(.by = c(file_name_std, col_pos, col_name_std)) |> 
+  full_join(references_columns |> 
+              mutate(col_name_std = rename_adintel(col_name_man)) |> 
+               nest(.by = c(file_name_std, col_pos, , col_name_std),
+                    .key = "data2")) |> 
+  unnest(data2) |> 
+  unnest(data)
+
+data_info |> 
+  nest(.by = c(file_name_std, col_pos, col_name_std)) |> 
+  full_join(occurrences_columns |> 
+              mutate(col_name_std = rename_adintel(col_name_man)) |> 
+               nest(.by = c(file_name_std, col_pos, , col_name_std),
+                    .key = "data2")) |> 
+  unnest(data2) |> 
+  unnest(data)
 ```
 
