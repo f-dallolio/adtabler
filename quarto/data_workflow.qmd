@@ -115,146 +115,142 @@ Description of each file. The function returns a nested tibble with the name of 
 
 ```{r}
 #| eval: false
-year = 2021
-file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-tic()
-file <- adintel_files |>
-  pull(full_file_name) |>
-  str_subset(as.character(year))
 
-lst <- map(file, read_nrows, .progress = T) |> list_c()
-save(lst,file = file_out)
-toc()
-
-year = 2020
-file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-tic()
-file <- adintel_files |>
-  pull(full_file_name) |>
-  str_subset(as.character(year))
-
-lst <- map(file, read_nrows, .progress = T) |> list_c()
-save(lst, file = file_out)
-toc()
-
-year = 2019
-file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-tic()
-file <- adintel_files |>
-  pull(full_file_name) |>
-  str_subset(as.character(year))
-
-lst <- map(file, read_nrows, .progress = T) |> list_c()
-save(lst, file = file_out)
-toc()
-
-year = 2018
-file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-tic()
-file <- adintel_files |>
-  pull(full_file_name) |>
-  str_subset(as.character(year))
-
-lst <- map(file, read_nrows, .progress = T) |> list_c()
-save(lst, file = file_out)
-toc()
-
-year = 2017
-file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-tic()
-file <- adintel_files |>
-  pull(full_file_name) |>
-  str_subset(as.character(year))
-
-lst <- map(file, read_nrows, .progress = T) |> list_c()
-save(lst, file = file_out)
-toc()
-
-year = 2016
-file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-tic()
-file <- adintel_files |>
-  pull(full_file_name) |>
-  str_subset(as.character(year))
-
-lst <- map(file, read_nrows, .progress = T) |> list_c()
-save(lst, file = file_out)
-toc()
-
-year = 2015
-file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-tic()
-file <- adintel_files |>
-  pull(full_file_name) |>
-  str_subset(as.character(year))
-
-lst <- map(file, read_nrows, .progress = T) |> list_c()
-save(lst, file = file_out)
-toc()
-
-year = 2014
-file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-tic()
-file <- adintel_files |>
-  pull(full_file_name) |>
-  str_subset(as.character(year))
-
-lst <- map(file, read_nrows, .progress = T) |> list_c()
-save(lst, file = file_out)
-toc()
-
-year = 2013
-file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-tic()
-file <- adintel_files |>
-  pull(full_file_name) |>
-  str_subset(as.character(year))
-
-lst <- map(file, read_nrows, .progress = T) |> list_c()
-save(lst, file = file_out)
-toc()
-
-year = 2012
-file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-tic()
-file <- adintel_files |>
-  pull(full_file_name) |>
-  str_subset(as.character(year))
-
-lst <- map(file, read_nrows, .progress = T) |> list_c()
-save(lst, file = file_out)
-toc()
-
-year = 2011
-file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-tic()
-file <- adintel_files |>
-  pull(full_file_name) |>
-  str_subset(as.character(year))
-
-lst <- map(file, read_nrows, .progress = T) |> list_c()
-save(lst, file = file_out)
-toc()
-
-year = 2010
-file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-tic()
-file <- adintel_files |>
-  pull(full_file_name) |>
-  str_subset(as.character(year))
-
-lst <- map(file, read_nrows, .progress = T) |> list_c()
-save(lst, file = file_out)
-toc()
+# year = 2021
+# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
+# tic()
+# file <- adintel_files |>
+#   pull(full_file_name) |>
+#   str_subset(as.character(year))
+# 
+# lst <- map(file, read_nrows, .progress = T) |> list_c()
+# save(lst,file = file_out)
+# toc()
+# 
+# year = 2020
+# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
+# tic()
+# file <- adintel_files |>
+#   pull(full_file_name) |>
+#   str_subset(as.character(year))
+# 
+# lst <- map(file, read_nrows, .progress = T) |> list_c()
+# save(lst, file = file_out)
+# toc()
+# 
+# year = 2019
+# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
+# tic()
+# file <- adintel_files |>
+#   pull(full_file_name) |>
+#   str_subset(as.character(year))
+# 
+# lst <- map(file, read_nrows, .progress = T) |> list_c()
+# save(lst, file = file_out)
+# toc()
+# 
+# year = 2018
+# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
+# tic()
+# file <- adintel_files |>
+#   pull(full_file_name) |>
+#   str_subset(as.character(year))
+# 
+# lst <- map(file, read_nrows, .progress = T) |> list_c()
+# save(lst, file = file_out)
+# toc()
+# 
+# year = 2017
+# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
+# tic()
+# file <- adintel_files |>
+#   pull(full_file_name) |>
+#   str_subset(as.character(year))
+# 
+# lst <- map(file, read_nrows, .progress = T) |> list_c()
+# save(lst, file = file_out)
+# toc()
+# 
+# year = 2016
+# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
+# tic()
+# file <- adintel_files |>
+#   pull(full_file_name) |>
+#   str_subset(as.character(year))
+# 
+# lst <- map(file, read_nrows, .progress = T) |> list_c()
+# save(lst, file = file_out)
+# toc()
+# 
+# year = 2015
+# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
+# tic()
+# file <- adintel_files |>
+#   pull(full_file_name) |>
+#   str_subset(as.character(year))
+# 
+# lst <- map(file, read_nrows, .progress = T) |> list_c()
+# save(lst, file = file_out)
+# toc()
+# 
+# year = 2014
+# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
+# tic()
+# file <- adintel_files |>
+#   pull(full_file_name) |>
+#   str_subset(as.character(year))
+# 
+# lst <- map(file, read_nrows, .progress = T) |> list_c()
+# save(lst, file = file_out)
+# toc()
+# 
+# year = 2013
+# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
+# tic()
+# file <- adintel_files |>
+#   pull(full_file_name) |>
+#   str_subset(as.character(year))
+# 
+# lst <- map(file, read_nrows, .progress = T) |> list_c()
+# save(lst, file = file_out)
+# toc()
+# 
+# year = 2012
+# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
+# tic()
+# file <- adintel_files |>
+#   pull(full_file_name) |>
+#   str_subset(as.character(year))
+# 
+# lst <- map(file, read_nrows, .progress = T) |> list_c()
+# save(lst, file = file_out)
+# toc()
+# 
+# year = 2011
+# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
+# tic()
+# file <- adintel_files |>
+#   pull(full_file_name) |>
+#   str_subset(as.character(year))
+# 
+# lst <- map(file, read_nrows, .progress = T) |> list_c()
+# save(lst, file = file_out)
+# toc()
+# 
+# year = 2010
+# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
+# tic()
+# file <- adintel_files |>
+#   pull(full_file_name) |>
+#   str_subset(as.character(year))
+# 
+# lst <- map(file, read_nrows, .progress = T) |> list_c()
+# save(lst, file = file_out)
+# toc()
 ```
 
 ```{r}
-data(get_row_numbers)
-x <- get_row_numbers |> 
-  rename(n_lines_w_header = n_rows_no_header,
-         n_rows = n_rows_w_header) |> 
-  mutate(across(!full_file_name, as_numeric2))
-save(x, file = "~/Documents/r_wd/adtabler/data/get_row_numbers.rda")
+
 ```
 
 
