@@ -5,7 +5,7 @@ data("layout_list")
 data("adintel_files")
 #
 # types <- tibble(
-#   file_type_layout = c("impressions","market_break_impressions_and_ue","occurrence","reference","universe_estimates"),
+#   file_type_layout = c("impressions","market_break_impressions_and_ue","occurrence","reference","market_break_impressions_and_ue"),
 #   file_type_std = rename_adintel(c("Impressions","Market_Breaks","Occurrences","References","Universe_Estimates"))
 # )
 #
@@ -28,16 +28,20 @@ data("adintel_files")
 #   mutate(row = row_number(),
 #          .before = 1)
 
-layout_list <- layout_list |>
-  # select(row, contains("_std")) |>
+layout_list |>
+  # select(-row, -contains("_std")) |>
+  mutate(file_type_std = if_else(col_names_std == "ue_market_breaks", "universe_estimates", file_type_std))
 
-adintel_files |>
+x <- adintel_files |>
   unnest(everything()) |>
   filter(str_detect(file_name, "lock", negate = T)) |>
-  select(contains("_std"), col_pos) |>
+  # select(contains("_std"), col_pos) |>
+  nest(.by = c(contains("_std"), col_pos)) |>
   distinct() |>
-  filter(str_detect(file_name_std, "market_break")) |> print(n=500)
-  full_join(layout_lookup)|> view()
+  full_join(layout_list |>
+              # select(row, contains("_std")) |>
+              mutate(file_type_std = if_else(file_name_std == "ue_market_breaks", "universe_estimates", file_type_std))) |>
+  arrange(row) |>
+  unnest(everything())
 
-
-# save(layout_list0, file = "~/Documents/r_wd/adtabler/data/layout_list.rda")
+  anti_join(adintel_files, x)

@@ -144,9 +144,6 @@ The data frame `row_numbers` above is a pre-calculated table that contains the n
 save(adintel_files, file = "~/Documents/r_wd/adtabler/data/adadintel_files.rda")
 ```
 
-
-
-
 <!-- ```{r} -->
 
 <!-- #| output: false -->
