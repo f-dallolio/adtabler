@@ -47,16 +47,26 @@ if( !match("DT", installed.packages()) ) {
 Define the directory containing the AdIntel folders and retrieve data paths.
 
 ```{r}
-adintel_dir_home <- "/mnt/sata_data_1/adintel/"
+adintel_dir_home <- "/mnt/sata_data_1/adintel"
 
 adintel_folder <-list.files(adintel_dir_home, full.names = TRUE) |> 
   stringr::str_replace_all("//","/")
 
+adintel_all_files_old <- list.files(adintel_dir_home, 
+                                full.names = TRUE,
+                                all.files = TRUE,
+                                recursive = TRUE) 
+
+adintel_all_files_new <- adintel_all_files_old |> 
+  stringr::str_replace_all(" ", "_") |> 
+  stringr::str_replace_all("//", "/")
+
+file.rename(from = adintel_all_files_old, to = adintel_all_files_new)
+
 adintel_all_files <- list.files(adintel_dir_home, 
                                 full.names = TRUE,
                                 all.files = TRUE,
-                                recursive = TRUE) |> 
-  stringr::str_replace_all("//", "/")
+                                recursive = TRUE) 
 ```
 
 ### Dynamic Files
@@ -93,7 +103,7 @@ adintel_files_static <- adintel_all_files |>
     file_type = "References",
     file_name = str_split_i(full_file_name, "/", -1),
     file_type_std = rename_adintel(file_type),
-    file_name_std = rename_adintel( str_split_i(file_name, "\\.", 1) ),
+    file_name_std = rename_adintel( str_split_i(file_name, "\\.", 1) ) ,
     .before = full_file_name
   ) |> 
   arrange(file_type, file_name)
@@ -101,281 +111,91 @@ adintel_files_static <- adintel_all_files |>
 
 ### Reunite all files
 
-Description of each file. The function returns a nested tibble with the name of the file (`file`), the string used (`sep`) to separate columns, the number of rows (`n_rows`), the number of columns (`n_cols`), and the column names (`col_names_man`). I use `"_man` at the end of the column indicating the column names in the original files to indicate that it is the name used in the Adintel `_man`ual. The column `col_names_std` contains standardized column names. Standardization is performed by the function `adtabler::rename_adintel()`.
-
 ```{r}
-adintel_files <- bind_rows(adintel_files_dyn, adintel_files_static) |>
-  inner_join(row_numbers) |>
-  select(-n_lines_w_header) |>
-  mutate(
-    col_names_man = map(
-      .x = full_file_name,
-      .f = ~ data.table::fread(
-        file = .x,
-        nrows = 100,
-        encoding = "UTF-8"
-      ) |> names()
-    ),
-    col_names_std = map(col_names_man, rename_adintel)
-  ) |>
-  mutate(
-    n_cols = map_int(col_names_man, length),
-    col_pos = map(col_names_man, seq_along),
-    .after = n_rows
-  ) |> 
-  relocate(full_file_name, .after = last_col())
-
-write_csv(adintel_files, "~/Documents/r_wd/adtabler/data-raw/various_data/adinte_files_quarto.csv")
+adintel_files <- bind_rows(adintel_files_dyn, adintel_files_static)
 ```
 
 ```{r}
 adintel_files |> 
-  mutate(across(year : file_name_std, as_factor)) |> 
+  mutate(across(-full_file_name, as_factor)) |> 
   datatable(rownames = FALSE, filter = "top")
 ```
 
-```{r}
-#| eval: false
+Description of each file. The function returns a nested tibble with the name of the file (`file`), the string used (`sep`) to separate columns, the number of rows (`n_rows`), the number of columns (`n_cols`), and the column names (`col_names_man`). I use `"_man` at the end of the column indicating the column names in the original files to indicate that it is the name used in the Adintel `_man`ual. The column `col_names_std` contains standardized column names. Standardization is performed by the function `adtabler::rename_adintel()`.
 
-# year = 2021
-# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-# tic()
-# file <- adintel_files |>
-#   pull(full_file_name) |>
-#   str_subset(as.character(year))
-# 
-# lst <- map(file, read_nrows, .progress = T) |> list_c()
-# save(lst,file = file_out)
-# toc()
-# 
-# year = 2020
-# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-# tic()
-# file <- adintel_files |>
-#   pull(full_file_name) |>
-#   str_subset(as.character(year))
-# 
-# lst <- map(file, read_nrows, .progress = T) |> list_c()
-# save(lst, file = file_out)
-# toc()
-# 
-# year = 2019
-# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-# tic()
-# file <- adintel_files |>
-#   pull(full_file_name) |>
-#   str_subset(as.character(year))
-# 
-# lst <- map(file, read_nrows, .progress = T) |> list_c()
-# save(lst, file = file_out)
-# toc()
-# 
-# year = 2018
-# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-# tic()
-# file <- adintel_files |>
-#   pull(full_file_name) |>
-#   str_subset(as.character(year))
-# 
-# lst <- map(file, read_nrows, .progress = T) |> list_c()
-# save(lst, file = file_out)
-# toc()
-# 
-# year = 2017
-# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-# tic()
-# file <- adintel_files |>
-#   pull(full_file_name) |>
-#   str_subset(as.character(year))
-# 
-# lst <- map(file, read_nrows, .progress = T) |> list_c()
-# save(lst, file = file_out)
-# toc()
-# 
-# year = 2016
-# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-# tic()
-# file <- adintel_files |>
-#   pull(full_file_name) |>
-#   str_subset(as.character(year))
-# 
-# lst <- map(file, read_nrows, .progress = T) |> list_c()
-# save(lst, file = file_out)
-# toc()
-# 
-# year = 2015
-# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-# tic()
-# file <- adintel_files |>
-#   pull(full_file_name) |>
-#   str_subset(as.character(year))
-# 
-# lst <- map(file, read_nrows, .progress = T) |> list_c()
-# save(lst, file = file_out)
-# toc()
-# 
-# year = 2014
-# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-# tic()
-# file <- adintel_files |>
-#   pull(full_file_name) |>
-#   str_subset(as.character(year))
-# 
-# lst <- map(file, read_nrows, .progress = T) |> list_c()
-# save(lst, file = file_out)
-# toc()
-# 
-# year = 2013
-# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-# tic()
-# file <- adintel_files |>
-#   pull(full_file_name) |>
-#   str_subset(as.character(year))
-# 
-# lst <- map(file, read_nrows, .progress = T) |> list_c()
-# save(lst, file = file_out)
-# toc()
-# 
-# year = 2012
-# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-# tic()
-# file <- adintel_files |>
-#   pull(full_file_name) |>
-#   str_subset(as.character(year))
-# 
-# lst <- map(file, read_nrows, .progress = T) |> list_c()
-# save(lst, file = file_out)
-# toc()
-# 
-# year = 2011
-# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-# tic()
-# file <- adintel_files |>
-#   pull(full_file_name) |>
-#   str_subset(as.character(year))
-# 
-# lst <- map(file, read_nrows, .progress = T) |> list_c()
-# save(lst, file = file_out)
-# toc()
-# 
-# year = 2010
-# file_out <- glue::glue("~/Documents/r_wd/adtabler/data/row_numbers_{year}.rda")
-# tic()
-# file <- adintel_files |>
-#   pull(full_file_name) |>
-#   str_subset(as.character(year))
-# 
-# lst <- map(file, read_nrows, .progress = T) |> list_c()
-# save(lst, file = file_out)
-# toc()
+```{r}
+adintel_files |> 
+  mutate(file_size_mb = file.size(full_file_name) / 1024^2,
+         file_size_mb = round(file_size_mb, 2)) |> 
+  mutate(n_rows = read_nrows(full_file_name))
 ```
 
-<!-- ```{r} -->
 
+
+<!-- ```{r} -->
 <!-- #| output: false -->
 
+
 <!-- describe_dyn_files <- function(file, header = TRUE){ -->
-
 <!--   num_rows <- read_nrows(file, header) -->
-
 <!--   first_1k_row <- data.table::fread(file = file, -->
-
 <!--                                  skip = as.numeric(!header), -->
-
 <!--                                  nrows = 1000) |> -->
-
 <!--     as.list() |> -->
-
 <!--     unlist(use.names = TRUE) -->
 
 <!--   nms <- names(first_row) -->
-
 <!--   header_nosep <- readLines(file, n = 1, skipNul = TRUE) -->
 
 <!--   sep0 = header_nosep -->
-
 <!--   for(i in seq_along(nms)){ -->
-
 <!--     sep0 <- str_remove_all(sep0, nms[i]) -->
-
 <!--   } -->
 
 <!--   sep = sep0 |> -->
-
 <!--     str_remove_all(" ") |> -->
-
 <!--     str_split("") |> -->
-
 <!--     unlist() |> -->
-
 <!--     unique() -->
 
 <!--   out <- tibble(file, -->
-
 <!--                 sep = sep, -->
-
 <!--                 n_row = num_rows, -->
-
 <!--                 n_col = length(nms), -->
-
 <!--                 col_names_man = list(nms), -->
-
 <!--                 col_names_std = list(adtabler::rename_adintel(nms))) -->
-
 <!--   return(out) -->
-
 <!-- } -->
-
 <!-- # plan(multisession, workers = 30) -->
-
 <!-- # tictoc::tic() -->
-
 <!-- # dyn_files_desc_thread <- future_map(all_dyn_files$full_file_name, describe_dyn_files, .progress = TRUE) -->
-
 <!-- # tictoc::toc() -->
-
 <!-- # plan(sequential) -->
-
 <!-- ``` -->
 
 <!-- ```{r} -->
-
 <!-- #| output: false -->
-
 <!-- tictoc::tic() -->
-
 <!-- dyn_files_desc <- map(all_dyn_files$full_file_name, describe_dyn_files, .progress = TRUE) |> -->
-
 <!--   list_rbind() -->
-
 <!-- ``` -->
 
 <!-- ```{r} -->
-
 <!-- tictoc::toc() -->
-
 <!-- ``` -->
 
 <!-- ```{r} -->
-
 <!-- dyn_files_desc |> -->
-
 <!--   unnest(everything()) -->
-
 <!-- ``` -->
 
 <!-- Retrieve file paths for different types of data. First check unique file_type names. Here the output is the renamed/standardized names vector of file_type names with the originals as names. -->
 
 <!-- ```{r} -->
-
 <!-- # dyn_files$file_type |> -->
-
 <!-- #   unique() |> -->
-
 <!-- #   rename_adintel() |> -->
-
 <!-- #   set_names(dyn_files$file_type |> unique()) -->
-
 <!-- ``` -->
 
 <!-- ### Occurrences -->
