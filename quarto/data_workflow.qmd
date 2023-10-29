@@ -47,6 +47,7 @@ if( !match("DT", installed.packages()) ) {
 Define the directory containing the AdIntel folders and retrieve data paths.
 
 ```{r}
+#| output: false
 adintel_dir_home <- "/mnt/sata_data_1/adintel"
 
 adintel_folder <-list.files(adintel_dir_home, full.names = TRUE) |> 
@@ -112,90 +113,154 @@ adintel_files_static <- adintel_all_files |>
 ### Reunite all files
 
 ```{r}
-adintel_files <- bind_rows(adintel_files_dyn, adintel_files_static)
-```
+data("row_numbers")
 
-```{r}
-adintel_files |> 
-  mutate(across(-full_file_name, as_factor)) |> 
-  datatable(rownames = FALSE, filter = "top")
+fn_col_info <- function(x,.name){
+  df <- data.table::fread(file = x,
+                          nrows = 100)
+  col_names_man <- names(df)
+  n_cols <-NCOL(df)
+  col_pos <- seq_along(col_names_man)
+  col_names_std <- rename_adintel(col_names_man)
+  tibble(n_cols,
+         col_pos,
+         col_names_man,
+         col_names_std)
+}
+
+adintel_files <- bind_rows(adintel_files_dyn, 
+                           adintel_files_static) |> 
+  mutate(data = map(full_file_name, 
+                    ~ fn_col_info(.x, .name = full_file_name))) |> 
+  unnest(everything()) |>
+  
+  inner_join( row_numbers ) |> 
+  
+  select(-n_lines_w_header) |> 
+  nest(col_info = contains("col_")) |> 
+  relocate(n_rows, .before = n_cols) |>   
+  relocate(full_file_name, .after = last_col())
+
 ```
 
 Description of each file. The function returns a nested tibble with the name of the file (`file`), the string used (`sep`) to separate columns, the number of rows (`n_rows`), the number of columns (`n_cols`), and the column names (`col_names_man`). I use `"_man` at the end of the column indicating the column names in the original files to indicate that it is the name used in the Adintel `_man`ual. The column `col_names_std` contains standardized column names. Standardization is performed by the function `adtabler::rename_adintel()`.
 
+The data frame `row_numbers` above is a pre-calculated table that contains the number of rows for each file. The number of rows was efficiently computed with the `read_nrows` function.
+
 ```{r}
-adintel_files |> 
-  mutate(file_size_mb = file.size(full_file_name) / 1024^2,
-         file_size_mb = round(file_size_mb, 2)) |> 
-  mutate(n_rows = read_nrows(full_file_name))
+#| eval: false
+save(layout_list, file = "~/Documents/r_wd/adtabler/data/layout_list.rda")
 ```
 
 
 
+
 <!-- ```{r} -->
+
 <!-- #| output: false -->
 
-
 <!-- describe_dyn_files <- function(file, header = TRUE){ -->
+
 <!--   num_rows <- read_nrows(file, header) -->
+
 <!--   first_1k_row <- data.table::fread(file = file, -->
+
 <!--                                  skip = as.numeric(!header), -->
+
 <!--                                  nrows = 1000) |> -->
+
 <!--     as.list() |> -->
+
 <!--     unlist(use.names = TRUE) -->
 
 <!--   nms <- names(first_row) -->
+
 <!--   header_nosep <- readLines(file, n = 1, skipNul = TRUE) -->
 
 <!--   sep0 = header_nosep -->
+
 <!--   for(i in seq_along(nms)){ -->
+
 <!--     sep0 <- str_remove_all(sep0, nms[i]) -->
+
 <!--   } -->
 
 <!--   sep = sep0 |> -->
+
 <!--     str_remove_all(" ") |> -->
+
 <!--     str_split("") |> -->
+
 <!--     unlist() |> -->
+
 <!--     unique() -->
 
 <!--   out <- tibble(file, -->
+
 <!--                 sep = sep, -->
+
 <!--                 n_row = num_rows, -->
+
 <!--                 n_col = length(nms), -->
+
 <!--                 col_names_man = list(nms), -->
+
 <!--                 col_names_std = list(adtabler::rename_adintel(nms))) -->
+
 <!--   return(out) -->
+
 <!-- } -->
+
 <!-- # plan(multisession, workers = 30) -->
+
 <!-- # tictoc::tic() -->
+
 <!-- # dyn_files_desc_thread <- future_map(all_dyn_files$full_file_name, describe_dyn_files, .progress = TRUE) -->
+
 <!-- # tictoc::toc() -->
+
 <!-- # plan(sequential) -->
+
 <!-- ``` -->
 
 <!-- ```{r} -->
+
 <!-- #| output: false -->
+
 <!-- tictoc::tic() -->
+
 <!-- dyn_files_desc <- map(all_dyn_files$full_file_name, describe_dyn_files, .progress = TRUE) |> -->
+
 <!--   list_rbind() -->
+
 <!-- ``` -->
 
 <!-- ```{r} -->
+
 <!-- tictoc::toc() -->
+
 <!-- ``` -->
 
 <!-- ```{r} -->
+
 <!-- dyn_files_desc |> -->
+
 <!--   unnest(everything()) -->
+
 <!-- ``` -->
 
 <!-- Retrieve file paths for different types of data. First check unique file_type names. Here the output is the renamed/standardized names vector of file_type names with the originals as names. -->
 
 <!-- ```{r} -->
+
 <!-- # dyn_files$file_type |> -->
+
 <!-- #   unique() |> -->
+
 <!-- #   rename_adintel() |> -->
+
 <!-- #   set_names(dyn_files$file_type |> unique()) -->
+
 <!-- ``` -->
 
 <!-- ### Occurrences -->
