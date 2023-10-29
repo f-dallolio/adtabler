@@ -42,7 +42,7 @@ if( !match("DT", installed.packages()) ) {
 
 ```
 
-# Load Data (one year at the time)
+# Load Data
 
 Define the directory containing the AdIntel folders and retrieve data paths.
 
