@@ -196,3 +196,8 @@ data_info <- data_info |>
 rm(list = setdiff(ls(), "data_info"))
 ```
 
+```{r}
+
+usethis::use_data()
+```
+
