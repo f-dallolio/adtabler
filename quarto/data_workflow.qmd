@@ -100,17 +100,13 @@ adintel_files_static <- adintel_all_files |>
   arrange(file_type_data, file_name_data)
 ```
 
-# Data Description and Checks
-
-## Description
+# Data Checks
 
 Description of each file. The function returns a nested tibble with the name of the file (`file`), the string used (`sep`) to separate columns, the number of rows (`n_rows`), the number of columns (`n_cols`), and the column names (`col_name_man`). I use `"_man` at the end of the column indicating the column names in the original files to indicate that it is the name used in the Adintel `_man`ual. The column `col_name_std` contains standardized column names. Standardization is performed by the function `adtabler::rename_adintel()`.
 
 The data frame `row_numbers` below is a pre-calculated table that contains the number of rows for each file. The number of rows was efficiently computed with the `read_nrows` function.
 
 ```{r}
-data("row_numbers")
-
 fn_col_info <- function(x,.name){
   df <- data.table::fread(file = x,
                           nrows = 100)
@@ -124,6 +120,8 @@ fn_col_info <- function(x,.name){
          col_name_std)
 }
 
+data("row_numbers")
+
 data_info <- bind_rows(adintel_files_dyn, 
                            adintel_files_static) |> 
   mutate(data = map(full_file_name, 
@@ -135,71 +133,59 @@ data_info <- bind_rows(adintel_files_dyn,
   select(-n_lines_w_header) |> 
   relocate(n_rows, .before = n_cols) |>   
   relocate(full_file_name, .after = last_col()) 
-```
 
-## Check Against AdIntel layout Tables
-
-```{r}
-data("layout_list")
-layout_list
-
-data_info_layout <- data_info |>
-  nest(.by = c(contains("_std"), col_pos)) |>
-  distinct() |>
-  
-  inner_join(layout_list) |>
-  
-  arrange(row) |>
-  unnest(everything())
-```
-
-
-```{r}
 rm(list = setdiff(ls(), "data_info"))
 ```
 
-## Column Description from AdIntel Manual
 
 ```{r}
-data("references_columns")
-data("occurrences_columns")
-references_columns
-# <- references_columns |> 
-#   mutate(col_name_std = rename_adintel(col_name_man))
-# # |> names() |> unique() |> sort()
-occurrences_columns 
-# <- occurrences_columns 
-# |> 
-#   select( - file_name_man)
-# |> names() |> unique() |> sort()
+# data("layout_list")
+# layout_list
 # 
-# 
-# usethis::use_data(references_columns, overwrite = T)
-# usethis::use_data(occurrences_columns, overwrite = T)
+# data_info_layout <- data_info |>
+#   nest(.by = c(contains("_std"), col_pos)) |>
+#   distinct() |>
+#   
+#   inner_join(layout_list) |>
+#   
+#   arrange(row) |>
+#   unnest(everything())
+```
 
-bind_rows(references_columns, occurrences_columns)
+```{r}
+# rm(list = setdiff(ls(), "data_info"))
 ```
 
 
 ```{r}
-
-
-data_info |> 
-  nest(.by = c(file_name_std, col_pos, col_name_std)) |> 
-  full_join(references_columns |> 
-              mutate(col_name_std = rename_adintel(col_name_man)) |> 
-               nest(.by = c(file_name_std, col_pos, , col_name_std),
-                    .key = "data2")) |> 
-  unnest(data2) |> 
-  unnest(data)
-
-data_info |> 
-  nest(.by = c(file_name_std, col_pos, col_name_std)) |> 
-  full_join(occurrences_columns |> 
-              mutate(col_name_std = rename_adintel(col_name_man)) |> 
-               nest(.by = c(file_name_std, col_pos, , col_name_std),
-                    .key = "data2")) |> 
-  unnest(data2) |> 
-  unnest(data)
+# data("occurrences_columns")
+# data("occurrences_ukey")
+# 
+# occurrences_columns <- occurrences_columns |>
+#   left_join(
+#     occurrences_ukey |>
+#       transmute(media_type_id,
+#                 col_name_std = rename_adintel(ukey_man),
+#                 col_unique_key = col_name_std)
+#     ) |>
+#   relocate(col_unique_key, .after = col_name_std) |>
+#   relocate(media_type_id, .before = 1)
 ```
+
+```{r}
+# data("references_columns")
+# data("references_ukey")
+# 
+# occurrences_nms <- occurrences_columns |>
+#   select(-media_type_id) |>
+#   names()
+# 
+# references_columns <- references_columns |>
+#   left_join(references_ukey) |>
+#   mutate(col_unique_key = if_else(!is.na(col_name_ref), col_name_std, NA)) |>
+#   select(-(file_name_ref:col_name_ref)) |>
+#   relocate(col_name_std, col_unique_key, .after = col_pos) |>
+#   select(any_of(occurrences_nms))
+```
+
 
