@@ -84,12 +84,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#pakages" id="toc-pakages" class="nav-link active" data-scroll-target="#pakages">Pakages</a></li>
-  <li><a href="#load-data-one-year-at-the-time" id="toc-load-data-one-year-at-the-time" class="nav-link" data-scroll-target="#load-data-one-year-at-the-time">Load Data (one year at the time)</a>
+  <li><a href="#data-info" id="toc-data-info" class="nav-link" data-scroll-target="#data-info">Data Info</a>
   <ul class="collapse">
-  <li><a href="#dynamic-files" id="toc-dynamic-files" class="nav-link" data-scroll-target="#dynamic-files">Dynamic Files</a></li>
-  <li><a href="#static-files" id="toc-static-files" class="nav-link" data-scroll-target="#static-files">Static Files</a></li>
-  <li><a href="#reunite-all-files" id="toc-reunite-all-files" class="nav-link" data-scroll-target="#reunite-all-files">Reunite all files</a></li>
+  <li><a href="#info---dynamic-files" id="toc-info---dynamic-files" class="nav-link" data-scroll-target="#info---dynamic-files">Info - Dynamic Files</a></li>
+  <li><a href="#info---static-files" id="toc-info---static-files" class="nav-link" data-scroll-target="#info---static-files">Info - Static Files</a></li>
   </ul></li>
+  <li><a href="#data-checks" id="toc-data-checks" class="nav-link" data-scroll-target="#data-checks">Data Checks</a></li>
   </ul>
 </nav>
 </div>
@@ -133,357 +133,191 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rlang, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(glue, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(adtabler, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(furrr)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>( <span class="sc">!</span><span class="fu">match</span>(<span class="st">"DT"</span>, <span class="fu">installed.packages</span>()) ) {</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">install.packages</span>(<span class="st">"DT"</span>)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(<span class="st">"DT"</span>)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(<span class="st">"DT"</span>)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(furrr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
-<section id="load-data-one-year-at-the-time" class="level1">
-<h1>Load Data (one year at the time)</h1>
+<section id="data-info" class="level1">
+<h1>Data Info</h1>
 <p>Define the directory containing the AdIntel folders and retrieve data paths.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>adintel_dir_home <span class="ot">&lt;-</span> <span class="st">"/mnt/sata_data_1/adintel"</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>adintel_folder <span class="ot">&lt;-</span><span class="fu">list.files</span>(adintel_dir_home, <span class="at">full.names =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  stringr<span class="sc">::</span><span class="fu">str_replace_all</span>(<span class="st">"//"</span>,<span class="st">"/"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>adintel_folder <span class="ot">&lt;-</span> <span class="fu">list.files</span>(adintel_dir_home, <span class="at">full.names =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  stringr<span class="sc">::</span><span class="fu">str_replace_all</span>(<span class="st">"//"</span>, <span class="st">"/"</span>)</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>adintel_all_files_old <span class="ot">&lt;-</span> <span class="fu">list.files</span>(adintel_dir_home, </span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>                                <span class="at">full.names =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>                                <span class="at">all.files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>                                <span class="at">recursive =</span> <span class="cn">TRUE</span>) </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>adintel_all_files_old <span class="ot">&lt;-</span> <span class="fu">list.files</span>(adintel_dir_home,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">full.names =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">recursive =</span> <span class="cn">TRUE</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>adintel_all_files_new <span class="ot">&lt;-</span> adintel_all_files_old <span class="sc">|&gt;</span> </span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  stringr<span class="sc">::</span><span class="fu">str_replace_all</span>(<span class="st">" "</span>, <span class="st">"_"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>adintel_all_files_new <span class="ot">&lt;-</span> adintel_all_files_old <span class="sc">|&gt;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  stringr<span class="sc">::</span><span class="fu">str_replace_all</span>(<span class="st">" "</span>, <span class="st">"_"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  stringr<span class="sc">::</span><span class="fu">str_replace_all</span>(<span class="st">"//"</span>, <span class="st">"/"</span>)</span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="fu">file.rename</span>(<span class="at">from =</span> adintel_all_files_old, <span class="at">to =</span> adintel_all_files_new)</span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>adintel_all_files <span class="ot">&lt;-</span> <span class="fu">list.files</span>(adintel_dir_home, </span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>                                <span class="at">full.names =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>                                <span class="at">all.files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>                                <span class="at">recursive =</span> <span class="cn">TRUE</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>adintel_all_files <span class="ot">&lt;-</span> <span class="fu">list.files</span>(adintel_dir_home,</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">full.names =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">recursive =</span> <span class="cn">TRUE</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<section id="dynamic-files" class="level3">
-<h3 class="anchored" data-anchor-id="dynamic-files">Dynamic Files</h3>
+<section id="info---dynamic-files" class="level2">
+<h2 class="anchored" data-anchor-id="info---dynamic-files">Info - Dynamic Files</h2>
 <p>Retrieve file paths for 2020 “dynamic” files (i.e.&nbsp;they can change year by year):</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>adintel_files_dyn <span class="ot">&lt;-</span> adintel_all_files <span class="sc">|&gt;</span> </span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_subset</span>(<span class="at">pattern =</span> <span class="fu">no_case</span>(<span class="st">"master_file"</span>), <span class="at">negate =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble_col</span>(<span class="st">"full_file_name"</span>) <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>adintel_files_dyn <span class="ot">&lt;-</span> adintel_all_files <span class="sc">|&gt;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_subset</span>(<span class="at">pattern =</span> <span class="fu">no_case</span>(<span class="st">"master_file"</span>), <span class="at">negate =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble_col</span>(<span class="st">"full_file_name"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> <span class="fu">as_numeric2</span>(<span class="fu">str_split_i</span>(full_file_name, <span class="st">"/"</span>, <span class="sc">-</span><span class="dv">3</span>)),</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_type =</span> <span class="fu">str_split_i</span>(full_file_name, <span class="st">"/"</span>, <span class="sc">-</span><span class="dv">2</span>),</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_name =</span> <span class="fu">str_split_i</span>(full_file_name, <span class="st">"/"</span>, <span class="sc">-</span><span class="dv">1</span>),</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_type_std =</span> <span class="fu">rename_adintel</span>(file_type),</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_name_std =</span> <span class="fu">rename_adintel</span>( <span class="fu">str_split_i</span>(file_name, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>, <span class="dv">1</span>) ),</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_type_data =</span> <span class="fu">str_split_i</span>(full_file_name, <span class="st">"/"</span>, <span class="sc">-</span><span class="dv">2</span>),</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_name_data =</span> <span class="fu">str_split_i</span>(full_file_name, <span class="st">"/"</span>, <span class="sc">-</span><span class="dv">1</span>),</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_type_std =</span> <span class="fu">rename_adintel</span>(file_type_data),</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_name_std =</span> <span class="fu">rename_adintel</span>(<span class="fu">str_split_i</span>(file_name_data, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>, <span class="dv">1</span>)),</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">.before =</span> full_file_name</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(year, file_type, file_name)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(year, file_type_data, file_name_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
-<section id="static-files" class="level3">
-<h3 class="anchored" data-anchor-id="static-files">Static Files</h3>
+<section id="info---static-files" class="level2">
+<h2 class="anchored" data-anchor-id="info---static-files">Info - Static Files</h2>
 <p>Retrieve file paths for “static” files (i.e.&nbsp;they do not change year by year):</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>adintel_files_static <span class="ot">&lt;-</span> adintel_all_files <span class="sc">|&gt;</span> </span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_subset</span>(<span class="at">pattern =</span> <span class="fu">no_case</span>(<span class="st">"master_file"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_subset</span>(<span class="at">pattern =</span> <span class="fu">no_case</span>(<span class="st">"Latest"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_subset</span>(<span class="at">pattern =</span> <span class="fu">as.character</span>(<span class="fu">max</span>(adintel_files_dyn<span class="sc">$</span>year))) <span class="sc">|&gt;</span> </span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble_col</span>(<span class="st">"full_file_name"</span>) <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>adintel_files_static <span class="ot">&lt;-</span> adintel_all_files <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_subset</span>(<span class="at">pattern =</span> <span class="fu">no_case</span>(<span class="st">"master_file"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_subset</span>(<span class="at">pattern =</span> <span class="fu">no_case</span>(<span class="st">"Latest"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_subset</span>(<span class="at">pattern =</span> <span class="fu">as.character</span>(<span class="fu">max</span>(adintel_files_dyn<span class="sc">$</span>year))) <span class="sc">|&gt;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble_col</span>(<span class="st">"full_file_name"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> <span class="cn">NA</span>,</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_type =</span> <span class="st">"References"</span>,</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_name =</span> <span class="fu">str_split_i</span>(full_file_name, <span class="st">"/"</span>, <span class="sc">-</span><span class="dv">1</span>),</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_type_std =</span> <span class="fu">rename_adintel</span>(file_type),</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_name_std =</span> <span class="fu">rename_adintel</span>( <span class="fu">str_split_i</span>(file_name, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>, <span class="dv">1</span>) ) ,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_type_data =</span> <span class="st">"References"</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_name_data =</span> <span class="fu">str_split_i</span>(full_file_name, <span class="st">"/"</span>, <span class="sc">-</span><span class="dv">1</span>),</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_type_std =</span> <span class="fu">rename_adintel</span>(file_type_data),</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">file_name_std =</span> <span class="fu">rename_adintel</span>(<span class="fu">str_split_i</span>(file_name_data, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>, <span class="dv">1</span>)),</span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">.before =</span> full_file_name</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(file_type, file_name)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(file_type_data, file_name_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
-<section id="reunite-all-files" class="level3">
-<h3 class="anchored" data-anchor-id="reunite-all-files">Reunite all files</h3>
+</section>
+<section id="data-checks" class="level1">
+<h1>Data Checks</h1>
+<p>Description of each file. The function returns a nested tibble with the name of the file (<code>file</code>), the string used (<code>sep</code>) to separate columns, the number of rows (<code>n_rows</code>), the number of columns (<code>n_cols</code>), and the column names (<code>col_name_man</code>). I use <code>_man</code> at the end of the column indicating the column names in the original files to indicate that it is the name used in the Adintel <code>_man</code>ual. The column <code>col_name_std</code> contains standardized column names. Standardization is performed by the function <code>adtabler::rename_adintel()</code>.</p>
+<p>The data frame <code>row_numbers</code> below is a pre-calculated table that contains the number of rows for each file. The number of rows was efficiently computed with the <code>read_nrows</code> function.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"row_numbers"</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>fn_col_info <span class="ot">&lt;-</span> <span class="cf">function</span>(x,.name){</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> data.table<span class="sc">::</span><span class="fu">fread</span>(<span class="at">file =</span> x,</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">nrows =</span> <span class="dv">100</span>)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  col_names_man <span class="ot">&lt;-</span> <span class="fu">names</span>(df)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  n_cols <span class="ot">&lt;-</span><span class="fu">NCOL</span>(df)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  col_pos <span class="ot">&lt;-</span> <span class="fu">seq_along</span>(col_names_man)</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  col_names_std <span class="ot">&lt;-</span> <span class="fu">rename_adintel</span>(col_names_man)</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(n_cols,</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>         col_pos,</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>         col_names_man,</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>         col_names_std)</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>adintel_files <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(adintel_files_dyn, </span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>                           adintel_files_static) <span class="sc">|&gt;</span> </span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">data =</span> <span class="fu">map</span>(full_file_name, </span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>                    <span class="sc">~</span> <span class="fu">fn_col_info</span>(.x, <span class="at">.name =</span> full_file_name))) <span class="sc">|&gt;</span> </span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="fu">everything</span>()) <span class="sc">|&gt;</span></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>( row_numbers ) <span class="sc">|&gt;</span> </span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>n_lines_w_header) <span class="sc">|&gt;</span> </span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>(<span class="at">col_info =</span> <span class="fu">contains</span>(<span class="st">"col_"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(n_rows, <span class="at">.before =</span> n_cols) <span class="sc">|&gt;</span>   </span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(full_file_name, <span class="at">.after =</span> <span class="fu">last_col</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fn_col_info <span class="ot">&lt;-</span> <span class="cf">function</span>(x, .name) {</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> data.table<span class="sc">::</span><span class="fu">fread</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">file =</span> x,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">nrows =</span> <span class="dv">100</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  col_name_data <span class="ot">&lt;-</span> <span class="fu">names</span>(df)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  n_cols <span class="ot">&lt;-</span> <span class="fu">NCOL</span>(df)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  col_pos <span class="ot">&lt;-</span> <span class="fu">seq_along</span>(col_name_data)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  col_name_std <span class="ot">&lt;-</span> <span class="fu">rename_adintel</span>(col_name_data)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    n_cols,</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    col_pos,</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    col_name_data,</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    col_name_std</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"row_numbers"</span>)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>data_info <span class="ot">&lt;-</span> adintel_files_dyn <span class="sc">|&gt;</span> </span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    adintel_files_static</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> full_file_name <span class="sc">|&gt;</span> </span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>      <span class="fu">map</span>(</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>        <span class="at">.f =</span> <span class="sc">~</span> <span class="fu">fn_col_info</span>(.x, <span class="at">.name =</span> full_file_name)</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">everything</span>()</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    row_numbers</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span> n_lines_w_header</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>    n_rows, <span class="at">.before =</span> n_cols</span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>    full_file_name, <span class="at">.after =</span> <span class="fu">last_col</span>()</span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stderr">
 <pre><code>Joining with `by = join_by(full_file_name)`</code></pre>
 </div>
 </div>
-<p>Description of each file. The function returns a nested tibble with the name of the file (<code>file</code>), the string used (<code>sep</code>) to separate columns, the number of rows (<code>n_rows</code>), the number of columns (<code>n_cols</code>), and the column names (<code>col_names_man</code>). I use <code>"_man</code> at the end of the column indicating the column names in the original files to indicate that it is the name used in the Adintel <code>_man</code>ual. The column <code>col_names_std</code> contains standardized column names. Standardization is performed by the function <code>adtabler::rename_adintel()</code>.</p>
-<p>The data frame <code>row_numbers</code> above is a pre-calculated table that contains the number of rows for each file. The number of rows was efficiently computed with the <code>read_nrows</code> function.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(layout_list, <span class="at">file =</span> <span class="st">"~/Documents/r_wd/adtabler/data/layout_list.rda"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"references_columns"</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"occurrences_columns"</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"lookup_datatype"</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>refer_occurr_info <span class="ot">&lt;-</span> occurrences_columns <span class="sc">|&gt;</span> </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>( <span class="at">unique_key_info =</span> <span class="fu">c</span>(media_type_id, col_unique_key) ) <span class="sc">|&gt;</span> </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    references_columns <span class="sc">|&gt;</span> <span class="fu">nest</span>(<span class="at">unique_key_info =</span> col_unique_key)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    lookup_datatype</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    datatype_r, datatype_sql, <span class="at">.before =</span> sql_precision</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>(</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">data_type_info =</span> <span class="fu">c</span>(</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>      datatype_r, datatype_sql, </span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>      sql_precision, sql_scale, </span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>      datatype_man, datatype_std</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">manual_info =</span> <span class="fu">c</span>(col_name_man, description</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Joining with `by = join_by(datatype_man)`</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>data_info <span class="ot">&lt;-</span> data_info <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data_col_original =</span> <span class="fu">contains</span>(<span class="st">"_data"</span>),</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">data_file_info =</span> <span class="fu">c</span>(year, n_rows, n_cols, full_file_name)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>( </span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    refer_occurr_info</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Joining with `by = join_by(file_name_std, col_pos, col_name_std)`</code></pre>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">setdiff</span>(<span class="fu">ls</span>(), <span class="st">"data_info"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<!-- ```{r} -->
-<!-- #| output: false -->
-<!-- describe_dyn_files <- function(file, header = TRUE){ -->
-<!--   num_rows <- read_nrows(file, header) -->
-
-<!--   first_1k_row <- data.table::fread(file = file, -->
-<!--                                  skip = as.numeric(!header), -->
-<!--                                  nrows = 1000) |> -->
-<!--     as.list() |> -->
-<!--     unlist(use.names = TRUE) -->
-<!--   nms <- names(first_row) -->
-<!--   header_nosep <- readLines(file, n = 1, skipNul = TRUE) -->
-<!--   sep0 = header_nosep -->
-<!--   for(i in seq_along(nms)){ -->
-<!--     sep0 <- str_remove_all(sep0, nms[i]) -->
-<!--   } -->
-<!--   sep = sep0 |> -->
-<!--     str_remove_all(" ") |> -->
-<!--     str_split("") |> -->
-<!--     unlist() |> -->
-<!--     unique() -->
-<!--   out <- tibble(file, -->
-<!--                 sep = sep, -->
-<!--                 n_row = num_rows, -->
-<!--                 n_col = length(nms), -->
-<!--                 col_names_man = list(nms), -->
-
-<!--                 col_names_std = list(adtabler::rename_adintel(nms))) -->
-<!--   return(out) -->
-<!-- } -->
-<!-- # plan(multisession, workers = 30) -->
-<!-- # tictoc::tic() -->
-<!-- # dyn_files_desc_thread <- future_map(all_dyn_files$full_file_name, describe_dyn_files, .progress = TRUE) -->
-<!-- # tictoc::toc() -->
-<!-- # plan(sequential) -->
-<!-- ``` -->
-<!-- ```{r} -->
-<!-- #| output: false -->
-<!-- tictoc::tic() -->
-<!-- dyn_files_desc <- map(all_dyn_files$full_file_name, describe_dyn_files, .progress = TRUE) |> -->
-<!--   list_rbind() -->
-<!-- ``` -->
-<!-- ```{r} -->
-<!-- tictoc::toc() -->
-<!-- ``` -->
-<!-- ```{r} -->
-<!-- dyn_files_desc |> -->
-<!--   unnest(everything()) -->
-<!-- ``` -->
-<!-- Retrieve file paths for different types of data. First check unique file_type names. Here the output is the renamed/standardized names vector of file_type names with the originals as names. -->
-<!-- ```{r} -->
-<!-- # dyn_files$file_type |> -->
-<!-- #   unique() |> -->
-<!-- #   rename_adintel() |> -->
-<!-- #   set_names(dyn_files$file_type |> unique()) -->
-<!-- ``` -->
-<!-- ### Occurrences -->
-<!-- ```{r} -->
-<!-- occurrences_files <- dyn_files |> -->
-<!--   filter(str_detect(file_type, no_case("occurrences"))) |> -->
-<!--   inner_join(occurrences_columns) |> -->
-<!--   nest( -->
-<!--     col_pos = col_pos, -->
-<!--     col_name_man = col_name_man, -->
-<!--     col_class_man = col_class_man, -->
-<!--     col_p = col_p, -->
-<!--     col_n = col_n, -->
-<!--     descripton = description -->
-<!--   ) |> -->
-<!--   mutate( -->
-<!--     col_pos = col_pos |> map(~ .x[[1]]), -->
-<!--     col_name_man = col_name_man |> map(~ .x[[1]]), -->
-<!--     col_class_man = col_class_man |> map(~ .x[[1]]), -->
-<!--     col_p = col_p |> map(~ .x[[1]]), -->
-<!--     col_n = col_n |> map(~ .x[[1]]), -->
-<!--     descripton = descripton |> map(~ .x[[1]]) -->
-<!--   ) -->
-<!-- ``` -->
-<!-- ```{r} -->
-<!-- str(occurrences_files) -->
-<!-- ``` -->
-<!-- ### References -->
-<!-- Retrieve info for dynamic references. -->
-<!-- ```{r} -->
-<!-- dynamic_references_files <- dyn_files |> -->
-<!--   filter(str_detect(file_type, no_case("references"))) |> -->
-<!--   mutate( -->
-<!--     n_rows = read_nrows(full_file_name), -->
-<!--     col_name_man = full_file_name |> -->
-<!--       map( -->
-<!--         ~ read_header(.x) -->
-<!--       ) -->
-<!--   ) |> -->
-<!--   unnest(everything()) |> -->
-<!--   mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man) -->
-<!-- ``` -->
-<!-- Retrieve info for static references. -->
-<!-- ```{r} -->
-<!-- static_references_files <- adintel_files |> -->
-<!--   str_subset(pattern = no_case("master_file")) |> -->
-<!--   str_subset(pattern = no_case("latest")) |> -->
-<!--   as_tibble_col(column_name = "full_file_name") |> -->
-<!--   mutate( -->
-<!--     file_size_mb = file.size(full_file_name) / (1024^2), -->
-<!--     file_size_mb = file_size_mb |> round(2), -->
-<!--     year = NA, -->
-<!--     file_type = "References", -->
-<!--     file_name = full_file_name |> -->
-<!--       str_split_i("/", -1), -->
-<!--     file_name_std = file_name |> -->
-<!--       str_split_i("\\.", -2) |> -->
-
-<!--       adtabler::rename_adintel(), -->
-<!--     n_rows = read_nrows(full_file_name), -->
-<!--     col_name_man = full_file_name |> -->
-<!--       map( -->
-<!--         ~ read_header(.x) -->
-<!--       ) -->
-<!--   ) |> -->
-<!--   unnest(everything()) |> -->
-<!--   mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man) -->
-<!-- ``` -->
-
-<!-- Bind rows of static and dynamic references and merge with "reference_columns" (lookup table with info about all variables in references tables). -->
-<!-- ```{r} -->
-<!-- references_columns |> print(width = Inf) -->
-<!-- ``` -->
-<!-- ```{r} -->
-<!-- references_files <- references_columns |> -->
-<!--   inner_join( -->
-<!--     bind_rows(dynamic_references_files, static_references_files) -->
-<!--   ) |> -->
-<!--   relocate(col_name_man:description, .after = col_pos) |> -->
-<!--   relocate(file_name_std, .after = file_name) |> -->
-<!--   nest( -->
-<!--     col_pos = col_pos, -->
-<!--     col_name_man = col_name_man, -->
-<!--     col_class_man = col_class_man, -->
-<!--     col_p = col_p, -->
-<!--     col_n = col_n, -->
-<!--     descripton = description -->
-<!--   ) |> -->
-<!--   mutate( -->
-<!--     col_pos = col_pos |> map(~ .x[[1]]), -->
-<!--     col_name_man = col_name_man |> map(~ .x[[1]]), -->
-<!--     col_class_man = col_class_man |> map(~ .x[[1]]), -->
-<!--     col_p = col_p |> map(~ .x[[1]]), -->
-<!--     col_n = col_n |> map(~ .x[[1]]), -->
-<!--     descripton = descripton |> map(~ .x[[1]]) -->
-<!--   ) -->
-<!-- references_files -->
-<!-- ``` -->
-<!-- ### Impressions -->
-<!-- ```{r} -->
-<!-- impressions_files <- dyn_files |> -->
-<!--   filter(str_detect(file_type, no_case("impressions"))) |> -->
-<!--   mutate( -->
-<!--     n_rows = read_nrows(full_file_name), -->
-<!--     col_name_man = full_file_name |> -->
-<!--       map( -->
-<!--         ~ read_header(.x) -->
-<!--       ) -->
-<!--   ) |> -->
-<!--   unnest(everything()) |> -->
-<!--   mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man) |> -->
-<!--   nest( -->
-<!--     col_pos = col_pos, -->
-<!--     col_name_man = col_name_man -->
-<!--   ) |> -->
-<!--   mutate( -->
-<!--     col_pos = col_pos |> map(~ .x[[1]]), -->
-<!--     col_name_man = col_name_man |> map(~ .x[[1]]) -->
-<!--   ) -->
-<!-- impressions_files -->
-<!-- ``` -->
-<!-- ### Market Breaks -->
-<!-- ```{r} -->
-<!-- market_breaks_files <- dyn_files |> -->
-<!--   filter(str_detect(file_type, no_case("market_breaks"))) |> -->
-<!--   mutate( -->
-<!--     n_rows = read_nrows(full_file_name), -->
-<!--     col_name_man = full_file_name |> -->
-<!--       map( -->
-<!--         ~ read_header(.x) -->
-<!--       ) -->
-<!--   ) |> -->
-<!--   unnest(everything()) |> -->
-<!--   mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man) |> -->
-<!--   nest( -->
-<!--     col_pos = col_pos, -->
-<!--     col_name_man = col_name_man -->
-<!--   ) |> -->
-<!--   mutate( -->
-<!--     col_pos = col_pos |> map(~ .x[[1]]), -->
-<!--     col_name_man = col_name_man |> map(~ .x[[1]]) -->
-<!--   ) -->
-<!-- market_breaks_files -->
-<!-- ``` -->
-<!-- ### Universe Estimates -->
-<!-- ```{r} -->
-<!-- universe_estimates_files <- dyn_files |> -->
-<!--   filter(str_detect(file_type, no_case("universe_estimates"))) |> -->
-<!--   mutate( -->
-<!--     n_rows = read_nrows(full_file_name), -->
-<!--     col_name_man = full_file_name |> -->
-<!--       map( -->
-<!--         ~ read_header(.x) -->
-<!--       ) -->
-<!--   ) |> -->
-<!--   unnest(everything()) |> -->
-<!--   mutate(col_pos = seq_along(col_name_man), .by = file_name, .before = col_name_man) |> -->
-<!--   nest( -->
-<!--     col_pos = col_pos, -->
-<!--     col_name_man = col_name_man -->
-<!--   ) |> -->
-<!--   mutate( -->
-<!--     col_pos = col_pos |> map(~ .x[[1]]), -->
-<!--     col_name_man = col_name_man |> map(~ .x[[1]]) -->
-<!--   ) -->
-<!-- universe_estimates_files -->
-<!-- ``` -->
-</section>
 </section>
 
 </main>
