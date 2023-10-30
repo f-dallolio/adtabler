@@ -125,7 +125,7 @@ adintel_files <- bind_rows(adintel_files_dyn, adintel_files_static) |>
   ) |> 
   relocate(full_file_name, .after = last_col())
 
-write_csv(adintel_files, "~/Documents/r_wd/adtabler/data-raw/various_data/adinte_files_quarto.csv")
+write_csv(adintel_files |> unnest(everything()), "~/Documents/r_wd/adtabler/data-raw/various_data/adintel_files_quarto.csv")
 ```
 
 ```{r}
