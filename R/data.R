@@ -31,19 +31,6 @@
 #' }
 "occurrences_categories"
 
-#' Nielsen Adintel Dataset - Unique Keys of 'Occurrences' Tables
-#'
-#' Unique keys. If a column name ends in "_man" it indicates that the value is as reported in the Adintel manual.
-#'
-#' @format ## `occurrences_ukey`
-#' A data frame (tibble) with 152 rows and 3 columns.
-#' \describe{
-#'   \item{media_type_id}{integer/numeric. The id for each specific media.}
-#'   \item{ukey_pos}{Type: integer/numeric. Positions of the columns forming the unique key.}
-#'   \item{ukey_man}{Type: character. Names (as per the AdIntel manual) of the columns forming the unique key for a specific 'media_type_id'.}
-#' }
-"occurrences_ukey"
-
 #' Lookup Table for Dates (2009 - 2030)
 #'
 #' @format ## `lookup_date`
