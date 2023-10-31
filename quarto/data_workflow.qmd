@@ -153,10 +153,6 @@ data_info <- adintel_files_dyn |>
     full_file_name, .after = last_col()
   )
 
-<<<<<<< HEAD
-write_csv(adintel_files |> unnest(everything()), "~/Documents/r_wd/adtabler/data-raw/various_data/adintel_files_quarto.csv")
-=======
->>>>>>> caa97aa23f86e99c40ad801ffc9f5b6e072190cb
 ```
 
 ```{r}
