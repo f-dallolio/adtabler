@@ -200,3 +200,83 @@ data_info <- data_info |>
 rm(list = setdiff(ls(), "data_info"))
 ```
 
+
+```{r}
+data_info_unnested <- data_info |> 
+  unnest(c(unique_key_info, data_type_info, manual_info)) |> 
+  unnest(c(data_col_original, data_file_info))
+
+na_rm <- function(x) x[!is.na(x)]
+
+unique_key <- data_info_unnested |> 
+  summarise(col_unique_key = 
+              list(unique(col_unique_key) |> na_rm() |> paste0(collapse = ",")) |> unlist(),
+       .by = c(file_type_std, file_name_std, media_type_id)) |> 
+  mutate(col_unique_key = if_else(file_name_std == "fsi_coupon", 
+                                  c("AdDate,MarketCode,MediaTypeID,AdCode,SourceCode,OffValue,CouponID") |> 
+                                    strsplit(",") |> 
+                                    unlist() |> 
+                                    rename_adintel() |> 
+                                    paste(collapse = ","),
+                                  col_unique_key)) 
+
+unique_key
+unique_key_nested <- unique_key |>
+  nest(.by = c(file_type_std, file_name_std),
+       .key = "unique_key")
+
+file_info <- data_info |> 
+  select(file_type_std, file_name_std, data_file_info, data_col_original) |> 
+  unnest(everything()) |> 
+  select(file_type_std,
+         file_name_std,
+         file_name_data,
+         col_name_data,
+         year : full_file_name) |> 
+  nest(col_name_data = col_name_data) |> 
+  mutate(col_name_data = col_name_data |> map(~ .x[[1]] |> paste(collapse = ",")) |> unlist()) 
+
+file_info 
+file_info_nested <- file_info |> 
+  nest(.by = c(file_type_std, file_name_std),
+       .key = "col_info")
+
+col_info <- data_info |> 
+  select(file_type_std : col_name_std, data_type_info) |>
+  unnest(everything()) |> 
+  select(file_type_std,
+         file_name_std,
+         col_pos,
+         col_name_std,
+         datatype_r : datatype_std) |> 
+  distinct() 
+
+col_info
+col_info_nested <- col_info   |>
+  nest(.by = c(file_type_std, file_name_std),
+       .key = "col_info")
+  
+
+manual_info <- data_info |> 
+  select(file_type_std, file_name_std, manual_info,data_type_info) |> 
+  unnest(everything()) |> 
+  select(file_type_std,
+       file_name_std,
+       c(contains("_man"), description)) |> 
+  distinct() |>
+  relocate(col_name_man, .before = datatype_man) 
+
+manual_info
+manual_info_nested <- manual_info |>
+  nest(.by = c(file_type_std, file_name_std),
+       .key = "manual_info")
+
+data_info_list <-   list(
+    unique_key = unique_key,
+    file_info = file_info,
+    col_info = col_info,
+    manual_info = manual_info
+  )
+
+usethis::use_data(data_info_list)
+```

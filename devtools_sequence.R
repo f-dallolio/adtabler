@@ -3,7 +3,7 @@ devtools::document()
 devtools::install()
 1
 
-devtools::check()
+# devtools::check()
 
 cat(readLines("~/Documents/p620"))
 
