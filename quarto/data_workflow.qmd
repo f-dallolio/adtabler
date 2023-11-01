@@ -23,7 +23,7 @@ First, I load the required packages.
 
 ```{r}
 #| output: false
-devtools::install_github("f-dallolio/adtabler", quiet = TRUE)
+devtools::install_github("f-dallolio/adtabler")
 1
 library(tidyverse, quietly = TRUE)
 library(tsibble, quietly = TRUE)
@@ -115,9 +115,9 @@ nested tibble with the name of the file (`file`), the string used (`sep`) to sep
 
 
 ```{r}
-fn_col_info <- function(full_file_name) {
+fn_col_info <- function(file) {
   
-  x <- full_file_name
+  x <- file
   
   # load the first 100 rows of data
   df <- data.table::fread(
@@ -162,7 +162,7 @@ data_info <- adintel_files_dyn |>
   mutate(
     data = full_file_name |> 
       map(
-        .f = ~ fn_col_info(.x, .name = full_file_name)
+        .f = ~ fn_col_info(.x)
       )
   ) |>
   unnest(
@@ -228,35 +228,24 @@ data_info
 ```
 
 ```{r}
-rm(list = setdiff(ls(), "data_info"))
-```
-
-```{r}
 data_info_unnested <- data_info |> 
   unnest(c(unique_key_info, data_type_info, manual_info)) |> 
   unnest(c(data_col_original, data_file_info))
+data_info_unnested
+```
 
-na_rm <- function(x) x[!is.na(x)]
+```{r}
+rm(list = setdiff(ls(), c("data_info", "data_info_unnested")))
+```
 
+```{r}
 unique_key <- data_info_unnested |> 
   summarise(col_unique_key = 
               list(unique(col_unique_key) |> 
                      adtabler::na_rm() |> 
                      paste0(collapse = ",")) |> 
               unlist(),
-       .by = c(file_type_std, file_name_std, media_type_id)) |> 
-  mutate(
-    col_unique_key = if_else(
-      condition = file_name_std == "fsi_coupon", 
-      true = c("AdDate,MarketCode,MediaTypeID,AdCode,
-               SourceCode,OffValue,CouponID") |> 
-        strsplit(",") |> 
-        unlist() |> 
-        rename_adintel() |> 
-        paste(collapse = ","),
-      false = col_unique_key
-    )
-  ) 
+       .by = c(file_type_std, file_name_std, media_type_id)) 
 unique_key
 ```
 
