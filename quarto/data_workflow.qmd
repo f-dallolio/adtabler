@@ -150,7 +150,7 @@ fn_col_info <- function(file) {
 }
 ```
 
-The data frame `row_numbers` below is a pre-calculated table that contains the number of rows for each file. The number of rows was efficiently computed with the `read_nrows` function.
+The data frame `row_numbers` below is a pre-calculated table that contains the number of rows for each file. The number of rows was efficiently computed with the `adtabler::read_nrows()` function.
 
 ```{r}
 data("row_numbers")
@@ -180,17 +180,11 @@ data_info <- adintel_files_dyn |>
   relocate(
     full_file_name, .after = last_col()
   )
-data_info
 ```
 
 ```{r}
-data("references_columns")
 references_columns
-
-data("occurrences_columns")
 occurrences_columns
-
-data("lookup_datatype")
 lookup_datatype
 
 refer_occurr_info <- occurrences_columns |> 
@@ -210,12 +204,9 @@ refer_occurr_info <- occurrences_columns |>
       sql_length, sql_scale, 
       datatype_man, datatype_std
     ),
-    manual_info = c(col_name_man, description
-    )
+    manual_info = c(col_name_man, description)
   )
-```
 
-```{r}
 data_info <- data_info |>
   nest(
     data_col_original = contains("_data"),
@@ -224,19 +215,25 @@ data_info <- data_info |>
   left_join( 
     refer_occurr_info
   )
-data_info
 ```
 
 ```{r}
 data_info_unnested <- data_info |> 
   unnest(c(unique_key_info, data_type_info, manual_info)) |> 
   unnest(c(data_col_original, data_file_info))
-data_info_unnested
 ```
 
 ```{r}
 rm(list = setdiff(ls(), c("data_info", "data_info_unnested")))
 ```
+
+```{r}
+data_info
+data_info_unnested
+```
+
+
+
 
 ```{r}
 unique_key <- data_info_unnested |> 
@@ -246,14 +243,12 @@ unique_key <- data_info_unnested |>
                      paste0(collapse = ",")) |> 
               unlist(),
        .by = c(file_type_std, file_name_std, media_type_id)) 
-unique_key
 ```
 
 ```{r}
 unique_key_nested <- unique_key |>
   nest(.by = c(file_type_std, file_name_std),
        .key = "unique_key")
-unique_key_nested
 ```
 
 ```{r}
@@ -267,15 +262,12 @@ file_info <- data_info |>
          year : full_file_name) |> 
   nest(col_name_data = col_name_data) |> 
   mutate(col_name_data = col_name_data |> map(~ .x[[1]] |> paste(collapse = ",")) |> unlist()) 
-
-file_info 
 ```
 
 ```{r}
 file_info_nested <- file_info |> 
   nest(.by = c(file_type_std, file_name_std),
        .key = "col_info")
-file_info_nested
 ```
 
 ```{r}
@@ -287,17 +279,13 @@ col_info <- data_info |>
          col_pos,
          col_name_std,
          datatype_r : datatype_std) |> 
-  
   distinct() 
-
-col_info
 ```
 
 ```{r}
 col_info_nested <- col_info   |>
   nest(.by = c(file_type_std, file_name_std),
        .key = "col_info")
-col_info_nested
 ```
 
 ```{r}
@@ -309,15 +297,12 @@ manual_info <- data_info |>
        c(contains("_man"), description)) |> 
   distinct() |>
   relocate(col_name_man, .before = datatype_man) 
-
-manual_info
 ```
 
 ```{r}
 manual_info_nested <- manual_info |>
   nest(.by = c(file_type_std, file_name_std),
        .key = "manual_info")
-manual_info_nested
 ```
 
 ```{r}
@@ -327,7 +312,13 @@ data_info_list <-   list(
     col_info = col_info,
     manual_info = manual_info
   )
-data_info_list
+```
+
+```{r}
+data_info_list$unique_key
+data_info_list$file_info
+data_info_list$col_info
+data_info_list$manual_info
 ```
 
 ```{r}
@@ -335,6 +326,9 @@ data_info_nested <- tibble(
   info_type = names(data_info_list),
   info = data_info_list
 )
+```
+
+```{r}
 data_info_nested
 ```
 
