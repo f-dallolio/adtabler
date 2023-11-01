@@ -24,7 +24,7 @@ First, I load the required packages.
 ```{r}
 #| output: false
 devtools::install_github("f-dallolio/adtabler", quiet = TRUE)
-
+1
 library(tidyverse, quietly = TRUE)
 library(tsibble, quietly = TRUE)
 library(rlang, quietly = TRUE)
@@ -52,9 +52,14 @@ adintel_all_files_old <- list.files(adintel_dir_home,
 adintel_all_files_new <- adintel_all_files_old |>
   stringr::str_replace_all(" ", "_") |>
   stringr::str_replace_all("//", "/")
+```
 
-file.rename(from = adintel_all_files_old, to = adintel_all_files_new)
+```{r}
+#| output: false
+file.rename(from = adintel_all_files_old, to = adintel_all_files_new) 
+```
 
+```{r}
 adintel_all_files <- list.files(adintel_dir_home,
   full.names = TRUE,
   recursive = TRUE
@@ -103,20 +108,39 @@ adintel_files_static <- adintel_all_files |>
 
 # Data Checks
 
-Description of each file. The function returns a nested tibble with the name of the file (`file`), the string used (`sep`) to separate columns, the number of rows (`n_rows`), the number of columns (`n_cols`), and the column names (`col_name_man`). I use `_man` at the end of the column indicating the column names in the original files to indicate that it is the name used in the Adintel `_man`ual. The column `col_name_std` contains standardized column names. Standardization is performed by the function `adtabler::rename_adintel()`.
+The function takes the full path of a file (`full_file_name`) and returns a data frame/tibble with the the number of columns (`n_cols`), the original column names (`col_name_data`) an their positions (`col_pos`), an the new column names standardized with the function `adtabler::rename_adintel()`.   
 
-The data frame `row_numbers` below is a pre-calculated table that contains the number of rows for each file. The number of rows was efficiently computed with the `read_nrows` function.
+
+nested tibble with the name of the file (`file`), the string used (`sep`) to separate columns, the number of rows (`n_rows`), the number of columns (`n_cols`), and the column names (`col_name_man`). I use `_man` at the end of the column indicating the column names in the original files to indicate that it is the name used in the Adintel `_man`ual. The column `col_name_std` contains standardized column names. Standardization is performed by the function `adtabler::rename_adintel()`.
+
 
 ```{r}
-fn_col_info <- function(x, .name) {
+fn_col_info <- function(full_file_name) {
+  
+  x <- full_file_name
+  
+  # load the first 100 rows of data
   df <- data.table::fread(
     file = x,
     nrows = 100
   )
+  
+  # retrieve column names
   col_name_data <- names(df)
+  
+  # retrieve number of columns
   n_cols <- NCOL(df)
+  
+  # retrieve the position of columns in the original data
   col_pos <- seq_along(col_name_data)
+  
+  # standardize column names
   col_name_std <- rename_adintel(col_name_data)
+  
+  # return a tibble/data frame with:
+  #  Number of columns (1), 
+  #  original column names (3) and their positions (2),
+  # standardized column names.
   tibble(
     n_cols,
     col_pos,
@@ -124,7 +148,11 @@ fn_col_info <- function(x, .name) {
     col_name_std
   )
 }
+```
 
+The data frame `row_numbers` below is a pre-calculated table that contains the number of rows for each file. The number of rows was efficiently computed with the `read_nrows` function.
+
+```{r}
 data("row_numbers")
 
 data_info <- adintel_files_dyn |> 
@@ -152,13 +180,18 @@ data_info <- adintel_files_dyn |>
   relocate(
     full_file_name, .after = last_col()
   )
-
+data_info
 ```
 
 ```{r}
 data("references_columns")
+references_columns
+
 data("occurrences_columns")
+occurrences_columns
+
 data("lookup_datatype")
+lookup_datatype
 
 refer_occurr_info <- occurrences_columns |> 
   nest( unique_key_info = c(media_type_id, col_unique_key) ) |> 
@@ -180,7 +213,9 @@ refer_occurr_info <- occurrences_columns |>
     manual_info = c(col_name_man, description
     )
   )
+```
 
+```{r}
 data_info <- data_info |>
   nest(
     data_col_original = contains("_data"),
@@ -189,13 +224,12 @@ data_info <- data_info |>
   left_join( 
     refer_occurr_info
   )
-
+data_info
 ```
 
 ```{r}
 rm(list = setdiff(ls(), "data_info"))
 ```
-
 
 ```{r}
 data_info_unnested <- data_info |> 
@@ -206,21 +240,34 @@ na_rm <- function(x) x[!is.na(x)]
 
 unique_key <- data_info_unnested |> 
   summarise(col_unique_key = 
-              list(unique(col_unique_key) |> na_rm() |> paste0(collapse = ",")) |> unlist(),
+              list(unique(col_unique_key) |> 
+                     adtabler::na_rm() |> 
+                     paste0(collapse = ",")) |> 
+              unlist(),
        .by = c(file_type_std, file_name_std, media_type_id)) |> 
-  mutate(col_unique_key = if_else(file_name_std == "fsi_coupon", 
-                                  c("AdDate,MarketCode,MediaTypeID,AdCode,SourceCode,OffValue,CouponID") |> 
-                                    strsplit(",") |> 
-                                    unlist() |> 
-                                    rename_adintel() |> 
-                                    paste(collapse = ","),
-                                  col_unique_key)) 
-
+  mutate(
+    col_unique_key = if_else(
+      condition = file_name_std == "fsi_coupon", 
+      true = c("AdDate,MarketCode,MediaTypeID,AdCode,
+               SourceCode,OffValue,CouponID") |> 
+        strsplit(",") |> 
+        unlist() |> 
+        rename_adintel() |> 
+        paste(collapse = ","),
+      false = col_unique_key
+    )
+  ) 
 unique_key
+```
+
+```{r}
 unique_key_nested <- unique_key |>
   nest(.by = c(file_type_std, file_name_std),
        .key = "unique_key")
+unique_key_nested
+```
 
+```{r}
 file_info <- data_info |> 
   select(file_type_std, file_name_std, data_file_info, data_col_original) |> 
   unnest(everything()) |> 
@@ -233,10 +280,16 @@ file_info <- data_info |>
   mutate(col_name_data = col_name_data |> map(~ .x[[1]] |> paste(collapse = ",")) |> unlist()) 
 
 file_info 
+```
+
+```{r}
 file_info_nested <- file_info |> 
   nest(.by = c(file_type_std, file_name_std),
        .key = "col_info")
+file_info_nested
+```
 
+```{r}
 col_info <- data_info |> 
   select(file_type_std : col_name_std, data_type_info) |>
   unnest(everything()) |> 
@@ -248,11 +301,16 @@ col_info <- data_info |>
   distinct() 
 
 col_info
+```
+
+```{r}
 col_info_nested <- col_info   |>
   nest(.by = c(file_type_std, file_name_std),
        .key = "col_info")
-  
+col_info_nested
+```
 
+```{r}
 manual_info <- data_info |> 
   select(file_type_std, file_name_std, manual_info,data_type_info) |> 
   unnest(everything()) |> 
@@ -263,16 +321,25 @@ manual_info <- data_info |>
   relocate(col_name_man, .before = datatype_man) 
 
 manual_info
+```
+
+```{r}
 manual_info_nested <- manual_info |>
   nest(.by = c(file_type_std, file_name_std),
        .key = "manual_info")
+manual_info_nested
+```
 
+```{r}
 data_info_list <-   list(
     unique_key = unique_key,
     file_info = file_info,
     col_info = col_info,
     manual_info = manual_info
   )
+data_info_list
+```
 
+```{r}
 usethis::use_data(data_info_list)
 ```
