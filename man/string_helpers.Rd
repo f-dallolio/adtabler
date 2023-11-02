@@ -7,6 +7,7 @@
 \alias{is_lower}
 \alias{str_upper_uscore}
 \alias{rename_adintel}
+\alias{str_adintel_to_title}
 \title{String helpers}
 \usage{
 no_case(pattern)
@@ -18,6 +19,8 @@ is_lower(x, which = FALSE)
 str_upper_uscore(x, to_lower = TRUE)
 
 rename_adintel(x, named = TRUE)
+
+str_adintel_to_title(x)
 }
 \arguments{
 \item{pattern}{a string The pattern for which to ignore case.}
