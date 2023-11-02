@@ -14,7 +14,7 @@ format:
       gutter-width: 1.5rem
 editor: visual
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 # Pakages
@@ -302,23 +302,45 @@ data_info_list <-   list(
 
 ```{r}
 data_info_list$unique_key
+```
+
+```{r}
 data_info_list$file_info
+```
+
+```{r}
 data_info_list$col_info
+```
+
+```{r}
 data_info_list$manual_info
 ```
 
 ```{r}
-data_info_nested <- tibble(
-  info_type = names(data_info_list),
-  info = data_info_list
-)
+
+# plan(multisession, workers = parallel::detectCores() - 1)
+# 
+# file_info_start_end <- data_info_list$file_info |> 
+#   filter(str_detect(col_name_std, "ad_date"),
+#          file_type_std == "occurrences",
+#          n_rows != 0) |> 
+#   mutate(start_end = map2(year, full_file_name, ~ start_end_date(.x, .y)),
+#          .before = 1) |> 
+#   mutate(start_end = start_end |> map(str_flatten_comma) |> list_c()) |> 
+#   separate_wider_delim(cols = start_end, delim = ", ", names = c("date_start", "date_end"), cols_remove = TRUE)
+# 
+# usethis::use_data(file_info_start_end, overwrite = TRUE)
+# 
+# plan(sequential)
 ```
 
 ```{r}
-data_info_nested
+data_info_list$file_info <- data_info_list$file_info |> 
+  filter(n_rows != 0) |> 
+  left_join(file_info_start_end) |> 
+  relocate(date_start, date_end, .after = year)
+
+usethis::use_data(data_info_list, overwrite = TRUE)
 ```
 
-```{r}
-usethis::use_data(data_info_list, overwrite = T)
-usethis::use_data(data_info_nested, overwrite = T)
-```
+
