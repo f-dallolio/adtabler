@@ -27,7 +27,13 @@ export(rename_adintel)
 export(sed_replace)
 export(sed_replace_all)
 export(sql_type_to_code)
+<<<<<<< HEAD
 export(str_adintel_to_title)
+=======
+export(start_end_date)
+export(str_adintel_to_title)
+export(str_split_comma)
+>>>>>>> a2c2e1e225e0a280d7e5383837941d00325771f1
 export(str_upper_uscore)
 export(to_c)
 export(to_sql_datatype)

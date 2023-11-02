@@ -14,7 +14,7 @@ format:
       gutter-width: 1.5rem
 editor: visual
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 # Pakages
@@ -108,11 +108,9 @@ adintel_files_static <- adintel_all_files |>
 
 # Data Checks
 
-The function takes the full path of a file (`full_file_name`) and returns a data frame/tibble with the the number of columns (`n_cols`), the original column names (`col_name_data`) an their positions (`col_pos`), an the new column names standardized with the function `adtabler::rename_adintel()`.   
-
+The function takes the full path of a file (`full_file_name`) and returns a data frame/tibble with the the number of columns (`n_cols`), the original column names (`col_name_data`) an their positions (`col_pos`), an the new column names standardized with the function `adtabler::rename_adintel()`.
 
 nested tibble with the name of the file (`file`), the string used (`sep`) to separate columns, the number of rows (`n_rows`), the number of columns (`n_cols`), and the column names (`col_name_man`). I use `_man` at the end of the column indicating the column names in the original files to indicate that it is the name used in the Adintel `_man`ual. The column `col_name_std` contains standardized column names. Standardization is performed by the function `adtabler::rename_adintel()`.
-
 
 ```{r}
 fn_col_info <- function(file) {
@@ -232,36 +230,20 @@ data_info
 data_info_unnested
 ```
 
-
-
-
-```{r}
-unique_key <- data_info_unnested |> 
-  summarise(col_unique_key = 
-              list(unique(col_unique_key) |> 
-                     adtabler::na_rm() |> 
-                     paste0(collapse = ",")) |> 
-              unlist(),
-       .by = c(file_type_std, file_name_std, media_type_id)) 
-```
-
-```{r}
-unique_key_nested <- unique_key |>
-  nest(.by = c(file_type_std, file_name_std),
-       .key = "unique_key")
-```
-
 ```{r}
 file_info <- data_info |> 
   select(file_type_std, file_name_std, data_file_info, data_col_original) |> 
-  unnest(everything()) |> 
+  unnest(everything()) |>
   select(file_type_std,
          file_name_std,
          file_name_data,
          col_name_data,
          year : full_file_name) |> 
   nest(col_name_data = col_name_data) |> 
-  mutate(col_name_data = col_name_data |> map(~ .x[[1]] |> paste(collapse = ",")) |> unlist()) 
+  mutate(col_name_std = col_name_data |>
+           map(~ .x[[1]] |> rename_adintel() |> str_flatten_comma()) |> unlist(),
+         col_name_data = col_name_data |> 
+           map(~ .x[[1]] |> str_flatten_comma()) |> unlist()) 
 ```
 
 ```{r}
@@ -306,6 +288,10 @@ manual_info_nested <- manual_info |>
 ```
 
 ```{r}
+unique_key
+```
+
+```{r}
 data_info_list <-   list(
     unique_key = unique_key,
     file_info = file_info,
@@ -316,23 +302,45 @@ data_info_list <-   list(
 
 ```{r}
 data_info_list$unique_key
+```
+
+```{r}
 data_info_list$file_info
+```
+
+```{r}
 data_info_list$col_info
+```
+
+```{r}
 data_info_list$manual_info
 ```
 
 ```{r}
-data_info_nested <- tibble(
-  info_type = names(data_info_list),
-  info = data_info_list
-)
+
+# plan(multisession, workers = parallel::detectCores() - 1)
+# 
+# file_info_start_end <- data_info_list$file_info |> 
+#   filter(str_detect(col_name_std, "ad_date"),
+#          file_type_std == "occurrences",
+#          n_rows != 0) |> 
+#   mutate(start_end = map2(year, full_file_name, ~ start_end_date(.x, .y)),
+#          .before = 1) |> 
+#   mutate(start_end = start_end |> map(str_flatten_comma) |> list_c()) |> 
+#   separate_wider_delim(cols = start_end, delim = ", ", names = c("date_start", "date_end"), cols_remove = TRUE)
+# 
+# usethis::use_data(file_info_start_end, overwrite = TRUE)
+# 
+# plan(sequential)
 ```
 
 ```{r}
-data_info_nested
+data_info_list$file_info <- data_info_list$file_info |> 
+  filter(n_rows != 0) |> 
+  left_join(file_info_start_end) |> 
+  relocate(date_start, date_end, .after = year)
+
+usethis::use_data(data_info_list, overwrite = TRUE)
 ```
 
-```{r}
-usethis::use_data(data_info_list, overwrite = T)
-usethis::use_data(data_info_nested, overwrite = T)
-```
+
