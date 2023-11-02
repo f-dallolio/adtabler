@@ -71,3 +71,11 @@ rename_adintel <- function(x, named = TRUE){
   }
   out
 }
+
+#' @rdname string_helpers
+#' @export
+str_adintel_to_title <- function(x){
+  x |>
+    stringr::str_replace_all("_", " ") |>
+    stringr::str_to_title()
+}
