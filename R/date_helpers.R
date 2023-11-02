@@ -71,7 +71,7 @@ make_date <- function(y, m = NULL, d = NULL, as_chr = FALSE){
   if( is.null(d) ) d <- as_day(1:31)
   grd <- expand.grid(yy = y, mm = m, dd = d)
   out_date <- as.Date( paste(grd$yy, grd$mm, grd$dd, sep = "-") )
-  out <- out_date[!is.na(out_date)]
+  out <- out_date[!is.na(out_date)] |> sort()
   if( !as_chr) {
     return( out )
   }
@@ -85,9 +85,27 @@ make_date_grep <- function(y = NULL, m = NULL, d = NULL, sep = "-"){
              "m must be coercible to a numeric between 1 and 12 or left empty" = is_month(m) | is.null(m),
              "d must be coercible to a numeric between 1 and 31 or left empty" = is_day(d) ||  is.null(d) )
 
-  if( is.null(y) ) y <- "[1-9]{4}"
-  if( is.null(m) ) m <- "[1-9]{2}"
-  if( is.null(d) ) d <- "[1-9]{2}"
+  if( is.null(y) ) {
+    y <- "[1-9]{4}"
+  } else {
+    y <- numpad4(y)
+  }
+  if( is.null(m) ) {
+    m <- "[1-9]{2}"
+  } else {
+    m <- numpad2(m)
+  }
+  if( is.null(d) ) {
+    d <- "[1-9]{2}"
+  } else {
+    d <- numpad2(d)
+  }
   grd <- expand.grid(yy = y, mm = m, dd = d)
-  paste(grd$yy, grd$mm, grd$dd, sep = sep)
+  paste(
+    grd$yy,
+    grd$mm,
+    grd$dd,
+    sep = sep) |>
+    sort()
 }
+
