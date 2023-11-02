@@ -108,11 +108,9 @@ adintel_files_static <- adintel_all_files |>
 
 # Data Checks
 
-The function takes the full path of a file (`full_file_name`) and returns a data frame/tibble with the the number of columns (`n_cols`), the original column names (`col_name_data`) an their positions (`col_pos`), an the new column names standardized with the function `adtabler::rename_adintel()`.   
-
+The function takes the full path of a file (`full_file_name`) and returns a data frame/tibble with the the number of columns (`n_cols`), the original column names (`col_name_data`) an their positions (`col_pos`), an the new column names standardized with the function `adtabler::rename_adintel()`.
 
 nested tibble with the name of the file (`file`), the string used (`sep`) to separate columns, the number of rows (`n_rows`), the number of columns (`n_cols`), and the column names (`col_name_man`). I use `_man` at the end of the column indicating the column names in the original files to indicate that it is the name used in the Adintel `_man`ual. The column `col_name_std` contains standardized column names. Standardization is performed by the function `adtabler::rename_adintel()`.
-
 
 ```{r}
 fn_col_info <- function(file) {
@@ -232,36 +230,20 @@ data_info
 data_info_unnested
 ```
 
-
-
-
-```{r}
-unique_key <- data_info_unnested |> 
-  summarise(col_unique_key = 
-              list(unique(col_unique_key) |> 
-                     adtabler::na_rm() |> 
-                     paste0(collapse = ",")) |> 
-              unlist(),
-       .by = c(file_type_std, file_name_std, media_type_id)) 
-```
-
-```{r}
-unique_key_nested <- unique_key |>
-  nest(.by = c(file_type_std, file_name_std),
-       .key = "unique_key")
-```
-
 ```{r}
 file_info <- data_info |> 
   select(file_type_std, file_name_std, data_file_info, data_col_original) |> 
-  unnest(everything()) |> 
+  unnest(everything()) |>
   select(file_type_std,
          file_name_std,
          file_name_data,
          col_name_data,
          year : full_file_name) |> 
   nest(col_name_data = col_name_data) |> 
-  mutate(col_name_data = col_name_data |> map(~ .x[[1]] |> paste(collapse = ",")) |> unlist()) 
+  mutate(col_name_std = col_name_data |>
+           map(~ .x[[1]] |> rename_adintel() |> str_flatten_comma()) |> unlist(),
+         col_name_data = col_name_data |> 
+           map(~ .x[[1]] |> str_flatten_comma()) |> unlist()) 
 ```
 
 ```{r}
@@ -303,6 +285,10 @@ manual_info <- data_info |>
 manual_info_nested <- manual_info |>
   nest(.by = c(file_type_std, file_name_std),
        .key = "manual_info")
+```
+
+```{r}
+unique_key
 ```
 
 ```{r}

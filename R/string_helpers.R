@@ -71,3 +71,9 @@ rename_adintel <- function(x, named = TRUE){
   }
   out
 }
+
+#' @rdname string_helpers
+#' @export
+str_split_comma <- function(x){
+  str_split(x, ", ") |> purrr::list_c()
+}
