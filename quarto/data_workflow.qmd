@@ -342,5 +342,3 @@ data_info_list$file_info <- data_info_list$file_info |>
 
 usethis::use_data(data_info_list, overwrite = TRUE)
 ```
-
-

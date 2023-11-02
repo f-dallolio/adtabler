@@ -7,10 +7,7 @@
 \alias{is_lower}
 \alias{str_upper_uscore}
 \alias{rename_adintel}
-<<<<<<< HEAD
-=======
 \alias{str_split_comma}
->>>>>>> a2c2e1e225e0a280d7e5383837941d00325771f1
 \alias{str_adintel_to_title}
 \title{String helpers}
 \usage{
@@ -24,11 +21,8 @@ str_upper_uscore(x, to_lower = TRUE)
 
 rename_adintel(x, named = TRUE)
 
-<<<<<<< HEAD
-=======
 str_split_comma(x)
 
->>>>>>> a2c2e1e225e0a280d7e5383837941d00325771f1
 str_adintel_to_title(x)
 }
 \arguments{
