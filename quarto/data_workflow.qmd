@@ -345,4 +345,3 @@ data_info_list$manual_info |>
     col_name_std = rename_adintel(col_name_man), .before = col_name_man
   )
 ```
-
