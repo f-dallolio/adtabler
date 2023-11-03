@@ -332,15 +332,17 @@ data_info_list$manual_info
 # usethis::use_data(file_info_start_end, overwrite = TRUE)
 # 
 # plan(sequential)
+# 
+# data_info_list$file_info <- data_info_list$file_info |> 
+  # filter(n_rows != 0) |> 
+  # left_join(file_info_start_end) |> 
+  # relocate(date_start, date_end, .after = year)
 ```
 
 ```{r}
-data_info_list$file_info <- data_info_list$file_info |> 
-  filter(n_rows != 0) |> 
-  left_join(file_info_start_end) |> 
-  relocate(date_start, date_end, .after = year)
-
-usethis::use_data(data_info_list, overwrite = TRUE)
+data_info_list$manual_info |> 
+  mutate(
+    col_name_std = rename_adintel(col_name_man), .before = col_name_man
+  )
 ```
-
 
