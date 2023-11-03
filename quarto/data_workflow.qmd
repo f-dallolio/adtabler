@@ -290,7 +290,6 @@ manual_info <- data_info |>
   relocate(col_name_man, datatype_man, .after = description)
 ```
 
-
 ```{r}
 manual_info_nested <- manual_info |>
   nest(.by = c(file_type_std, file_name_std),
@@ -347,8 +346,4 @@ data_info_list$manual_info
   # filter(n_rows != 0) |> 
   # left_join(file_info_start_end) |> 
   # relocate(date_start, date_end, .after = year)
-```
-
-```{r}
-usethis::use_data(data_info_list, overwrite = TRUE)
 ```

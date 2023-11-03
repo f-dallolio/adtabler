@@ -10,6 +10,7 @@
 \alias{as_day}
 \alias{make_date}
 \alias{make_date_grep}
+\alias{ad_date_grep}
 \title{Helpers for dates}
 \usage{
 is_year(x)
@@ -27,6 +28,8 @@ as_day(x)
 make_date(y, m = NULL, d = NULL, as_chr = FALSE)
 
 make_date_grep(y = NULL, m = NULL, d = NULL, sep = "-")
+
+ad_date_grep(y = NULL, m = NULL, d = NULL, sep = "-")
 }
 \arguments{
 \item{x}{numeric or character.}

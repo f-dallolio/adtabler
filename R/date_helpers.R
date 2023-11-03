@@ -100,12 +100,19 @@ make_date_grep <- function(y = NULL, m = NULL, d = NULL, sep = "-"){
   } else {
     d <- numpad2(d)
   }
-  grd <- expand.grid(yy = y, mm = m, dd = d)
+  grd <- expand.grid(yy = y, mm = m, dd = d) |>
+    distinct()
   paste(
     grd$yy,
     grd$mm,
     grd$dd,
     sep = sep) |>
     sort()
+}
+
+#' @rdname date_helpers
+#' @export
+ad_date_grep <- function(y = NULL, m = NULL, d = NULL, sep = "-"){
+  make_date_grep(y, m, d, sep)
 }
 
