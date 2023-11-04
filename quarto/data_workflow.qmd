@@ -347,3 +347,79 @@ data_info_list$manual_info
   # left_join(file_info_start_end) |> 
   # relocate(date_start, date_end, .after = year)
 ```
+
+```{r}
+# devtools::install_github("f-dallolio/adtabler")
+# library(data.table)
+# library(tidyverse)
+# library(adtabler)
+# 
+# x <- occurrences_categories |>
+#   mutate(media_type_desc_std = rename_adintel(media_type_description)) |> 
+#   select(file_type_std, file_name_std, media_type_desc_std, media_type_id) |> 
+#   arrange(file_name_std) |> 
+#   mutate(file_name_std = file_name_std |> 
+#            str_replace_all("national_tv", "network_tv") |> 
+#            str_replace_all("local_tv", "spot_tv")) |> 
+#   inner_join(
+#     data_info_list$file_info |> 
+#       filter(n_rows > 0) |> 
+#       select(file_type_std, file_name_std, year, full_file_name, col_name_std) |> 
+#       nest(.by = c(file_type_std, file_name_std))
+#   ) |> 
+#   unnest(everything()) |> 
+#   filter(year == 2010)
+# 
+# x_occs <- x |> 
+#   mutate(
+#     cmd = make_grep_cmd(file = full_file_name, media_type_id = media_type_id, first_n = 1000),
+#     .by = media_type_id
+#   )
+# 
+# library(furrr)
+# plan(multisession, workers = parallel::detectCores() - 2)
+# 
+# x_occs$df <- future_map2(
+#   .x = x_occs$cmd,
+#   .y = x_occs$col_name_std, 
+#   .f = ~ fread(
+#     cmd = .x, 
+#     header = F, 
+#     col.names = str_split_comma(.y) 
+#   ) |> 
+#     as_tibble(), 
+#   .progress = T
+# )
+# 
+# plan(sequential)
+# 
+# names(x_occs$df) <-   glue::glue("{x_occs$file_name_std}_id{numpad2(x_occs$media_type_id)}")
+# 
+# x_occs$df
+# 
+# 
+# x_refs <- data_info_list$file_info |> 
+#   filter(file_type_std == "references",
+#          year == 2010 | is.na(year),
+#          n_rows > 0) |> 
+#   mutate(df = full_file_name |> map(~ fread(.x) |> 
+#                                       as_tibble() |> 
+#                                       rename_with(rename_adintel, everything()) ))
+# 
+# occs_refs <- x_occs |> 
+#   mutate(
+#     media_desc = paste(media_type_id, media_type_desc_std, sep = "__"),
+#     .after = file_name_std
+#   ) |> 
+#   bind_rows(
+#     x_refs |> 
+#       select(file_type_std, file_name_std, df)
+#   ) |> 
+#   inner_join(data_info_list$unique_key) |> 
+#   mutate(col_unique_key = map(col_unique_key, str_split_comma)) |> 
+#   select(-media_type_id, media_type_desc_std, file_name_std)
+# 
+# 
+# usethis::use_data(occs_refs, overwrite = T)
+
+```
