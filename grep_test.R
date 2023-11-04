@@ -92,71 +92,71 @@ w1 <- as.Date(14610) |>
 
 ymd(w1)
 
-tmp <- tempfile()
-www <- tibble(
-  as.character(ymd(w1)),
-  ad_time_grep(),
-  market_code_grep(),
-  media_type_id_grep(5)
- )
-names(www) <- nms[seq_along(www)]
-write_tsv(www, tmp)
+# tmp <- tempfile()
+# www <- tibble(
+#   as.character(ymd(w1)),
+#   ad_time_grep(),
+#   market_code_grep(),
+#   media_type_id_grep(5)
+#  )
+# names(www) <- nms[seq_along(www)]
+# write_tsv(www, tmp)
+# #
+# #
+# #
+# # |>
+# #   as.list() |>
+# #   list_transpose() |>
+# #   map_vec(~ paste(.x, collapse = "\t"))
+# # www |>
+# #   # as_tibble_col("x") |>
+# #   # write_tsv(pattern_file, col_names = F)
+# #   paste(collapse = "\n") |>
+# #   write_lines(tmp)
+#
+# read_lines(tmp)
+#
+# # cmd <- sprintf( glue::glue("grep -Pw '{www[1]}' %s"), file )
+# cmd <- sprintf( glue::glue("grep -E -w -f {tmp} %s"), file )
 #
 #
+# # t1 <- Sys.time()
+# # x <- system(cmd, intern = TRUE)
+# # xx <- fread(text = c(nms, x))
+# # t2 <- Sys.time()
+# # t_xx <- t2-t1
+# # t_xx
 #
-# |>
-#   as.list() |>
-#   list_transpose() |>
-#   map_vec(~ paste(.x, collapse = "\t"))
-# www |>
-#   # as_tibble_col("x") |>
-#   # write_tsv(pattern_file, col_names = F)
-#   paste(collapse = "\n") |>
-#   write_lines(tmp)
-
-read_lines(tmp)
-
-# cmd <- sprintf( glue::glue("grep -Pw '{www[1]}' %s"), file )
-cmd <- sprintf( glue::glue("grep -E -w -f {tmp} %s"), file )
-
-
 # t1 <- Sys.time()
-# x <- system(cmd, intern = TRUE)
-# xx <- fread(text = c(nms, x))
+# yy <- fread(cmd = cmd, col.names = nms)
+# # names(yy) <- nms
 # t2 <- Sys.time()
-# t_xx <- t2-t1
-# t_xx
-
-t1 <- Sys.time()
-yy <- fread(cmd = cmd, col.names = nms)
-# names(yy) <- nms
-t2 <- Sys.time()
-t_yy <- t2-t1
-t_yy
-yy
-
-
-pattern_5 <- c("[0-9]{4}-[0-9]{2}-[0-9]{2}","[0-9]{2}:[0-9]{2}:[0-9]{2}.*","[0-9]{3}","5") |>
-  str_flatten("\t")
-pattern_13 <- c("[0-9]{4}-[0-9]{2}-[0-9]{2}","[0-9]{2}:[0-9]{2}:[0-9]{2}.*",".{3}","13") |>
-  str_flatten("\t")
-pattern_14 <- c("[0-9]{4}-[0-9]{2}-[0-9]{2}","[0-9]{2}:[0-9]{2}:[0-9]{2}.*","[0-9]{3}","14") |>
-  str_flatten("\t")
-pattern_24 <- c("[0-9]{4}-[0-9]{2}-[0-9]{2}","[0-9]{2}:[0-9]{2}:[0-9]{2}.*","[0-9]{3}","24") |>
-  str_flatten("\t")
-
-pt <- c(pattern_5, pattern_13, pattern_14, pattern_24) |>
-  map_vec(~ sprintf( glue::glue("grep -m 100 -Ew '{.x}' %s"), file ))|>
-  map(~ fread(cmd = .x, header = F))
-
-cmd <- sprintf( glue::glue("grep -m 10 -E '^{ptrn}$' %s"), file )
-zzz <- fread(cmd = cmd, header = F)
-zzz
-
-
-cmd1 <- sprintf( glue::glue("grep -m 10 -P '{www |> slice(1) |> str_flatten('\t')}' %s"), file )
-yy1 <- fread(cmd = cmd1, header = F)
-# identical(yy, xx, single.NA = F)
+# t_yy <- t2-t1
+# t_yy
+# yy
+#
+#
+# pattern_5 <- c("[0-9]{4}-[0-9]{2}-[0-9]{2}","[0-9]{2}:[0-9]{2}:[0-9]{2}.*","[0-9]{3}","5") |>
+#   str_flatten("\t")
+# pattern_13 <- c("[0-9]{4}-[0-9]{2}-[0-9]{2}","[0-9]{2}:[0-9]{2}:[0-9]{2}.*",".{3}","13") |>
+#   str_flatten("\t")
+# pattern_14 <- c("[0-9]{4}-[0-9]{2}-[0-9]{2}","[0-9]{2}:[0-9]{2}:[0-9]{2}.*","[0-9]{3}","14") |>
+#   str_flatten("\t")
+# pattern_24 <- c("[0-9]{4}-[0-9]{2}-[0-9]{2}","[0-9]{2}:[0-9]{2}:[0-9]{2}.*","[0-9]{3}","24") |>
+#   str_flatten("\t")
+#
+# pt <- c(pattern_5, pattern_13, pattern_14, pattern_24) |>
+#   map_vec(~ sprintf( glue::glue("grep -m 100 -Ew '{.x}' %s"), file ))|>
+#   map(~ fread(cmd = .x, header = F))
+#
+# cmd <- sprintf( glue::glue("grep -m 10 -E '^{ptrn}$' %s"), file )
+# zzz <- fread(cmd = cmd, header = F)
+# zzz
+#
+#
+# cmd1 <- sprintf( glue::glue("grep -m 10 -P '{www |> slice(1) |> str_flatten('\t')}' %s"), file )
+# yy1 <- fread(cmd = cmd1, header = F)
+# # identical(yy, xx, single.NA = F)
 
 
 ptrn <- fread(file, nrows = 1) |>
@@ -172,12 +172,15 @@ as.character(c(5,13,14,24)) |>
   map_vec(~ sprintf( glue::glue("grep -m 1000 -Ew '^{.x}$' %s"), file )) |>
   map(~ fread(cmd = .x, header = F))
 
-occurrences_categories <- occurrences_categories |> filter(file_type_std == "occurrences")
-  usethis::use_data(occurrences_categories, overwrite = T)
-
-
-
-
-
-
-
+x <- occurrences_categories |>
+  select(file_type_std, file_name_std, media_type_id) |>
+  arrange(file_name_std) |>
+  mutate()
+  inner_join(
+    data_info_list$file_info |>
+      filter(n_rows > 0) |> view()
+      select(file_type_std, file_name_std, year, full_file_name, col_name_std) |>
+      nest(.by = c(file_type_std, file_name_std))
+  ) |>
+  unnest(everything()) |>
+  filter(year == 2010)
