@@ -353,24 +353,27 @@ data_info_list$manual_info
 # library(data.table)
 # library(tidyverse)
 # library(adtabler)
+
+# library(data.table)
+# library(dm)
 # 
 # x <- occurrences_categories |>
-#   mutate(media_type_desc_std = rename_adintel(media_type_description)) |> 
-#   select(file_type_std, file_name_std, media_type_desc_std, media_type_id) |> 
-#   arrange(file_name_std) |> 
-#   mutate(file_name_std = file_name_std |> 
-#            str_replace_all("national_tv", "network_tv") |> 
-#            str_replace_all("local_tv", "spot_tv")) |> 
+#   mutate(media_type_desc_std = rename_adintel(media_type_description)) |>
+#   select(file_type_std, file_name_std, media_type_desc_std, media_type_id) |>
+#   arrange(file_name_std) |>
+#   mutate(file_name_std = file_name_std |>
+#            str_replace_all("national_tv", "network_tv") |>
+#            str_replace_all("local_tv", "spot_tv")) |>
 #   inner_join(
-#     data_info_list$file_info |> 
-#       filter(n_rows > 0) |> 
-#       select(file_type_std, file_name_std, year, full_file_name, col_name_std) |> 
+#     data_info_list$file_info |>
+#       filter(n_rows > 0) |>
+#       select(file_type_std, file_name_std, year, full_file_name, col_name_std) |>
 #       nest(.by = c(file_type_std, file_name_std))
-#   ) |> 
-#   unnest(everything()) |> 
+#   ) |>
+#   unnest(everything()) |>
 #   filter(year == 2010)
 # 
-# x_occs <- x |> 
+# x_occs <- x |>
 #   mutate(
 #     cmd = make_grep_cmd(file = full_file_name, media_type_id = media_type_id, first_n = 1000),
 #     .by = media_type_id
@@ -381,45 +384,124 @@ data_info_list$manual_info
 # 
 # x_occs$df <- future_map2(
 #   .x = x_occs$cmd,
-#   .y = x_occs$col_name_std, 
+#   .y = x_occs$col_name_std,
 #   .f = ~ fread(
-#     cmd = .x, 
-#     header = F, 
-#     col.names = str_split_comma(.y) 
-#   ) |> 
-#     as_tibble(), 
+#     cmd = .x,
+#     header = F,
+#     col.names = str_split_comma(.y)
+#   ) |>
+#     as_tibble(),
 #   .progress = T
 # )
 # 
 # plan(sequential)
 # 
-# names(x_occs$df) <-   glue::glue("{x_occs$file_name_std}_id{numpad2(x_occs$media_type_id)}")
+# names(x_occs$df) <-   glue::glue("id{numpad2(x_occs$media_type_id)}__{x_occs$file_name_std}")
 # 
-# x_occs$df
-# 
-# 
-# x_refs <- data_info_list$file_info |> 
+# x_refs <- data_info_list$file_info |>
 #   filter(file_type_std == "references",
 #          year == 2010 | is.na(year),
-#          n_rows > 0) |> 
-#   mutate(df = full_file_name |> map(~ fread(.x) |> 
-#                                       as_tibble() |> 
-#                                       rename_with(rename_adintel, everything()) ))
+#          n_rows > 0) |>
+#   mutate(df = full_file_name |> map(~ fread(.x) |>
+#                                       as_tibble() |>
+#                                       rename_with(rename_adintel, everything()) ) |> 
+#            set_names(file_name_std)) 
 # 
-# occs_refs <- x_occs |> 
-#   mutate(
-#     media_desc = paste(media_type_id, media_type_desc_std, sep = "__"),
-#     .after = file_name_std
-#   ) |> 
+# occs_refs <- x_occs |>
+#   select(file_type_std, file_name_std, media_type_id, media_type_desc_std, df) |> 
 #   bind_rows(
-#     x_refs |> 
+#     x_refs |>
 #       select(file_type_std, file_name_std, df)
-#   ) |> 
-#   inner_join(data_info_list$unique_key) |> 
-#   mutate(col_unique_key = map(col_unique_key, str_split_comma)) |> 
-#   select(-media_type_id, media_type_desc_std, file_name_std)
+#   ) |>
+#   inner_join(data_info_list$unique_key) |>
+#   mutate(col_unique_key = map(col_unique_key, str_split_comma))
+# 
+# names(occs_refs$col_unique_key) <- names(occs_refs$df)
+# 
+# pcc <- occs_refs$df$product_categories
+# adv <- occs_refs$df$advertiser
+# brd <- occs_refs$df$brand
+# 
+# product <- brd |> 
+#   left_join(adv) |> 
+#   full_join(pcc, by = "product_id") |> 
+#   list() |> 
+#   set_names("product")
+# 
+# my_list <- occs_refs |> 
+#   filter(! file_name_std %in% c("advertiser", "product_categories", "brand")) |> 
+#   pull(df) |> 
+#   c(product)
+#   
+# nms <- occs_refs |> 
+#   filter(! file_name_std %in% c("advertiser", "product_categories", "brand")) |> 
+#   pull(df) |> 
+#   c(product) |> 
+#   names()
+# 
+# my_pk <- occs_refs |> 
+#   filter(! file_name_std %in% c("advertiser", "product_categories", "brand")) |> 
+#   pull(col_unique_key) |> 
+#   c(list(product = "product_id")) 
+# 
+# my_refs <- my_pk[str_subset(names(my_pk), "id", negate = T)] |> 
+#   names() |> 
+#   as_tibble_col("refs") |> 
+#   mutate(refs_uk = my_pk[str_subset(names(my_pk), "id", negate = T)])
+# my_occs <- my_pk[str_subset(names(my_pk), "id")] |> 
+#   names() |> 
+#   as_tibble_col("occs") |> 
+#   mutate(occs_uk = my_pk[str_subset(names(my_pk), "id")])
+# 
+# my_occs$occs_uk
+# 
+# eg <- expand_grid(my_occs, my_refs) |> 
+#   as_tibble()
+# 
+# eg$set_diff <- map2(eg$refs_uk, eg$occs_uk, ~ setdiff(.x, .y) |>  length()) |> unlist()
+# eg <- eg |> 
+#   filter(set_diff == 0)
+# 
+# fk_table <- tibble(
+#   table = names(eg$occs_uk),
+#   col = eg$refs_uk,
+#   table2 = names(eg$refs_uk)
+# )
 # 
 # 
-# usethis::use_data(occs_refs, overwrite = T)
+# for(i in seq_along(nms)){
+#   my_list[[i]] <- my_list[[i]] |> 
+#     # filter( if_any(my_pk[[i]], ~ is.na(.x))) |> 
+#     mutate(id = row_number(), .by = my_pk[[i]]) |> filter(id == 1) |>  select(-id)
+# }
+# i=1
+# for(i in seq_along(fk_table$table)){
+#   my_list |> pluck(fk_table$table[2])
+# }
+# 
+# 
+# my_dm <- as_dm(my_list)
+# 
+# for(i in seq_along(nms)){
+#   my_dm <- my_dm |> 
+#     dm_add_pk(
+#       table = !!as.name(nms[[i]]),
+#       columns = my_pk[[i]],
+#       force = T
+#     )
+#   print(i)
+# }
+# 
+# for(i in seq_along(fk_table$table)){
+#   my_dm <- my_dm |> 
+#     dm_add_fk(table = !!as.name(fk_table$table[[i]]),
+#               columns = fk_table$col[[i]],
+#               ref_table = !!as.name(fk_table$table2[[i]]))
+# }
+# 
+# 
+# 
+# 
+# dm_examine_constraints(my_dm)
 
 ```
