@@ -87,3 +87,21 @@ str_adintel_to_title <- function(x){
     stringr::str_to_title()
 
 }
+
+#' @rdname string_helpers
+#' @export
+str_embrace <- function(x, left = "(", right = ")"){
+  paste0(left, x, right)
+}
+
+#' @rdname string_helpers
+#' @export
+str_embrace_sq <- function(x, left = "[", right = "]"){
+  paste0(left, x, right)
+}
+
+#' @rdname string_helpers
+#' @export
+str_embrace_cur <- function(x, left = "{", right = "}"){
+paste0(left, x, right)
+}

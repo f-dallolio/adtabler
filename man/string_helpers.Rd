@@ -9,6 +9,9 @@
 \alias{rename_adintel}
 \alias{str_split_comma}
 \alias{str_adintel_to_title}
+\alias{str_embrace}
+\alias{str_embrace_sq}
+\alias{str_embrace_cur}
 \title{String helpers}
 \usage{
 no_case(pattern)
@@ -24,6 +27,12 @@ rename_adintel(x, named = TRUE)
 str_split_comma(x)
 
 str_adintel_to_title(x)
+
+str_embrace(x, left = "(", right = ")")
+
+str_embrace_sq(x, left = "[", right = "]")
+
+str_embrace_cur(x, left = "{", right = "}")
 }
 \arguments{
 \item{pattern}{a string The pattern for which to ignore case.}
