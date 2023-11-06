@@ -151,20 +151,20 @@ is_adintel_mb <- function(x){
 }
 
 
-df0 <- data_info_list$col_info |>
-  filter(file_type_std == "references") |>
-  select(file_type_std,file_name_std,
-         datatype_r : sql_scale) |>
-  summarise(across(everything(), list), .by = c(file_type_std, file_name_std)) |>
-  left_join(
-    data_info_list$file_info |>
-      filter(year %in% c(2010, NA)) |>
-      select(file_name_std, full_file_name)
-  ) |>
-  filter(!is.na(full_file_name)) |>
-  inner_join(data_info_list$unique_key |>
-               select(file_name_std, col_unique_key)) |>
-  mutate(col_unique_key = col_unique_key |> map(str_split_comma)) |>
-  relocate(col_unique_key, .before = datatype_r) |>
-  relocate(full_file_name, .before = 1)
-
+# df0 <- data_info_list$col_info |>
+#   filter(file_type_std == "references") |>
+#   select(file_type_std,file_name_std,
+#          datatype_r : sql_scale) |>
+#   summarise(across(everything(), list), .by = c(file_type_std, file_name_std)) |>
+#   left_join(
+#     data_info_list$file_info |>
+#       filter(year %in% c(2010, NA)) |>
+#       select(file_name_std, full_file_name)
+#   ) |>
+#   filter(!is.na(full_file_name)) |>
+#   inner_join(data_info_list$unique_key |>
+#                select(file_name_std, col_unique_key)) |>
+#   mutate(col_unique_key = col_unique_key |> map(str_split_comma)) |>
+#   relocate(col_unique_key, .before = datatype_r) |>
+#   relocate(full_file_name, .before = 1)
+#
