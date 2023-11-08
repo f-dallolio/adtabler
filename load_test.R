@@ -109,6 +109,6 @@ t1_tot <- Sys.time()
 elapsed_tot <- t1_tot - t0_tot
 
 
-look
+adtabler::lookup_date
 
 dbDisconnect(con)
