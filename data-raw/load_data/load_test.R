@@ -109,6 +109,17 @@ t1_tot <- Sys.time()
 elapsed_tot <- t1_tot - t0_tot
 
 
-adtabler::lookup_date
+dbWriteTable(conn = con,
+             name = "ref__dates",
+             value = lookup_date |>
+               mutate(across(contains("year_"), as.character),
+                      across(where(is.numeric), as.integer)) |>
+               rename(date_year = year,
+                      date_month = month,
+                      date_day = day,
+                      date_day_chr = day_chr) |>
+               relocate(date_day_chr, contains("week_day"), .after = date_day),
+             overwrite = TRUE
+             )
 
 dbDisconnect(con)
