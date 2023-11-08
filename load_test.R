@@ -108,4 +108,7 @@ for(i in seq_along(ref_tbl$full_file_name)){
 t1_tot <- Sys.time()
 elapsed_tot <- t1_tot - t0_tot
 
+
+look
+
 dbDisconnect(con)
