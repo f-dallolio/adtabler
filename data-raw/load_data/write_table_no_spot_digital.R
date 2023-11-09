@@ -22,7 +22,7 @@ con <- dbConnect(
   host = host,
   port = port,
   user = 'postgres',
-  password = rstudioapi::askForPassword(prompt = pswd_prompt)
+  password = rstudioapi::askForPassword()
 )
 
 

@@ -22,7 +22,7 @@ con <- dbConnect(
   host = host,
   port = port,
   user = 'postgres',
-  password = rstudioapi::askForPassword(prompt = pswd_prompt)
+  password = rstudioapi::askForPassword()
 )
 
 
@@ -70,6 +70,8 @@ my_data <- data_info_list$file_info |>
 
 seq_i <- seq_along(my_data$full_file_name)
 i=1
+seq_i <- seq_i[seq_i >= 2]
+
 for( i in seq_i) {
 
   year_i <- my_data$year[[i]]
@@ -98,4 +100,6 @@ for( i in seq_i) {
                append = append_i)
 
   print(paste(i, year_i, tbl_name))
+  rm(my_tbl)
+  gc()
 }
