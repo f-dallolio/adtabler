@@ -10,7 +10,9 @@ NULL
 
 #' @rdname not_helpers
 #' @export
-not_in <- function(x, table) !x %in% table
+not_in <- function(x, table) {
+  !x %in% table
+}
 
 #' @rdname not_helpers
 #' @export
@@ -18,9 +20,9 @@ not_in <- function(x, table) !x %in% table
 
 #' @rdname not_helpers
 #' @export
-not_na <- function(x) !is_na(x)
+not_na <- function(x) !is.na(x)
 
 #' @rdname not_helpers
 #' @export
-not_null <- function(x) !is_null(x)
+not_null <- function(x) !is.null(x)
 

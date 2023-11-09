@@ -29,5 +29,12 @@ make_grep_cmd <- function(file, ..., first_n = NULL, opts = "-wE"){
   ptrn1 <- as.list( tibble::as_tibble( ptrn0 ) )
   ptrn <- purrr::map_vec(purrr::list_transpose(ptrn1), ~ stringr::str_flatten(.x, "\t"))
 
-  sprintf( glue::glue("grep -m {first_n} -wE '{ptrn}' %s"), file)
+  if ( is.null(first_n) ) {
+    m_first_n = ""
+  } else {
+    m_first_n = glue::glue(" -m {first_n}")
+  }
+
+  cmd <- glue::glue("grep {m_first_n} {opts} '{ptrn}' %s")
+  sprintf( cmd, file)
 }
