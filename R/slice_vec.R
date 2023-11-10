@@ -7,7 +7,8 @@
 #' @export
 #'
 slice_vec <- function(x, i){
-  stopifnot( "abs(i) should be an integer in 1, ... , vec_size(x)" ~ max(abs(i)) <= vec_size(x) & min(abs(i)) > 0 )
+  stopifnot( "abs(i) should be an integer in 1, ... , vec_size(x)" =
+               all(abs(i) |> dplyr::between(1, vctrs::vec_size(x))))
   ii <- dplyr::case_when(
     i > 0 ~ i,
     i < 0 ~ vctrs::vec_size(x) + i + 1
