@@ -19,6 +19,12 @@ NULL
 #'
 adintel_read_tsv <- function(tbl_name, file, year, col_names = NA, col_classes = NA, col_uk = NA){
 
+  if( stringr::str_detect(tbl_name, "occ__") ) {
+    media_type_id <- stringr::str_split_i(tbl_name, "__", 3) |>
+      stringr::str_split_i("_", 1) |>
+      as.integer()
+  }
+
   read_info <- stringr::str_flatten(c(tbl_name, year), collapse = " - ", na.rm = TRUE)
   print(glue::glue("Starting: \t\t {read_info}"))
 
