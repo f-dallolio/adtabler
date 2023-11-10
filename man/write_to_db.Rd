@@ -2,14 +2,25 @@
 % Please edit documentation in R/write_to_db.R
 \name{write_to_db}
 \alias{write_to_db}
+\alias{adintel_read_tsv}
 \alias{write_to_db_con}
 \title{Title}
 \usage{
-write_to_db(
-  con,
+adintel_read_tsv(
+  tbl_name,
   file,
   year,
+  col_names = NA,
+  col_classes = NA,
+  col_uk = NA
+)
+
+write_to_db(
+  con,
   tbl_name,
+  file,
+  year,
+  media_type_id = NA,
   col_names,
   col_classes,
   col_uk,
@@ -20,19 +31,19 @@ write_to_db(
 write_to_db_con(con)
 }
 \arguments{
-\item{con}{a db connection.}
+\item{tbl_name}{string.}
 
 \item{file}{string.}
 
 \item{year}{integer.}
-
-\item{tbl_name}{string.}
 
 \item{col_names}{character vector.}
 
 \item{col_classes}{character vector.}
 
 \item{col_uk}{character vector.}
+
+\item{con}{a db connection.}
 
 \item{overwrite}{logical.}
 
