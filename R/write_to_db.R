@@ -17,7 +17,7 @@ NULL
 #' @rdname write_to_db
 #' @export
 #'
-write_to_db <- function(con = {{con}}, file, year, tbl_name, col_names, col_classes, col_uk, overwrite, append){
+write_to_db <- function(con, file, year, tbl_name, col_names, col_classes, col_uk, overwrite, append){
 
   read_info <- stringr::str_flatten(c(tbl_name, year), collapse = " - ", na.rm = TRUE)
   print(glue::glue("Starting: \t\t {read_info}"))
