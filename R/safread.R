@@ -1,5 +1,11 @@
 #' Safe fread
 #'
+#'
+#'
+#' @name safread
+NULL
+
+#' @rdname safread
 #' @export
 safread_warn <- function(){
   fn <- purrr::quietly(data.table::fread)
