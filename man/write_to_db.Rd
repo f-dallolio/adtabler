@@ -6,11 +6,7 @@
 \title{Title}
 \usage{
 write_to_db(
-  con = {
-     {
-         con
-     }
- },
+  con,
   file,
   year,
   tbl_name,
