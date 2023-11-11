@@ -16,7 +16,6 @@ NULL
 
 #' @rdname write_to_db
 #' @export
-#'
 adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, col_uk = NA){
 
   t0_fun <- Sys.time()
