@@ -6,14 +6,7 @@
 \alias{write_to_db_con}
 \title{Title}
 \usage{
-adintel_read_tsv(
-  tbl_name,
-  file,
-  year,
-  col_names = NA,
-  col_classes = NA,
-  col_uk = NA
-)
+adintel_read_tsv(tbl_name, file, col_names, col_classes = NULL, col_uk = NULL)
 
 write_to_db(
   con,
@@ -35,8 +28,6 @@ write_to_db_con(con)
 
 \item{file}{string.}
 
-\item{year}{integer.}
-
 \item{col_names}{character vector.}
 
 \item{col_classes}{character vector.}
@@ -44,6 +35,8 @@ write_to_db_con(con)
 \item{col_uk}{character vector.}
 
 \item{con}{a db connection.}
+
+\item{year}{integer.}
 
 \item{overwrite}{logical.}
 

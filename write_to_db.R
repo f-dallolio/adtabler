@@ -40,7 +40,7 @@ con <- dbConnect(
 
 file = data_write_to_db$file[[1]]
 year = data_write_to_db$year[[1]]
-media_type_id = data_write_to_db$media_type_id[[1]]
+# media_type_id = data_write_to_db$media_type_id[[1]]
 tbl_name = data_write_to_db$tbl_name[[1]]
 col_names = data_write_to_db$col_names[[1]]
 col_classes = data_write_to_db$col_classes[[1]]
@@ -140,7 +140,7 @@ append = data_write_to_db$append[[1]]
 data_write_to_db_list <- as.list(data_write_to_db)
 
 write_to_db_con <- function(con){
-  purrr::partial(.f = write_to_db, con = con)
+  purrr::partial(.f = adintel_read_tsv, con = con)
 }
 pwalk(data_write_to_db_list, p_write_to_db)
 
