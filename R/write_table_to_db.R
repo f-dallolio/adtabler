@@ -19,10 +19,11 @@ NULL
 #'
 adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, col_uk = NA, out_df_only = FALSE){
 
-  t0_fun <- Sys.time()
+  t0_fread <- Sys.time()
 
   year <- as_numeric2(stringr::str_split_i(file, "/", -3))
 
+  media_type_id <- NA
   if( stringr::str_detect(tbl_name, "occ__") ) {
     media_type_id <- stringr::str_split_i(tbl_name, "__", 3) |>
       stringr::str_split_i("_", 1) |>
