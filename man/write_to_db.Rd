@@ -5,7 +5,14 @@
 \alias{adintel_read_tsv}
 \title{Title}
 \usage{
-adintel_read_tsv(tbl_name, file, col_names, col_classes = NULL, col_uk = NULL)
+adintel_read_tsv(
+  tbl_name,
+  file,
+  col_names,
+  col_classes = NULL,
+  col_uk = NULL,
+  out_df_only = FALSE
+)
 
 write_to_db(con, tbl_name, df, overwrite, append)
 }

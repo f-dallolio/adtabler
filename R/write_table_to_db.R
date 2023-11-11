@@ -16,13 +16,13 @@ NULL
 
 #' @rdname write_to_db
 #' @export
-adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, col_uk = NA){
+#'
+adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, col_uk = NA, out_df_only = FALSE){
 
-  t0_fread <- Sys.time()
+  t0_fun <- Sys.time()
 
   year <- as_numeric2(stringr::str_split_i(file, "/", -3))
 
-  media_type_id <- NA
   if( stringr::str_detect(tbl_name, "occ__") ) {
     media_type_id <- stringr::str_split_i(tbl_name, "__", 3) |>
       stringr::str_split_i("_", 1) |>
@@ -106,12 +106,47 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
     df  <- df |> dplyr::mutate(year = year, .before = 1)
   }
 
+  uk_not_na <- df |>
+    select(dplyr::any_of(col_uk)) |>
+    purrr::map_vec( ~ all(not_na(.x))) |>
+    all()
+
+  uk_unique_fn <- function(.df, .uk){
+    out <- df |>
+      summarise(
+        n = n(),
+        .by = all_of(col_uk)
+      ) |>
+      filter(n > 1)
+    return(
+      list(
+        all_unique = NROW(out) == 0,
+        df = out
+      )
+    )
+  }
+  uk_unique_list <- uk_unique_fn(.df = df, .uk = col_uk)
+
   timer(t0_fread, msg = 'File read in \t {.x}') |> print()
 
-  return(df)
+  if(out_df_only) {
+    if(!uk_unique_list$all_unique) {
+      warning("UK not unique: check!")
+    }
+    return(df)
+  }
+
+  return(
+    list(
+      df = df,
+      uk_not_na = uk_not_na,
+      uk_unique = uk_unique_list$all_unique,
+      no_unique = uk_unique_list$df
+    )
+  )
 }
 rlang::fn_fmls(adintel_read_tsv)[c("col_names","col_classes","col_uk")] <- rlang::fn_fmls(data.table::
-                                                                              fread)[c("col.names","colClasses","key")]
+                                                                                            fread)[c("col.names","colClasses","key")]
 #' @rdname write_to_db
 #' @export
 #'
