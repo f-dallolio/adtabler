@@ -17,7 +17,11 @@ NULL
 #' @rdname write_to_db
 #' @export
 #'
-adintel_read_tsv <- function(tbl_name, file, year, col_names = NA, col_classes = NA, col_uk = NA){
+adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, col_uk = NA){
+
+  t0_fun <- Sys.time()
+
+  year <- as_numeric2(stringr::str_split_i(file, "/", -3))
 
   if( stringr::str_detect(tbl_name, "occ__") ) {
     media_type_id <- stringr::str_split_i(tbl_name, "__", 3) |>
@@ -28,8 +32,6 @@ adintel_read_tsv <- function(tbl_name, file, year, col_names = NA, col_classes =
   read_info <- stringr::str_flatten(c(tbl_name, year), collapse = " - ", na.rm = TRUE)
   print(glue::glue("Starting: \t\t {read_info}"))
 
-  t0_fun <- Sys.time()
-
   has_ad_time <- "ad_time" %in% col_names
 
   is_ref_dyn <- stringr::str_detect(tbl_name, "ref_dyn__")
@@ -37,8 +39,6 @@ adintel_read_tsv <- function(tbl_name, file, year, col_names = NA, col_classes =
 
   col_uk <- col_names[col_uk]
   col_classes[col_names == "ad_date"] <- "IDate"
-
-  t0_fread <- Sys.time()
 
   if(tbl_name == "ref_dyn__brand" & year %in% 2018:2021){
     tbl_tmp <- data.table::fread(
@@ -98,8 +98,6 @@ adintel_read_tsv <- function(tbl_name, file, year, col_names = NA, col_classes =
     )
   }
 
-  timer(t0_fread, msg = 'File read in \t {.x}') |> print()
-
   if(has_ad_time){
     df$ad_time <- stringr::str_sub(df$ad_time, 1, 8)
   }
@@ -108,19 +106,12 @@ adintel_read_tsv <- function(tbl_name, file, year, col_names = NA, col_classes =
     df  <- df |> dplyr::mutate(year = year, .before = 1)
   }
 
-  t0_dbwrite <- Sys.time()
+  timer(t0_fread, msg = 'File read in \t {.x}') |> print()
 
-  RPostgres::dbWriteTable(conn = con,
-                          name = tbl_name,
-                          value = df,
-                          overwrite = overwrite,
-                          append = append)
-
-  timer(t0_dbwrite, msg = 'Table to DB in \t {.x}') |> print()
-
-  timer(t0_fun, n_post = 2, msg = 'Done in \t {.x} \t {read_info}') |> print()
+  return(df)
 }
-
+rlang::fn_fmls(adintel_read_tsv)[c("col_names","col_classes","col_uk")] <- rlang::fn_fmls(data.table::
+                                                                              fread)[c("col.names","colClasses","key")]
 #' @rdname write_to_db
 #' @export
 #'
