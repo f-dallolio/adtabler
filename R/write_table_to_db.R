@@ -139,7 +139,7 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
 
   uk_has_na <- uk_has_na_fn(.df = df, .uk = col_uk)
 
-  uk_unique_list <- uk_unique_fn(.df = df, .uk = col_uk)
+  uk_not_unique_list <- uk_unique_fn(.df = df, .uk = col_uk)
 
   timer(t0_fread, msg = 'File read in \t {.x}') |> print()
 
