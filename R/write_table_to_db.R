@@ -17,8 +17,8 @@ NULL
 #' @rdname write_to_db
 #' @export
 #'
-uk_unique_fn <- function(.df, .uk){
-  out <- .df |>
+uk_not_unique_fn <- function(.df, .uk){
+  .df |>
     mutate(row_id = row_number(), .before = 1) |>
     mutate(
       n = n(),
@@ -31,12 +31,17 @@ uk_unique_fn <- function(.df, .uk){
     pivot_longer(-c(row_id, .uk)) |>
     filter(value > 1) |>
     distinct()
-  return(
-    list(
-      all_unique = NROW(out) == 0,
-      df = out
-    )
-  )
+}
+
+#' @rdname write_to_db
+#' @export
+#'
+uk_has_na_fn <- function(.df, .uk){
+  .df |>
+    select(dplyr::any_of(.uk)) |>
+    summarise(across(everything(), ~.x |> is.na() |> any())) |>
+    pivot_longer(everything()) |>
+    mutate(value = !value)
 }
 
 #' @rdname write_to_db
@@ -132,11 +137,7 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
     df  <- df |> dplyr::mutate(year = year, .before = 1)
   }
 
-  uk_not_na <- df |>
-    select(dplyr::any_of(col_uk)) |>
-    summarise(across(everything(), ~.x |> is.na() |> any())) |>
-    pivot_longer(everything())
-
+  uk_has_na <- uk_has_na_fn(.df = df, .uk = col_uk)
 
   uk_unique_list <- uk_unique_fn(.df = df, .uk = col_uk)
 
@@ -151,10 +152,10 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
 
   return(
     list(
+      tbl_name = tbl_name,
       df = df,
-      uk_not_na = uk_not_na,
-      uk_unique = uk_unique_list$all_unique,
-      no_unique = uk_unique_list$df
+      uk_has_na = uk_has_na,
+      uk_not_unique = uk_not_unique
     )
   )
 }
