@@ -17,6 +17,31 @@ NULL
 #' @rdname write_to_db
 #' @export
 #'
+uk_unique_fn <- function(.df, .uk){
+  out <- .df |>
+    mutate(row_id = row_number(), .before = 1) |>
+    mutate(
+      n = n(),
+      .by = all_of(col_uk)
+    ) |>
+    filter(n > 1) |>
+    select(-n) |>
+    mutate(across(everything(), n_distinct),
+           .by = all_of(col_uk)) |>
+    pivot_longer(-c(row_id, col_uk)) |>
+    filter(value > 1) |>
+    distinct()
+  return(
+    list(
+      all_unique = NROW(out) == 0,
+      df = out
+    )
+  )
+}
+
+#' @rdname write_to_db
+#' @export
+#'
 adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, col_uk = NA, out_df_only = FALSE){
 
   t0_fread <- Sys.time()
@@ -109,23 +134,10 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
 
   uk_not_na <- df |>
     select(dplyr::any_of(col_uk)) |>
-    purrr::map_vec( ~ all(not_na(.x))) |>
-    all()
+    summarise(across(everything(), ~.x |> is.na() |> any())) |>
+    pivot_longer(everything())
 
-  uk_unique_fn <- function(.df, .uk){
-    out <- df |>
-      summarise(
-        n = n(),
-        .by = all_of(col_uk)
-      ) |>
-      filter(n > 1)
-    return(
-      list(
-        all_unique = NROW(out) == 0,
-        df = out
-      )
-    )
-  }
+
   uk_unique_list <- uk_unique_fn(.df = df, .uk = col_uk)
 
   timer(t0_fread, msg = 'File read in \t {.x}') |> print()

@@ -2,9 +2,12 @@
 % Please edit documentation in R/write_table_to_db.R
 \name{write_to_db}
 \alias{write_to_db}
+\alias{uk_unique_fn}
 \alias{adintel_read_tsv}
 \title{Title}
 \usage{
+uk_unique_fn(.df, .uk)
+
 adintel_read_tsv(
   tbl_name,
   file,
