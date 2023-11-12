@@ -39,9 +39,10 @@ uk_not_unique_fn <- function(.df, .uk){
 uk_has_na_fn <- function(.df, .uk){
   .df |>
     select(dplyr::any_of(.uk)) |>
-    summarise(across(everything(), ~.x |> is.na() |> any())) |>
-    pivot_longer(everything()) |>
-    mutate(value = !value)
+    mutate(row_id = row_number(), .before = 1) |>
+    mutate(across(!row_id, ~.x |> is.na() |> any())) |>
+    pivot_longer(!row_id) |>
+    filter(value)
 }
 
 #' @rdname write_to_db
@@ -139,23 +140,23 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
 
   uk_has_na <- uk_has_na_fn(.df = df, .uk = col_uk)
 
-  uk_not_unique_list <- uk_not_unique_fn(.df = df, .uk = col_uk)
+  uk_not_unique <- uk_not_unique_fn(.df = df, .uk = col_uk)
 
   timer(t0_fread, msg = 'File read in \t {.x}') |> print()
 
   if(out_df_only) {
-    if(!uk_not_unique_list$all_unique) {
+    if(!uk_not_unique$all_unique) {
       warning("UK not unique: check!")
     }
     return(df)
   }
 
   return(
-    list(
+    tibble(
       tbl_name = tbl_name,
-      df = df,
-      uk_has_na = uk_has_na,
-      uk_not_unique = uk_not_unique
+      df = list(df),
+      uk_has_na = list(uk_has_na),
+      uk_not_unique = list(uk_not_unique)
     )
   )
 }
