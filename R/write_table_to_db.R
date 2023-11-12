@@ -22,13 +22,13 @@ uk_unique_fn <- function(.df, .uk){
     mutate(row_id = row_number(), .before = 1) |>
     mutate(
       n = n(),
-      .by = all_of(col_uk)
+      .by = all_of(.uk)
     ) |>
     filter(n > 1) |>
     select(-n) |>
     mutate(across(everything(), n_distinct),
-           .by = all_of(col_uk)) |>
-    pivot_longer(-c(row_id, col_uk)) |>
+           .by = all_of(.uk)) |>
+    pivot_longer(-c(row_id, .uk)) |>
     filter(value > 1) |>
     distinct()
   return(
