@@ -17,7 +17,7 @@ NULL
 #' @rdname write_to_db
 #' @export
 #'
-# uk_not_unique_fn <- function(.df, .uk){
+uk_not_unique_fn <- function(.df, .uk){
 #   .df <- .df |>
 #     nest(.by = matches(.uk))
 #     mutate(row_id = row_number(), .before = 1)
@@ -63,7 +63,7 @@ NULL
 #     pull(value)
 #   |>
 #     nest(.by = gr_id)
-# }
+}
 
 #' @rdname write_to_db
 #' @export
