@@ -122,8 +122,7 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
       nThread = parallel::detectCores() - 2,
       encoding = "UTF-8"
     )
-  } else
-  if (tbl_name == "ref__digital_ad_technology") {
+  } else if (tbl_name == "ref__digital_ad_technology") {
     df <- data.table::fread(
       file = file,
       colClasses = col_classes,
@@ -143,8 +142,7 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
         )
       )
 
-  } else
-  if (tbl_name == "ref_dyn__distributor" & year %in% 2018){
+  } else if (tbl_name == "ref_dyn__distributor" & year %in% 2018){
     tbl_tmp <- data.table::fread(
       file = file,
       sep = "",
@@ -164,8 +162,7 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
       nThread = parallel::detectCores() - 2,
       encoding = "UTF-8"
     )
-  } else
-  if (not_na(media_type_id)) {
+  } else if (not_na(media_type_id)) {
     cmd <- make_grep_cmd(
       file = file,
       media_type_id = media_type_id
@@ -179,17 +176,17 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
       nThread = parallel::detectCores() - 2,
       encoding = "UTF-8"
     )
+  } else {
+    df <- data.table::fread(
+      file = file,
+      colClasses = col_classes,
+      col.names = col_names,
+      key = uk,
+      na.strings = NULL,
+      nThread = parallel::detectCores() - 2,
+      encoding = "UTF-8"
+    )
   }
-
-  df <- data.table::fread(
-    file = file,
-    colClasses = col_classes,
-    col.names = col_names,
-    key = uk,
-    na.strings = NULL,
-    nThread = parallel::detectCores() - 2,
-    encoding = "UTF-8"
-  )
 
 
   if(has_ad_time){
@@ -206,6 +203,8 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
 
   timer(t0_fread, msg = 'File read in \t {.x}') |> print()
 
+  return(df)
+
   # if(out_df_only) {
   #   if(!uk_not_unique$all_unique) {
   #     warning("UK not unique: check!")
@@ -213,15 +212,15 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
   #   return(df)
   # }
 
-  return(
-    tibble(
-      tbl_name = tbl_name,
-      # uk = uk,
-      df = df,
-      # uk_has_na = list(uk_has_na),
-      # uk_not_unique = list(uk_not_unique)
-    )
-  )
+  # return(
+  #   tibble(
+  #     tbl_name = tbl_name,
+  #     # uk = uk,
+  #     df = df,
+  #     # uk_has_na = list(uk_has_na),
+  #     # uk_not_unique = list(uk_not_unique)
+  #   )
+  # )
 }
 rlang::fn_fmls(adintel_read_tsv)[c("col_names","col_classes","col_uk")] <- rlang::fn_fmls(data.table::
                                                                                             fread)[c("col.names","colClasses","key")]
