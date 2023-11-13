@@ -31,7 +31,7 @@ db_data <- data_write_to_db |>
     .by = tbl_name
   ) |>
   filter(
-    tbl_name %in%  (dbListTables(con) |> str_subset("local_tv", negate = T))
+    tbl_name %in%  dbListTables(con)# |> str_subset("local_tv", negate = T))
   )
 
 my_dm <- dm_from_con(con = con, table_names = dbListTables(con))
@@ -138,15 +138,15 @@ fk_data_nobrand |>
 
 
 seq_i <- seq_along(fk_data_nobrand$tbl_name_1)
-i = 1
+i = 13
 for(i in seq_i) {
   table_1_i <- fk_data_nobrand$tbl_name_1[[i]]
   table_2_i <- fk_data_nobrand$tbl_name_2[[i]]
   ref_col_i <- str_split_comma(fk_data_nobrand$ref_col[[i]])
 
-  if( str_detect(table_1_i, "local_tv") & str_detect(table_2_i, "distributor") ){
-    ref_col_i[ - which(ref_col_i == "media_type_id") ]
-  }
+  # if( table_1_i == "occ__local_tv" & table_2_i == "ref_dyn__distributor" ){
+  #   ref_col_i = setdiff(ref_col_i, "media_type_id")
+  # }
 
   my_dm_fk <- my_dm_fk |>
     dm_add_fk(table = !!as.name(table_1_i), columns = c(ref_col_i), ref_table = !!as.name(table_2_i))
@@ -158,7 +158,7 @@ keys_2010 <- list(
   pk = my_dm_fk |> dm_get_all_pks(),
   fk = my_dm_fk |> dm_get_all_fks()
 )
-saveRDS(object = keys_2010, file = "~/Documents/r_wd/adtabler/data-raw/keys_2010.rds")
 
+usethis::use_data(keys_2010, overwrite = TRUE)
 
 dbDisconnect(con)

@@ -136,6 +136,21 @@ fn <- function(data_tbl){
       #   df_i <- df_i |> select(-year)
       # }
 
+      if( tbl_name_i == "ref_dyn__distributor" ){
+
+        df_i <- df_i |>
+          bind_rows(
+            df_i |> filter(media_type_id == 5) |>  mutate(media_type_id = 13)
+          ) |>
+          bind_rows(
+            df_i |> filter(media_type_id == 5) |>  mutate(media_type_id = 14)
+          ) |>
+          bind_rows(
+            df_i |> filter(media_type_id == 5) |>  mutate(media_type_id = 24)
+          )
+
+      }
+
       RPostgres::dbWriteTable(conn = con, name = tbl_name_i, value = df_i, overwrite = overwrite_i, append = append_i)
 
       data_tbl$df[i] <- "ok"
