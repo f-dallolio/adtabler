@@ -108,7 +108,7 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
     tbl_tmp <- data.table::fread(
       file = file,
       sep = "",
-      na.strings = NULL,
+      na.strings = ,
       quote = ""
     ) |>
       dplyr::pull(1) |>
@@ -118,7 +118,7 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
       colClasses = col_classes,
       col.names = col_names,
       key = uk,
-      na.strings = NULL,
+      na.strings = "",
       nThread = parallel::detectCores() - 2,
       encoding = "UTF-8"
     )
@@ -128,7 +128,7 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
       colClasses = col_classes,
       col.names = col_names,
       key = uk,
-      na.strings = NULL,
+      na.strings = "NULL",
       nThread = parallel::detectCores() - 2,
       encoding = "UTF-8"
     )
@@ -158,7 +158,7 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
       colClasses = col_classes,
       col.names = col_names,
       key = uk,
-      na.strings = NULL,
+      na.strings = "",
       nThread = parallel::detectCores() - 2,
       encoding = "UTF-8"
     )
@@ -172,7 +172,7 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
       colClasses = col_classes,
       col.names = col_names,
       key = uk,
-      na.strings = NULL,
+      na.strings = "",
       nThread = parallel::detectCores() - 2,
       encoding = "UTF-8"
     )
@@ -182,7 +182,7 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
       colClasses = col_classes,
       col.names = col_names,
       key = uk,
-      na.strings = NULL,
+      na.strings = "",
       nThread = parallel::detectCores() - 2,
       encoding = "UTF-8"
     )
