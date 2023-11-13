@@ -231,11 +231,13 @@ write_to_db <- function(con, tbl_name, df, overwrite, append){
 
   t0_dbwrite <- Sys.time()
 
+  name = tbl_name
+
   RPostgres::dbWriteTable(conn = con,
-                          name = tbl_name,
+                          name = name,
                           value = df,
                           overwrite = overwrite,
                           append = append)
 
-  timer(t0_dbwrite, msg = 'Table to DB in \t {.x}') |> print()
+  timer(t0_dbwrite, msg = 'Table to DB in \t {.x} \t {tbl_name}') |> print()
 }
