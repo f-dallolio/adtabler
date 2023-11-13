@@ -17,21 +17,53 @@ NULL
 #' @rdname write_to_db
 #' @export
 #'
-uk_not_unique_fn <- function(.df, .uk){
-  .df |>
-    mutate(row_id = row_number(), .before = 1) |>
-    mutate(
-      n = n(),
-      .by = all_of(.uk)
-    ) |>
-    filter(n > 1) |>
-    select(-n) |>
-    mutate(across(everything(), n_distinct),
-           .by = all_of(.uk)) |>
-    pivot_longer(-c(row_id, .uk)) |>
-    filter(value > 1) |>
-    distinct()
-}
+# uk_not_unique_fn <- function(.df, .uk){
+#   .df <- .df |>
+#     nest(.by = matches(.uk))
+#     mutate(row_id = row_number(), .before = 1)
+#   out <- .df |>
+#     mutate(
+#       n = n(),
+#       .by = all_of(.uk)
+#     ) |>
+#     filter(n > 1) |>
+#     select(-n) |>
+#     mutate(across(!c(row_id, any_of(.uk)), n_distinct),
+#            gr_id = cur_group_id(),
+#            .by = all_of(.uk)) |>
+#     select(- any_of(.uk)) |>
+#     pivot_longer(-c(row_id, gr_id)) |>
+#     filter(value > 1) |>
+#     distinct()
+#
+#   out |>
+#     select(-value) |>
+#     inner_join(.df) |>
+#     nest(.by = c(name)) |>
+#     mutate(data = data |> imap(~ .x |> select(gr_id, row_id, any_of(.uk))))|>
+#     pull(data)
+#
+#   |>
+#     map(~ .x |> nest(.by = gr_id) |> pull(data))
+#   |>
+#     pull(data)
+#     mutate(data = data |> imap(~ .x |> select(matches(name[.y])))) |>
+#     # select(- gr_id) |>
+#     nest(.by = name) |>
+#     pull(data) |>
+#     map(~ .x |> simplify())
+#   |>
+#
+#   |>
+#     map(~ .x |> split(.x$gr_id))
+#
+#   |>
+#     summarise(value = name |> map2(row_id, ~ .df[.y][[.x]]),
+#               .by = gr_id) |>
+#     pull(value)
+#   |>
+#     nest(.by = gr_id)
+# }
 
 #' @rdname write_to_db
 #' @export
@@ -40,7 +72,7 @@ uk_has_na_fn <- function(.df, .uk){
   .df |>
     select(dplyr::any_of(.uk)) |>
     mutate(row_id = row_number(), .before = 1) |>
-    mutate(across(!row_id, ~.x |> is.na() |> any())) |>
+    mutate(across(!row_id, ~.x |> is.na())) |>
     pivot_longer(!row_id) |>
     filter(value)
 }
@@ -69,13 +101,14 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
   is_ref_dyn <- stringr::str_detect(tbl_name, "ref_dyn__")
   is_ref <- stringr::str_detect(tbl_name, "ref__")
 
-  col_uk <- col_names[col_uk]
-  col_classes[col_names == "ad_date"] <- "IDate"
+  uk <- col_names[col_uk]
+  # col_classes[col_names == "ad_date"] <- "IDate"
 
   if(tbl_name == "ref_dyn__brand" & year %in% 2018:2021){
     tbl_tmp <- data.table::fread(
       file = file,
       sep = "",
+      na.strings = NULL,
       quote = ""
     ) |>
       dplyr::pull(1) |>
@@ -84,14 +117,38 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
       text = tbl_tmp,
       colClasses = col_classes,
       col.names = col_names,
-      key = col_uk,
+      key = uk,
+      na.strings = NULL,
       nThread = parallel::detectCores() - 2,
       encoding = "UTF-8"
     )
-  } else if (tbl_name == "ref_dyn__distributor" & year %in% 2018){
+  } else
+  if (tbl_name == "ref__digital_ad_technology") {
+    df <- data.table::fread(
+      file = file,
+      colClasses = col_classes,
+      col.names = col_names,
+      key = uk,
+      na.strings = NULL,
+      nThread = parallel::detectCores() - 2,
+      encoding = "UTF-8"
+    )
+
+    df <- df |>
+      mutate(
+        ad_technology = if_else(
+          ad_technology_id == 6,
+          "Native Content",
+          ad_technology
+        )
+      )
+
+  } else
+  if (tbl_name == "ref_dyn__distributor" & year %in% 2018){
     tbl_tmp <- data.table::fread(
       file = file,
       sep = "",
+      na.strings = NULL,
       quote = ""
     )
     tmp1 <- tbl_tmp |> dplyr::slice(1:22035)
@@ -102,11 +159,13 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
       text = tmp_new,
       colClasses = col_classes,
       col.names = col_names,
-      key = col_uk,
+      key = uk,
+      na.strings = NULL,
       nThread = parallel::detectCores() - 2,
       encoding = "UTF-8"
     )
-  } else if (not_na(media_type_id)) {
+  } else
+  if (not_na(media_type_id)) {
     cmd <- make_grep_cmd(
       file = file,
       media_type_id = media_type_id
@@ -115,20 +174,23 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
       cmd = cmd,
       colClasses = col_classes,
       col.names = col_names,
-      key = col_uk,
-      nThread = parallel::detectCores() - 2,
-      encoding = "UTF-8"
-    )
-  } else {
-    df <- data.table::fread(
-      file = file,
-      colClasses = col_classes,
-      col.names = col_names,
-      key = col_uk,
+      key = uk,
+      na.strings = NULL,
       nThread = parallel::detectCores() - 2,
       encoding = "UTF-8"
     )
   }
+
+  df <- data.table::fread(
+    file = file,
+    colClasses = col_classes,
+    col.names = col_names,
+    key = uk,
+    na.strings = NULL,
+    nThread = parallel::detectCores() - 2,
+    encoding = "UTF-8"
+  )
+
 
   if(has_ad_time){
     df$ad_time <- stringr::str_sub(df$ad_time, 1, 8)
@@ -138,25 +200,26 @@ adintel_read_tsv <- function(tbl_name, file, col_names = NA, col_classes = NA, c
     df  <- df |> dplyr::mutate(year = year, .before = 1)
   }
 
-  uk_has_na <- uk_has_na_fn(.df = df, .uk = col_uk)
-
-  uk_not_unique <- uk_not_unique_fn(.df = df, .uk = col_uk)
+  # uk_has_na <- uk_has_na_fn(.df = df, .uk = uk)
+  #
+  # uk_not_unique <- uk_not_unique_fn(.df = df, .uk = uk)
 
   timer(t0_fread, msg = 'File read in \t {.x}') |> print()
 
-  if(out_df_only) {
-    if(!uk_not_unique$all_unique) {
-      warning("UK not unique: check!")
-    }
-    return(df)
-  }
+  # if(out_df_only) {
+  #   if(!uk_not_unique$all_unique) {
+  #     warning("UK not unique: check!")
+  #   }
+  #   return(df)
+  # }
 
   return(
     tibble(
       tbl_name = tbl_name,
-      df = list(df),
-      uk_has_na = list(uk_has_na),
-      uk_not_unique = list(uk_not_unique)
+      # uk = uk,
+      df = df,
+      # uk_has_na = list(uk_has_na),
+      # uk_not_unique = list(uk_not_unique)
     )
   )
 }
