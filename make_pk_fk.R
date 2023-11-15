@@ -152,7 +152,58 @@ for(i in seq_i) {
     dm_add_fk(table = !!as.name(table_1_i), columns = c(ref_col_i), ref_table = !!as.name(table_2_i))
 }
 
+
+x2 <- ref_data |> select(-uk) |>  unnest(everything()) |>
+  filter(col_names |> str_detect("tv_")) |>
+  rename(tbl_name_1 = tbl_name) |>
+  full_join(
+    ref_data |> select(-col_names) |>  unnest(everything()) |>
+      filter(uk |> str_detect("tv_")) |>
+      rename(tbl_name_2 = tbl_name),
+    by = c("col_names" = "uk")
+  ) |>
+  filter(tbl_name_1 != tbl_name_2) |>
+  rename(ref_col = col_names)
+
+seq_i <- seq_along(x2$tbl_name_1)
+i = 1
+for(i in seq_i) {
+  table_1_i <- x2$tbl_name_1[[i]]
+  table_2_i <- x2$tbl_name_2[[i]]
+  ref_col_i <- str_split_comma(x2$ref_col[[i]])
+  my_dm_fk <- my_dm_fk |>
+    dm_add_fk(table = !!as.name(table_1_i), columns = c(ref_col_i), ref_table = !!as.name(table_2_i))
+}
+
+my_dm_fk <- my_dm_fk |>
+  dm_add_fk(table = !!as.name(table_1_i), columns = c(ref_col_i), ref_table = !!as.name(table_2_i))
+
+
+x_brand <- occ_data |> select(-uk) |>
+  unnest(everything()) |>
+  filter(str_detect(col_names, "brand_")) |>
+  pull(tbl_name) |>
+  unique()
+
+i=1
+for( i in seq_along(x_brand)) {
+
+  table_1_i <- x_brand[[i]]
+  table_2_i <- "ref_dyn_brand"
+
+  my_dm_fk <- my_dm_fk |>
+    dm_add_fk(table = !!as.name(table_1_i), columns = prim_brand_code, ref_table = ref_dyn__brand, ref_columns = brand_code) |>
+    dm_add_fk(table = !!as.name(table_1_i), columns = scnd_brand_code, ref_table = ref_dyn__brand, ref_columns = brand_code) |>
+    dm_add_fk(table = !!as.name(table_1_i), columns = ter_brand_code, ref_table = ref_dyn__brand, ref_columns = brand_code)
+}
+
+
+
 my_dm_fk |> dm_examine_constraints()
+
+dm_draw(my_dm_fk)
+
+my_dm_fk
 
 keys_2010 <- list(
   pk = my_dm_fk |> dm_get_all_pks(),
@@ -160,5 +211,3 @@ keys_2010 <- list(
 )
 
 usethis::use_data(keys_2010, overwrite = TRUE)
-
-dbDisconnect(con)

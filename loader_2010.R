@@ -210,7 +210,8 @@ for( i in seq_i ) {
 
   df_i <- fread(file = file_i, col.names = col_names_i, colClasses = col_classes_i, na.strings = "") |>
     mutate(across(where(is.character), ~ iconv(.x, 'latin1', 'UTF-8'))) |>
-    as_tibble()
+    as_tibble() |>
+    mutate(across(contains("brand_code"), ~ if_else(.x == 0, NA, .x)))
 
   RPostgres::dbWriteTable(conn = con, name = tbl_name_i, value = df_i, overwrite = TRUE, append == FALSE)
 
@@ -250,7 +251,10 @@ for( i in seq_i ) {
   col_names_i <- x$col_names[[i]]
   col_classes_i <- x$col_classes[[i]]
 
-  df_i <- adintel_read_tsv(tbl_name = tbl_name_i, file = file_i, col_names = col_names_i, col_classes = col_classes_i)
+  df_i <- fread(file = file_i, col.names = col_names_i, colClasses = col_classes_i, na.strings = "") |>
+    mutate(across(where(is.character), ~ iconv(.x, 'latin1', 'UTF-8'))) |>
+    as_tibble() |>
+    mutate(across(contains("brand_code"), ~ if_else(.x == 0, NA, .x)))
 
   RPostgres::dbWriteTable(conn = con, name = tbl_name_i, value = df_i, overwrite = TRUE, append == FALSE)
 
