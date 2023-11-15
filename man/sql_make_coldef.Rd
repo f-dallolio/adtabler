@@ -4,7 +4,7 @@
 \alias{sql_make_coldef}
 \title{SQL column definition block}
 \usage{
-sql_make_coldef(.name, .type, .n1 = NA, .n2 = NA, .constraints = NA)
+sql_make_coldef(.name, .type, .n1 = NA, .n2 = NA, .constraints = NA, ...)
 }
 \arguments{
 \item{.name}{character.}

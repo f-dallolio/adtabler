@@ -9,7 +9,7 @@
 #' @return glue string.
 #' @export
 #'
-sql_make_coldef <- function( .name, .type, .n1 = NA, .n2 = NA, .constraints = NA) {
+sql_make_coldef <- function( .name, .type, .n1 = NA, .n2 = NA, .constraints = NA, ...) {
   df <- tibble::tibble(
     .name = .name,
     .type = .type,
