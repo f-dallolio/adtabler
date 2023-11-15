@@ -11,8 +11,8 @@ library(DBI)
 library(RPostgres)
 con <- dbConnect(RPostgres::Postgres(),
                  dbname = 'test_2010',
-                 host = '10.147.18.200', # i.e. 'ec2-54-83-201-96.compute-1.amazonaws.com'
-                 port = 5432, # or any other port specified by your DBA
+                 host = '10.147.18.200',
+                 port = 5432,
                  user = 'postgres',
                  password = '100%Postgres')
 
@@ -31,7 +31,7 @@ db_data <- data_write_to_db |>
     .by = tbl_name
   ) |>
   filter(
-    tbl_name %in%  dbListTables(con)# |> str_subset("local_tv", negate = T))
+    tbl_name %in%  dbListTables(con)
   )
 
 my_dm <- dm_from_con(con = con, table_names = dbListTables(con))
@@ -125,7 +125,6 @@ find_fk2 <- partial(find_fk, occ_data = occ_data, ref_data = ref_data)
 fk_data_nobrand$ref_col <- fk_data_nobrand |>
   rename(occ = tbl_name_1,
          ref = tbl_name_2) |>
-  # slice(1) |>
   map(as.list) |>
   pmap_vec(find_fk2)
 fk_data_nobrand <- fk_data_nobrand |>
@@ -144,21 +143,62 @@ for(i in seq_i) {
   table_2_i <- fk_data_nobrand$tbl_name_2[[i]]
   ref_col_i <- str_split_comma(fk_data_nobrand$ref_col[[i]])
 
-  # if( table_1_i == "occ__local_tv" & table_2_i == "ref_dyn__distributor" ){
-  #   ref_col_i = setdiff(ref_col_i, "media_type_id")
-  # }
-
   my_dm_fk <- my_dm_fk |>
     dm_add_fk(table = !!as.name(table_1_i), columns = c(ref_col_i), ref_table = !!as.name(table_2_i))
 }
 
+
+x2 <- ref_data |> select(-uk) |>  unnest(everything()) |>
+  filter(col_names |> str_detect("tv_")) |>
+  rename(tbl_name_1 = tbl_name) |>
+  full_join(
+    ref_data |> select(-col_names) |>  unnest(everything()) |>
+      filter(uk |> str_detect("tv_")) |>
+      rename(tbl_name_2 = tbl_name),
+    by = c("col_names" = "uk")
+  ) |>
+  filter(tbl_name_1 != tbl_name_2) |>
+  rename(ref_col = col_names)
+
+seq_i <- seq_along(x2$tbl_name_1)
+i = 1
+for(i in seq_i) {
+  table_1_i <- x2$tbl_name_1[[i]]
+  table_2_i <- x2$tbl_name_2[[i]]
+  ref_col_i <- str_split_comma(x2$ref_col[[i]])
+  my_dm_fk <- my_dm_fk |>
+    dm_add_fk(table = !!as.name(table_1_i), columns = c(ref_col_i), ref_table = !!as.name(table_2_i))
+}
+
+
+x_brand <- occ_data |> select(-uk) |>
+  unnest(everything()) |>
+  filter(str_detect(col_names, "brand_")) |>
+  pull(tbl_name) |>
+  unique()
+
+i=1
+for( i in seq_along(x_brand)) {
+  table_1_i <- x_brand[[i]]
+  table_2_i <- "ref_dyn_brand"
+
+  my_dm_fk <- my_dm_fk |>
+    dm_add_fk(table = !!as.name(table_1_i), columns = prim_brand_code, ref_table = ref_dyn__brand, ref_columns = brand_code) |>
+    dm_add_fk(table = !!as.name(table_1_i), columns = scnd_brand_code, ref_table = ref_dyn__brand, ref_columns = brand_code) |>
+    dm_add_fk(table = !!as.name(table_1_i), columns = ter_brand_code, ref_table = ref_dyn__brand, ref_columns = brand_code)
+}
+
+
+
 my_dm_fk |> dm_examine_constraints()
 
+dm_draw(my_dm_fk)
+
+my_dm_fk
+
 keys_2010 <- list(
-  pk = my_dm_fk |> dm_get_all_pks(),
-  fk = my_dm_fk |> dm_get_all_fks()
+  pk = my_dm_fk |> dm_get_all_pks() |> print(n = 100),
+  fk = my_dm_fk |> dm_get_all_fks() |> print(n = 100)
 )
 
 usethis::use_data(keys_2010, overwrite = TRUE)
-
-dbDisconnect(con)
