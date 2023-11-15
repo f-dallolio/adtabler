@@ -21,9 +21,9 @@ sql_make_coldef <- function( .name, .type, .n1 = NA, .n2 = NA, .constraints = NA
     if( all( is.na(c(.n1, .n2) ) ) ) {
       .dim <- NA
     } else {
-      .dim <- str_embrace( str_flatten_comma( c(.n1, .n2), na.rm = TRUE ) )
+      .dim <- str_embrace( stringr::str_flatten_comma( c(.n1, .n2), na.rm = TRUE ) )
     }
-    str_flatten(
+    stringr::str_flatten(
       c(
         "\t",
         .name,
@@ -35,6 +35,6 @@ sql_make_coldef <- function( .name, .type, .n1 = NA, .n2 = NA, .constraints = NA
       na.rm = TRUE
     ) |> glue::glue()
   }
-  pmap( df, fn ) |>
-    glue_collapse(sep = ", \n")
+  purrr::pmap( df, fn ) |>
+    glue::glue_collapse(sep = ", \n")
 }
