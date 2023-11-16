@@ -11,7 +11,7 @@
 #'
 sql_make_coldef <- function( .name, .type, .n1 = NA, .n2 = NA, .constraints = NA, ...) {
   df <- tibble::tibble(
-    .name = .name,
+    .name = str_pad(.name, width = max(nchar(.name)), side = "right", pad = " "),
     .type = .type,
     .n1 = .n1,
     .n2 = .n2,
