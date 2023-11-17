@@ -2,10 +2,16 @@
 % Please edit documentation in R/sql_helpers.R
 \name{sql_helpers}
 \alias{sql_helpers}
+\alias{sql_new_coldef}
+\alias{adintel_to_sql}
 \alias{sql_define_cols}
 \alias{sql_create_tbl}
 \title{SQL column definition block}
 \usage{
+sql_new_coldef(x, out = c("r", "sql", "sql2"))
+
+adintel_to_sql(adintel_type, r_out = FALSE)
+
 sql_define_cols(.col_name, .col_type, .n1 = NA, .n2 = NA, ...)
 
 sql_create_tbl(tbl_name, col_def)
