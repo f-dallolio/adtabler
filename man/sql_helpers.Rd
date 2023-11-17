@@ -8,7 +8,7 @@
 \alias{sql_create_tbl}
 \title{SQL column definition block}
 \usage{
-sql_new_coldef(x, out = c("r", "sql", "sql2"))
+sql_new_coldef(.list_manual, .str_manual = NULL, output)
 
 adintel_to_sql(adintel_type, r_out = FALSE)
 
