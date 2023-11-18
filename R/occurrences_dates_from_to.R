@@ -11,14 +11,7 @@ NULL
 #' @rdname occurrences_dates_from_to
 #' @export
 #'
-occ_date_range <- function(occ_file, date_to = FALSE) {
-
-  file_name <- stringr::str_split_i(occ_file, "/", - 1) |>
-    stringr::str_remove_all(".tsv") |>
-    rename_adintel(named = FALSE)
-
-  year <- as.integer(stringr::str_split_i(occ_file, "/", - 3))
-  if( date_to ) year <- year + 1
+occ_date_range <- function(.file_name_std, year, date_to = FALSE) {
 
   date_jan_01 <- as.Date(paste(year, '01-01', sep = '-'))
 
@@ -36,8 +29,8 @@ occ_date_range <- function(occ_file, date_to = FALSE) {
   start_date_wk_monday <- as.Date(yearwk_monday)
 
   dplyr::case_when(
-    file_name == "fsi_coupon" ~ as.character(start_date_wk_sunday),
-    file_name %in% c("cinema", "internet", "spot_tv", "local_tv") ~
+    .file_name_std == "fsi_coupon" ~ as.character(start_date_wk_sunday),
+    .file_name_std %in% c("cinema", "internet", "spot_tv", "local_tv") ~
       as.character(start_date_wk_monday),
     .default = as.character(date_jan_01)
   )

@@ -7,16 +7,16 @@
 \alias{occ_date_to}
 \title{Starting and Ending Dates of Occurrences Files}
 \usage{
-occ_date_range(occ_file, date_to = FALSE)
+occ_date_range(.file_name_std, year, date_to = FALSE)
 
 occ_date_from(occ_file)
 
 occ_date_to(occ_file)
 }
 \arguments{
-\item{occ_file}{character vector.}
-
 \item{date_to}{logical. FALSE is equivalent to 'occ_date_from' and TRUE to 'occ_date_to}
+
+\item{occ_file}{character vector.}
 }
 \value{
 vector of dates as characters.

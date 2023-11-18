@@ -25,13 +25,13 @@ file_to_info <- function(.dyn_data_file) {
     col_pos <- seq_along(col_names_std) |> numpad2()
 
     tibble::tibble(
-      file_type_std,
-      file_name_std,
+      file_type_std = file_type_std,
+      file_name_std = file_name_std,
       tbl_name,
       year,
       col_pos = list(col_pos),
       col_names_std = list(col_names_std),
-      # col_names_string = purrr::map2_vec(col_pos, col_names_std, ~ paste( .x, .y, sep = "_")) |> stringr::str_flatten_comma()
+      file = .dyn_data_file
     )
   }
   purrr::map(.dyn_data_file, fn) |>
