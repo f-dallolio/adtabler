@@ -4,7 +4,7 @@
 \alias{file_to_info}
 \title{Get info from file name}
 \usage{
-file_to_info(.dyn_data_file)
+file_to_info(file)
 }
 \arguments{
 \item{.dyn_data_file}{character vector.}

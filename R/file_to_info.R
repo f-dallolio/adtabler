@@ -5,7 +5,7 @@
 #' @return tibble.
 #' @export
 #'
-file_to_info <- function(.dyn_data_file) {
+file_to_info <- function(file) {
   fn <- function(file){
     x <- file |>
       stringr::str_remove_all(".tsv") |>
@@ -17,12 +17,19 @@ file_to_info <- function(.dyn_data_file) {
       rename_adintel(named = FALSE)
     file_name_std <- stringr::str_split_i(x, " ", -1) |>
       rename_adintel(named = FALSE)
-    tbl_name = sql_tbl_name(file_type_std, file_name_std)
+    tbl_name <- sql_tbl_name(file_type_std, file_name_std)
 
-    col_names_std <- data.table::fread(file = file, nrows = 1) |>
-      names() |>
+    df <- data.table::fread(file = file, nrows = 1000)
+
+    file_col_names <- df |>
+      names()
+    file_col_names_std <- file_col_names |>
       rename_adintel(named = FALSE)
-    col_pos <- seq_along(col_names_std) |> numpad2()
+
+    col_pos <- seq_along(file_col_names_std)
+
+    file_classes <- map_vec(df, typeof) |> set_names(file_col_names_std)
+    file_classes[is.logical(file_classes)] <- NA
 
     tibble::tibble(
       file_type_std = file_type_std,
@@ -30,11 +37,29 @@ file_to_info <- function(.dyn_data_file) {
       tbl_name,
       year,
       col_pos = list(col_pos),
-      col_names_std = list(col_names_std),
-      file = .dyn_data_file
+      file_col_names_std = list(file_col_names_std),
+      file_col_names = list(file_col_names),
+      file_classes = list(file_classes),
+      file = file
     )
   }
-  purrr::map(.dyn_data_file, fn) |>
+  out <- purrr::map(file, fn) |>
     purrr::list_rbind()
 
+  out |>
+    transmute(
+      file_type_std, file_name_std, tbl_name,
+      year,
+      file,
+      date_from = file |> occ_date_range(year = year),
+      date_to = file |> occ_date_range(year = year + 1),
+      file_col_names_std,
+      file_col_names,
+      file_classes
+    ) |>
+    distinct() |>
+    relocate(
+      date_from, date_to, .before = file
+    )
 }
+

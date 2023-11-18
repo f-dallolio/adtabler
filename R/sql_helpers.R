@@ -14,7 +14,7 @@ NULL
 #' @export
 #'
 sql_tbl_name <- function(.file_type_std, .file_name_std) {
-  dplyr::case_when(
+  out <- dplyr::case_when(
     .file_type_std == "market_breaks" ~ paste(
       'mb',
       .file_name_std,
@@ -29,6 +29,9 @@ sql_tbl_name <- function(.file_type_std, .file_name_std) {
       sep = "__"
     )
   )
+
+  out |> str_replace_all("spot_tv", "local_tv") |>
+    str_replace_all("network_tv", "national_tv")
 }
 
 #' @rdname sql_helpers
