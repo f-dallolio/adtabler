@@ -26,3 +26,7 @@ not_na <- function(x) !is.na(x)
 #' @export
 not_null <- function(x) !is.null(x)
 
+#' @rdname not_helpers
+#' @export
+not_empty <- function(x) !is_empty(x)
+

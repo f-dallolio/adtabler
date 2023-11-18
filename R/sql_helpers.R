@@ -13,15 +13,15 @@ NULL
 #' @rdname sql_helpers
 #' @export
 #'
-sql_new_coldef <- function( .list_manual, .str_manual = NULL, output) {
+sql_define_datatypes <- function( .list_manual, .str_manual = NULL, output) {
 
   output <- names(rlang::enquos( output, .named = TRUE ))
 
   output <- match.arg(arg = output, choices = c("r", "sql_min", "min", "sql_std", "std", "sql"))
   output <- dplyr::case_when(
-    stringr::str_detect(out, pattern = "min") ~ "sql_min",
-    stringr::str_detect(out, pattern = "std") | (out == "sql") ~ "sql_std",
-    .default = out
+    stringr::str_detect(output, pattern = "min") ~ "sql_min",
+    stringr::str_detect(output, pattern = "std") | (output == "sql") ~ "sql_std",
+    .default = output
   )
 
   if ( not_null(.str_manual) ) {
@@ -124,14 +124,14 @@ adintel_to_sql <- function(adintel_type, r_out = FALSE) {
   out_na_id <- which(is.na(out))
 
   if (length(out_na_id) == 0) {
-    out_na_unique <- glue('"{unique(adintel_type[out_na_id])}"')
-    out_na_adintel <- glue_collapse(out_na_unique, sep = ", ")
+    out_na_unique <- glue::glue('"{unique(adintel_type[out_na_id])}"')
+    out_na_adintel <- glue::glue_collapse(out_na_unique, sep = ", ")
 
     if (length(out_na_unique) == 1) {
-      out_na_warning <- glue("aditel_type == {out_na_adintel} resulted in NA")
+      out_na_warning <- glue::glue("aditel_type == {out_na_adintel} resulted in NA")
       warning(out_na_warning, call. = T, )
     } else if (length(out_na_unique) > 1) {
-      out_na_warning <- glue("aditel_type %in% c({out_na_adintel}) resulted in NA")
+      out_na_warning <- glue::glue("aditel_type %in% c({out_na_adintel}) resulted in NA")
       warning(out_na_warning, call. = T)
     } else {
       return(out) |> suppressWarnings()
