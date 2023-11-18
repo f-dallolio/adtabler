@@ -35,17 +35,3 @@ occ_date_range <- function(.file_name_std, year, date_to = FALSE) {
     .default = as.character(date_jan_01)
   )
 }
-
-#' @rdname occurrences_dates_from_to
-#' @export
-#'
-occ_date_from <- function(occ_file){
-  occ_date_range(occ_file = occ_file, date_to = FALSE)
-}
-
-#' @rdname occurrences_dates_from_to
-#' @export
-#'
-occ_date_to <- function(occ_file){
-  occ_date_range(occ_file = occ_file, date_to = TRUE)
-}

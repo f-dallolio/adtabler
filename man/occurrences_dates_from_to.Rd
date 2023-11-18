@@ -3,15 +3,9 @@
 \name{occurrences_dates_from_to}
 \alias{occurrences_dates_from_to}
 \alias{occ_date_range}
-\alias{occ_date_from}
-\alias{occ_date_to}
 \title{Starting and Ending Dates of Occurrences Files}
 \usage{
 occ_date_range(.file_name_std, year, date_to = FALSE)
-
-occ_date_from(occ_file)
-
-occ_date_to(occ_file)
 }
 \arguments{
 \item{date_to}{logical. FALSE is equivalent to 'occ_date_from' and TRUE to 'occ_date_to}
