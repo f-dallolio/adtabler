@@ -31,7 +31,7 @@ file_to_info <- function(file) {
     file_classes <- map_vec(df, typeof) |> set_names(file_col_names_std)
     file_classes[is.logical(file_classes)] <- NA
 
-    tibble::tibble(
+    out <- tibble::tibble(
       file_type_std = file_type_std,
       file_name_std = file_name_std,
       tbl_name,
@@ -40,7 +40,8 @@ file_to_info <- function(file) {
       file_col_names_std = list(file_col_names_std),
       file_col_names = list(file_col_names),
       file_classes = list(file_classes),
-      file = file
+      file = file,
+      n_rows = NROW(df)
     )
   }
   out <- purrr::map(file, fn) |>
@@ -51,6 +52,7 @@ file_to_info <- function(file) {
       file_type_std, file_name_std, tbl_name,
       year,
       file,
+      has_rows = n_rows > 0,
       date_from = file |> occ_date_range(year = year),
       date_to = file |> occ_date_range(year = year + 1),
       file_col_names_std,
@@ -60,6 +62,9 @@ file_to_info <- function(file) {
     distinct() |>
     relocate(
       date_from, date_to, .before = file
-    )
+    ) |>
+    filter(has_rows) |>
+    select(-has_rows)
 }
+
 
