@@ -13,6 +13,27 @@ NULL
 #' @rdname sql_helpers
 #' @export
 #'
+sql_tbl_name <- function(.file_type_std, .file_name_std) {
+  dplyr::case_when(
+    .file_type_std == "market_breaks" ~ paste(
+      'mb',
+      .file_name_std,
+      sep = "__"
+    ),
+    .file_type_std == "universe_estimates" ~ stringr::str_replace_all(
+      .file_name_std, "ue_", "ue__"
+    ),
+    .default = paste(
+      stringr::str_sub(.file_type_std, 1, 3),
+      .file_name_std,
+      sep = "__"
+    )
+  )
+}
+
+#' @rdname sql_helpers
+#' @export
+#'
 sql_define_datatypes <- function( .list_manual, .str_manual = NULL, output) {
 
   output <- names(rlang::enquos( output, .named = TRUE ))
