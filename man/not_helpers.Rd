@@ -6,6 +6,7 @@
 \alias{\%notin\%}
 \alias{not_na}
 \alias{not_null}
+\alias{not_empty}
 \title{CHelpers for "not" selections}
 \usage{
 not_in(x, table)
@@ -15,6 +16,8 @@ x \%notin\% table
 not_na(x)
 
 not_null(x)
+
+not_empty(x)
 }
 \arguments{
 \item{x}{vector.}
