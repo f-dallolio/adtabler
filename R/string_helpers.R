@@ -67,9 +67,9 @@ rename_adintel <- function(x, named = TRUE) {
   nms <- x
   nas <- which(is.na(x))
   out <- str_upper_uscore(x, to_lower = TRUE) |>
-    str_replace_all("prime", "prim")
+    stringr::str_replace_all("prime", "prim")
   out[nas] <- NA
-  out[str_detect(out, "dim_bridge")] <- "dim_bridge_occ_imp_spot_radio_key"
+  out[stringr::str_detect(out, "dim_bridge")] <- "dim_bridge_occ_imp_spot_radio_key"
   if (named) {
     names(out) <- nms
   }

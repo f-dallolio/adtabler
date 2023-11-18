@@ -6,24 +6,33 @@
 #' @export
 #'
 file_to_info <- function(.dyn_data_file) {
-  out <- .dyn_data_file |>
-    map(
-      ~ .x |> stringr::str_remove_all(".tsv") |>
-        stringr::str_replace_all("/", " ") |>
-        stringr::str_squish() |>
-        stringr::str_split(" ") |>
-        unlist() |>
-        slice_last(3)  |>
-        rename_adintel(named = FALSE) |>
-        purr::set_names("year", "file_type_std", "file_name_std") |>
-        tibble::as_tibble_row() |>
-        dplyr::mutate(tbl_name = sql_tbl_name(file_type_std, file_name_std),
-                      file = .x)
-    ) |>
-    purrr::list_rbind() |>
-    dplyr::mutate(keep = file |> purrr::map_lgl(~ NROW(data.table::fread(file = .x, nrows = 1)) > 0)) |>
-    dplyr::filter(keep) |>
-    dplyr::select(-keep) |>
-    dplyr::relocate(year, .before = file)
-  out
+  fn <- function(file){
+    x <- file |>
+      stringr::str_remove_all(".tsv") |>
+      stringr::str_replace_all("/", " ") |>
+      stringr::str_squish()
+    year <- stringr::str_split_i(x, " ", -3) |>
+      as.integer()
+    file_type_std <- stringr::str_split_i(x, " ", -2) |>
+      rename_adintel(named = FALSE)
+    file_name_std <- stringr::str_split_i(x, " ", -1) |>
+      rename_adintel(named = FALSE)
+
+    col_names_std <- data.table::fread(file = file, nrows = 1) |>
+      names() |>
+      rename_adintel(named = FALSE)
+    col_pos <- seq_along(col_names_std) |> numpad2()
+
+    tibble::tibble(
+      file_type_std,
+      file_name_std,
+      year,
+      col_pos = list(col_pos),
+      col_names_std = list(col_names_std),
+      # col_names_string = purrr::map2_vec(col_pos, col_names_std, ~ paste( .x, .y, sep = "_")) |> stringr::str_flatten_comma()
+    )
+  }
+  purrr::map(.dyn_data_file, fn) |>
+    purrr::list_rbind()
+
 }
