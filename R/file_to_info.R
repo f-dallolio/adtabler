@@ -17,6 +17,7 @@ file_to_info <- function(.dyn_data_file) {
       rename_adintel(named = FALSE)
     file_name_std <- stringr::str_split_i(x, " ", -1) |>
       rename_adintel(named = FALSE)
+    tbl_name = sql_tbl_name(file_type_std, file_name_std)
 
     col_names_std <- data.table::fread(file = file, nrows = 1) |>
       names() |>
@@ -26,6 +27,7 @@ file_to_info <- function(.dyn_data_file) {
     tibble::tibble(
       file_type_std,
       file_name_std,
+      tbl_name,
       year,
       col_pos = list(col_pos),
       col_names_std = list(col_names_std),
