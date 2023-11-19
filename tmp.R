@@ -44,31 +44,9 @@ info_dynamic <- file_to_info(file) |>
     tbl_definitions
   )
 
-tbl_info_tot <-
-  info_dynamic |>
+tbl_info_tot <-  info_dynamic |>
   bind_rows(
     info_static
   )
 
 usethis::use_data(tbl_info_tot, overwrite = T)
-
-col_def <- tbl_definitions |>
-  slice(1) |>
-  select(col_names_std, sql_datatype) |>
-  unnest(everything()) |>
-  mutate(
-    nms = col_names_std |>
-      str_pad(width = max(nchar(col_names_std)), side = "right", pad = " "),
-    x = paste("  ", nms, sql_datatype)
- ) |>
-  pull(x) |>
-  str_flatten(',\n\t  ') |>
-  glue::glue()
-
-sql_create_tbl(
-  tbl_name = tbl_definitions |>
-    slice(1) |>
-    select(tbl_name) |>
-    pull(1),
-  col_def = col_def
-)
