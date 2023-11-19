@@ -54,9 +54,7 @@ tbl_definitions <- tbl_definitions |>
                    )
            ) |>
     distinct()
- |>
-    unnest(everything())
- x
+x
 
  tbl_info_tot <- x$data |> list_rbind() |>
     nest(.by = c( col_classes, sql_datatype_min )) |>
@@ -69,6 +67,8 @@ tbl_definitions <- tbl_definitions |>
     summarise(across(col_pos : sql_datatype_min, list),
               .by = file_type_std : tbl_name) |>
     arrange(file_type_std, file_name_std, tbl_name)
+
+usethis::use_data(tbl_info_tot, overwrite = T)
 
 
  |>
