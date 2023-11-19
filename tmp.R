@@ -51,3 +51,25 @@ tbl_info_tot <-  info_dynamic |>
   )
 
 usethis::use_data(tbl_info_tot, overwrite = T)
+
+tbl_info_tot |>
+  filter(file_name_std %in% x)
+
+x <- c(
+  "CinemaMPAARating",
+  "Market",
+  "Market Breaks",
+  "MediaType",
+  "Newspaper Event",
+  "Newspaper Section",
+  "TV Daypart",
+  "TV ProgramType",
+  "TV ProgramEvent",
+  "TV ProgramSubType",
+  "Digital Ad Platform",
+  "Digital Ad Technology",
+  "Digital Ad Type",
+  "Digital Buy Type",
+  "Digital Genre"
+) |>
+  rename_adintel(named = F)
