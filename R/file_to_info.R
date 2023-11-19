@@ -4,7 +4,7 @@
 #'
 #' @return glue string.
 #'
-#' @name sql_helpers
+#' @name file_to_info
 NULL
 
 #' @rdname file_to_info
