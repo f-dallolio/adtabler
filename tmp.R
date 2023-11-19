@@ -3,6 +3,7 @@ library(tidyverse)
 library(adtabler)
 
 adtabler::tbl_definitions
+
 file <- list.files(
   '/mnt/sata_data_1/adintel',
   full.names = TRUE,
