@@ -7,11 +7,11 @@
 \alias{slice_last}
 \title{Vector Slicing}
 \usage{
-slice_vec(x, i, negate = FALSE)
+slice_vec(x, i, sort = TRUE, negate = FALSE, simplify = FALSE)
 
-slice_first(x, n, negate = FALSE)
+slice_first(x, n = 1, negate = FALSE, simplify = FALSE)
 
-slice_last(x, n, negate = FALSE)
+slice_last(x, n, negate = FALSE, simplify = FALSE)
 }
 \arguments{
 \item{x}{vector.}
