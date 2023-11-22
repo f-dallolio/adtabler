@@ -58,7 +58,8 @@ sql_build_tbl <- function( .tbl_name, .col_names, .data_types, .pk = NA, .part_c
     "
   )
   if( not_na(.part_col) ) {
-    out <- glue::glue('{ out } { sql_part_by_range(.part_col) }')
+    # out <- glue::glue('{ out } { sql_part_by_range(.part_col) }')
+    out <- glue::glue('{ out } { sql_part_by_list(.part_col) }')
   }
   DBI::SQL(out)
 
@@ -66,13 +67,19 @@ sql_build_tbl <- function( .tbl_name, .col_names, .data_types, .pk = NA, .part_c
 
 #' @rdname sql_tbl_creator
 #' @export
-sql_part_by_range <- function(.part_col) {
+sql_part_by_range <- function(.part_col, ....) {
   glue::glue("PARTITION BY RANGE ({ .part_col })") |> DBI::SQL()
 }
 
 #' @rdname sql_tbl_creator
 #' @export
-sql_create_part <- function(.tbl_name, .part_name, .from = NULL, .to = NULL, .values = NULL) {
+sql_part_by_list <- function(.part_col, ....) {
+  glue::glue("PARTITION BY LIST ({ .part_col })") |> DBI::SQL()
+}
+
+#' @rdname sql_tbl_creator
+#' @export
+sql_create_part <- function(.tbl_name, .part_name, .from = NULL, .to = NULL, .values = NULL,...) {
   by_range <- not_null(c(.from, .to)) & is.null(.values)
   by_list <- not_null(.values) & is.null(c(.from, .to))
   if( by_range ) {
@@ -83,10 +90,12 @@ sql_create_part <- function(.tbl_name, .part_name, .from = NULL, .to = NULL, .va
     ) |> DBI::SQL()
   }
   if( by_list ) {
+    vals <- glue::glue("'{ str_split_comma(.values) }'") |>
+      glue::glue_collapse(sep = ", ")
     out <- glue::glue(
       "\n
       CREATE TABLE { .part_name } PARTITION OF { .tbl_name }
-        FOR VALUES IN ('{ .values }')"
+        FOR VALUES IN ({ vals })"
     ) |> DBI::SQL()
   }
   return(out)
