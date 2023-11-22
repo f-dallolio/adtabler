@@ -61,16 +61,11 @@ x2$.pk <- x2$.pk[[1]][1]
 x2
 statement <- x2 |>
   pmap_vec(sql_create_tbl)
-statement2 <- glue(
-"
-{statement} PARTITION BY RANGE (ad_date)
-"
-) |> SQL()
+statement2 <- glue("{statement} PARTITION BY RANGE (ad_date)") |> SQL()
 
 dbSendStatement(conn = con, statement = statement2)
 
-make_part <- glue(
-"
+make_part <- glue("
 CREATE TABLE magazine_y2010 PARTITION OF magazine
     FOR VALUES FROM ('2010-01-01') TO ('2011-01-01')
 ") |> SQL()
@@ -79,4 +74,3 @@ dbSendStatement(conn = con, statement = make_part)
 st <- SQL('CREATE INDEX magazine__ad_date ON magazine (ad_date)')
 dbSendStatement(conn = con, statement = st)
 
-sql_code[[2]]

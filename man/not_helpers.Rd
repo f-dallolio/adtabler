@@ -9,7 +9,6 @@
 \alias{not_empty}
 \alias{sql_make_fields}
 \alias{sql_create_tbl}
-\alias{sql_create_part_tbl}
 \title{CHelpers for "not" selections}
 \usage{
 not_in(x, table)
@@ -22,27 +21,14 @@ not_null(x)
 
 not_empty(x)
 
-sql_make_fields(.con, .tbl_name, .col_names, .data_types, .pk = NA)
+sql_make_fields(.tbl_name, .col_names, .data_types, .pk = NA)
 
-sql_create_tbl(
-  .con,
-  .tbl_name,
-  .col_names,
-  .data_types,
-  .pk = NULL,
-  .year,
-  .date_from,
-  .date_to
-)
-
-sql_create_part_tbl(.part_type, .part_name, .tbl_name, .part_values)
+sql_create_tbl(.tbl_name, .col_names, .data_types, .pk = NA)
 }
 \arguments{
 \item{x}{vector.}
 
 \item{table}{vector.}
-
-\item{.con}{DBIconnection.}
 
 \item{.tbl_name}{character.}
 
@@ -51,6 +37,8 @@ sql_create_part_tbl(.part_type, .part_name, .tbl_name, .part_values)
 \item{.data_types}{character.}
 
 \item{.pk}{character.}
+
+\item{.con}{DBIconnection.}
 }
 \value{
 vector.
