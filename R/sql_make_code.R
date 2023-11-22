@@ -6,39 +6,41 @@
 #' @param .data_types character.
 #' @param .pk character.
 #'
-#' @return
+#' @return SQL.
 #'
-#' @name not_helpers
+#' @name sql_tbl_creator
 NULL
 
-#' @rdname not_helpers
+#' @rdname sql_tbl_creator
 #' @export
-sql_make_fields <- function( .tbl_name, .col_names, .data_types, .pk = NA ) {
-  .x = tibble(
-    .tbl_name,
-    .col_names,
-    .data_types,
-    .pk
+sql_make_fields <- function( .tbl_name, .col_names, .data_types, .pk = NULL ) {
+
+  .x = list(
+    .tbl_name = .tbl_name,
+    .col_names = .col_names,
+    .data_types= .data_types,
+    .pk = .pk
   )
-  fields_out <- glue_data(
+  fields_out <- glue::glue_data(
     .x = .x,
-    '    {.col_names }  {tolower( .data_types) }', #.con = .con
+    '    {.col_names }  { .data_types }', #.con = .con
   )
-  has_pk <- not_na(.pk)
-  if( has_pk ) {
+  no_pk <- is.na(.pk) || is.null(.pk) ||is_empty(.pk)
+  if( !no_pk ) {
     fields_out <- fields_out |>
       c(
-        glue( '    CONSTRAINT { .tbl_name }_pkey PRIMARY KEY ({ .pk })' )
+        glue::glue( '    CONSTRAINT { .tbl_name }__pkey PRIMARY KEY ({ .pk })' )
       )
   }
-  fields_out |>
-    glue_collapse(sep = ', \n')
+  fields_out <- fields_out |>
+    glue::glue_collapse(sep = ', \n')
+
+  return(fields_out)
 }
 
-#' @rdname not_helpers
+#' @rdname sql_tbl_creator
 #' @export
-sql_create_tbl <- function( .tbl_name, .col_names,
-                            .data_types, .pk = NA) {
+sql_build_tbl <- function( .tbl_name, .col_names, .data_types, .pk = NULL) {
 
   fields <- sql_make_fields(
     .tbl_name = .tbl_name,
@@ -47,44 +49,42 @@ sql_create_tbl <- function( .tbl_name, .col_names,
     .pk = .pk
   )
 
-  out_table <- glue(
+  out_table <- glue::glue(
     "\n
     CREATE TABLE IF NOT EXISTS { .tbl_name }
     (
     { fields }
     )
     "
-    # ,
-    # .con = .con
   )
   DBI::SQL(out_table)
 
 }
-#
-# sql_create_part_tbl <- function(.tbl_name, .part_name, ) {
-#   match.arg(arg = .part_type, choices = c("LIST", "RANGE"))
-#   if ( .part_type == 'LIST') {
-#     .values <- .part_values
-#     .part_def <- glue::glue(
-#       "\n
-#       CREATE TABLE { .part_name } PARTITION OF { .tbl_name }
-#           FOR VALUES IN ( { .values } )
-#       "
-#     )
-#   } else {
-#     stopifnot( length(.part_values) == 2 & names(.part_values) != c(".value_from", ".value_from") )
-#     .value_from <- .part_values[[1]]
-#     .value_to <- .part_values[[2]]
-#     .part_def <- glue::glue(
-#       "\n
-#     CREATE TABLE { .part_name } PARTITION OF { .tbl_name }
-#         FOR VALUES FROM ( { .value_from } ) TO ( { .value_to } )
-#     "
-#     )
-#   }
-#   return(
-#     DBI::SQL(.part_def)
-#   )
-# }
-#
-#
+
+#' @rdname sql_tbl_creator
+#' @export
+sql_part_by_range <- function(.part_col) {
+  glue::glue("PARTITION BY RANGE ( .part_col )") |> DBI::SQL()
+}
+
+#' @rdname sql_tbl_creator
+#' @export
+sql_create_part <- function(.tbl_name, .part_name, .from = NULL, .to = NULL, .values = NULL) {
+  by_range <- not_null(c(.from, .to)) & is.null(.values)
+  by_list <- not_null(.values) & is.null(c(.from, .to))
+  if( by_range ) {
+    out <- glue::glue(
+      "\n
+      CREATE TABLE { .part_name } PARTITION OF { .tbl_name }
+        FOR VALUES FROM ('{ .from }') TO ('{ .to }')"
+    ) |> DBI::SQL()
+  }
+  if( by_list ) {
+    out <- glue::glue(
+      "\n
+      CREATE TABLE { .part_name } PARTITION OF { .tbl_name }
+        FOR VALUES IN ('{ .values }')"
+    ) |> DBI::SQL()
+  }
+  return(out)
+}
