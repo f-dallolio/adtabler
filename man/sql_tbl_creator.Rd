@@ -8,9 +8,9 @@
 \alias{sql_create_part}
 \title{SQL codes}
 \usage{
-sql_make_fields(.tbl_name, .col_names, .data_types, .pk = NULL)
+sql_make_fields(.tbl_name, .col_names, .data_types, .pk = NA)
 
-sql_build_tbl(.tbl_name, .col_names, .data_types, .pk = NULL)
+sql_build_tbl(.tbl_name, .col_names, .data_types, .pk = NA, .part_col)
 
 sql_part_by_range(.part_col)
 

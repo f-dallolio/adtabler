@@ -13,7 +13,7 @@ NULL
 
 #' @rdname sql_tbl_creator
 #' @export
-sql_make_fields <- function( .tbl_name, .col_names, .data_types, .pk = NULL ) {
+sql_make_fields <- function( .tbl_name, .col_names, .data_types, .pk = NA ) {
 
   .x = list(
     .tbl_name = .tbl_name,
@@ -40,7 +40,7 @@ sql_make_fields <- function( .tbl_name, .col_names, .data_types, .pk = NULL ) {
 
 #' @rdname sql_tbl_creator
 #' @export
-sql_build_tbl <- function( .tbl_name, .col_names, .data_types, .pk = NULL) {
+sql_build_tbl <- function( .tbl_name, .col_names, .data_types, .pk = NA, .part_col) {
 
   fields <- sql_make_fields(
     .tbl_name = .tbl_name,
@@ -49,7 +49,7 @@ sql_build_tbl <- function( .tbl_name, .col_names, .data_types, .pk = NULL) {
     .pk = .pk
   )
 
-  out_table <- glue::glue(
+  out <- glue::glue(
     "\n
     CREATE TABLE IF NOT EXISTS { .tbl_name }
     (
@@ -57,14 +57,17 @@ sql_build_tbl <- function( .tbl_name, .col_names, .data_types, .pk = NULL) {
     )
     "
   )
-  DBI::SQL(out_table)
+  if( not_na(.part_col) ) {
+    out <- glue::glue('{ out } { sql_part_by_range(.part_col) }')
+  }
+  DBI::SQL(out)
 
 }
 
 #' @rdname sql_tbl_creator
 #' @export
 sql_part_by_range <- function(.part_col) {
-  glue::glue("PARTITION BY RANGE ( .part_col )") |> DBI::SQL()
+  glue::glue("PARTITION BY RANGE ({ .part_col })") |> DBI::SQL()
 }
 
 #' @rdname sql_tbl_creator
