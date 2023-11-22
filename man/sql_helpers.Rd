@@ -17,7 +17,16 @@ adintel_to_sql(adintel_type, r_out = FALSE)
 
 sql_define_cols(.col_name, .col_type, .n1 = NA, .n2 = NA, ...)
 
-sql_create_tbl(tbl_name, col_def)
+sql_create_tbl(
+  .con,
+  .tbl_name,
+  .col_names,
+  .data_types,
+  .pk = NULL,
+  .year,
+  .date_from,
+  .date_to
+)
 }
 \arguments{
 \item{.col_name}{character.}

@@ -13,71 +13,57 @@ NULL
 
 #' @rdname not_helpers
 #' @export
-sql_make_fields <- function( .con, .tbl_name, .col_names, .data_types, .pk = NA ) {
+sql_make_fields <- function( .tbl_name, .col_names, .data_types, .pk = NA ) {
   .x = tibble(
+    .tbl_name,
     .col_names,
-    .data_types
+    .data_types,
+    .pk
   )
   fields_out <- glue_data(
     .x = .x,
-    '    { .col_names } {tolower( .data_types) }', #.con = .con
+    '    {.col_names }  {tolower( .data_types) }', #.con = .con
   )
   has_pk <- not_na(.pk)
   if( has_pk ) {
     fields_out <- fields_out |>
       c(
-        glue('   CONSTRAINT { .tbl_name }_pkey PRIMARY KEY ({ .pk })'#, .con = .con,
-        )
+        glue( '    CONSTRAINT { .tbl_name }_pkey PRIMARY KEY ({ .pk })' )
       )
   }
   fields_out |>
-    glue_sql_collapse(sep = ', \n')
+    glue_collapse(sep = ', \n')
 }
 
 #' @rdname not_helpers
 #' @export
-sql_create_tbl <- function( .con, .tbl_name, .col_names,
-                            .data_types, .pk = NULL, .year,
-                            .date_from, .date_to) {
+sql_create_tbl <- function( .tbl_name, .col_names,
+                            .data_types, .pk = NA) {
 
   fields <- sql_make_fields(
-    .con = .con,
+    .tbl_name = .tbl_name,
     .col_names = .col_names,
     .data_types = .data_types,
-    .tbl_name = .tbl_name,
     .pk = .pk
   )
 
-  create_table <- glue(
+  out_table <- glue(
     "\n
     CREATE TABLE IF NOT EXISTS { .tbl_name }
     (
     { fields }
     )
-    PARTITION BY RANGE (ad_date)"
-    # ,
-    # .con = .con
-  ) |> DBI::SQL()
-
-  create_partition <- glue(
-    "\n
-    CREATE TABLE { .tbl_name }_y{ .year } PARTITION OF {.tbl_name}
-        FOR VALUES FROM ('{ .date_from }') TO ('{ .date_to }')
-        PARTITION BY RANGE (media_type_id)
     "
     # ,
     # .con = .con
-  ) |> DBI::SQL()
-
-  list(
-    create_table = create_table ,
-    create_partition = create_partition
   )
+  DBI::SQL(out_table)
 
 }
+
 #' @rdname not_helpers
 #' @export
-sql_create_part_tbl <- function(.part_type, .part_name, .tbl_name, .part_values) {
+sql_create_part_tbl <- function(.tbl_name, .part_name, ) {
   match.arg(arg = .part_type, choices = c("LIST", "RANGE"))
   if ( .part_type == 'LIST') {
     .values <- .part_values
