@@ -8,25 +8,32 @@
 #' @export
 #'
 fall_date <- function(year, yearweek = TRUE, out_tibble = TRUE){
-  dates <- paste0(year, "-01-01") |> as.Date()
-  dates1 <- paste0(year + 1, "-01-01") |> as.Date()
-  fall_date <- fmdates:::equinox(year, season = 'sep') |>
+
+  fall_date <- fall_date1 <- rep(NA, length(year))
+  no_na_id <- not_na(year)
+
+  fall_date_0 <- fmdates:::equinox(year[no_na_id], season = 'sep') |>
     as.Date()
-  fall_date1 <- fmdates:::equinox(year + 1, season = 'sep') |>
+  fall_date1_0 <- fmdates:::equinox(year[no_na_id] + 1, season = 'sep') |>
     as.Date()
   if( yearweek ){
-    fall_date <-  fall_date |>
+    fall_date_0 <- fall_date_0 |>
       tsibble::yearweek() |> as.Date()
-    fall_date1 <-  fall_date1 |>
+    fall_date1_0 <- fall_date1_0 |>
       tsibble::yearweek() |> as.Date()
   }
-  out <- tibble(
+  fall_date[no_na_id] <- as.character(fall_date_0)
+  fall_date1[no_na_id] <- as.character(fall_date1_0)
+
+  out <- dplyr::tibble(
     year = year,
-    fall_date = as.character(fall_date),
-    fall_date_p1year = as.character(fall_date1)
+    fall_date = fall_date,
+    fall_date_p1year = fall_date1
   )
   if( !out_tibble ){
     out <- as.list(out)
   }
   out
 }
+
+
