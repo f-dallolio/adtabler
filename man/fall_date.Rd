@@ -4,7 +4,7 @@
 \alias{fall_date}
 \title{Date for Fall basaed on September eqwuinox}
 \usage{
-fall_date(year, yearweek = TRUE, out_tibble = TRUE)
+fall_date(year, yearweek = TRUE)
 }
 \arguments{
 \item{year}{integer vector.}
