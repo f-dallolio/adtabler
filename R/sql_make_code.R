@@ -40,7 +40,7 @@ sql_make_fields <- function( .tbl_name, .col_names, .data_types, .pk = NA ) {
 
 #' @rdname sql_tbl_creator
 #' @export
-sql_build_tbl <- function( .tbl_name, .col_names, .data_types, .pk = NA, .part_col) {
+sql_build_tbl <- function( .tbl_name, .col_names, .data_types, .pk = NA, .part_col, ...) {
 
   fields <- sql_make_fields(
     .tbl_name = .tbl_name,
@@ -58,8 +58,8 @@ sql_build_tbl <- function( .tbl_name, .col_names, .data_types, .pk = NA, .part_c
     "
   )
   if( not_na(.part_col) ) {
-    # out <- glue::glue('{ out } { sql_part_by_range(.part_col) }')
-    out <- glue::glue('{ out } { sql_part_by_list(.part_col) }')
+    out <- glue::glue('{ out } { sql_part_by_range(.part_col) }')
+    # out <- glue::glue('{ out } { sql_part_by_list(.part_col) }')
   }
   DBI::SQL(out)
 

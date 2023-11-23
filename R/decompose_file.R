@@ -21,7 +21,9 @@ decompose_file <- function(file, out_tibble = TRUE, out_unlist = FALSE) {
   file_2 <- file_split[[2]] |>
     rename_adintel(named = FALSE)
   file_1 <- file_split[[3]] |>
-    rename_adintel(named = FALSE)
+    rename_adintel(named = FALSE) |>
+    str_replace_all('spot_tv', 'local_tv') |>
+    str_replace_all('network_tv', 'national_tv')
   if (is.na( file_3 )) {
     adintel_year <-  NA
     file_type <- 'references'
