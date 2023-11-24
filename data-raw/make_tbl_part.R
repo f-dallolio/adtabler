@@ -25,6 +25,10 @@ con <- dbConnect(RPostgres::Postgres(),
 #                 across(!dynamic_flag, list), .by = file_name_std)
 #   ) |>
 #   relocate(dynamic_flag, adintel_year, date_from, date_to, .before = file)
+#   tbl_info_tot <- tbl_info_tot |>
+# mutate(col_classes = col_classes |> map(unname),
+#        sql_datatype = map2(col_names_std, sql_datatype, ~ fn(.x, .y)))
+# usethis::use_data(tbl_info_tot, overwrite = T)
 # usethis::use_data(tbl_info_tot, overwrite = T)
 
 
@@ -74,4 +78,13 @@ part_code <- x |>
   map(~ .x |> pmap(sql_create_part) |> set_names(.x$.part_name))
 x$part_code <- rep(NA, NROW(x)) |> as.list()
 x$part_code[(x$dynamic_flag)] <- part_code
+
+x |> filter(file_name_std == 'dates') |> pull(tbl_code)
+
+
+
+fn <- function(col_names_std, sql_datatype){
+  if_else(col_names_std == "ad_date", 'date', col_names_std)
+}
+
 
