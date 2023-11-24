@@ -13,7 +13,13 @@ NULL
 
 #' @rdname sql_tbl_creator
 #' @export
-sql_make_fields <- function( .tbl_name, .col_names, .data_types, .pk = NA ) {
+sql_make_fields <- function( .tbl_name, .col_names, .data_types, .pk = NA, ... ) {
+
+  if('ad_date' |> not_in(.col_names)){
+    .col_names <- c('ad_date', .col_names)
+    .data_types <- c('DATE', .data_types)
+    .pk = c('ad_date', .pk)
+  }
 
   .x = list(
     .tbl_name = .tbl_name,
@@ -41,6 +47,7 @@ sql_make_fields <- function( .tbl_name, .col_names, .data_types, .pk = NA ) {
 #' @rdname sql_tbl_creator
 #' @export
 sql_build_tbl <- function( .tbl_name, .col_names, .data_types, .pk = NA, .part_col, ...) {
+
 
   fields <- sql_make_fields(
     .tbl_name = .tbl_name,
