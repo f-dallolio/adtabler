@@ -6,7 +6,6 @@ library(rlang)
 library(glue)
 library(dm)
 library(adtabler)
-
 library(DBI)
 library(RPostgres)
 

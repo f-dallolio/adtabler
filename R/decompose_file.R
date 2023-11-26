@@ -36,19 +36,20 @@ decompose_file <- function(file, out_tibble = TRUE, out_unlist = FALSE) {
   if( out_tibble ){
     out <- dplyr::tibble(
       file = file,
-      file_type_std = file_type,
-      file_name_std = file_name,
-      adintel_year = adintel_year
+      tbl_type = file_type,
+      is_dynamic = not_na(adintel_year),
+      tbl_name = file_name
+      
     )
   } else {
     out <- list(
       file = file,
-      file_type_std = file_type,
-      file_name_std = file_name,
-      adintel_year = adintel_year
+      tbl_type = file_type,
+      is_dynamic = not_na(adintel_year),
+      tbl_name = file_name
     )
     if( out_unlist ) {
-      out <- unlist( ouyt, use.names = TRUE )
+      out <- unlist( out, use.names = TRUE )
     }
   }
   out
