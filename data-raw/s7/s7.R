@@ -170,9 +170,40 @@ method(sql_add_idx, tbl_idx) <- function(x){
 }
 sql_add_idx(x = tbl_idx(tbl_name = 'tbl_name', idx_cols = c('idx_cols', 'idx_cols2')))
 
+adintel_tbl <- new_class(
+  name = 'adintel_tbl',
+  properties = list(
+    df <- class_data.frame,
+    adintel_year = class_integer,
+    tbl_name
+    fields = tbl_fields,
+    idx = tbl_idx,
+    pk = tbl_pk,
+    fk = tbl_fk,
+    partition = tbl_partition
+  )
+)
 
-# nms <- list( tbl_fields, tbl_partition, tbl_pk, tbl_fk, tbl_idx) |> map(~ prop(.x, 'properties') |> names()) |>
-#   set_names("tbl_fields", "tbl_partition", "tbl_pk", "tbl_fk", "tbl_idx")
+new_S3_class()
+
+adintel_tbl() |> props() |> map(~ .x |> props()
+
+fread_adintel
+)
+  nms
+
+nms |>map( ~ new_class(name = .x)) |>
+
+  > imap(~ `prop<-`(object = .x, name = .y, ))
+
+
+|> imap(~ new_class(.x) )
+as_class(tbl_idx@)
+
+
+|>
+  set_names("tbl_fields", "tbl_partition", "tbl_pk", "tbl_fk", "tbl_idx") |>
+  unlist(use.names = T) |> unique()
 # x <- tbl_info_tot |>
 #   unnest(file) |>
 #   nest(.by = file)

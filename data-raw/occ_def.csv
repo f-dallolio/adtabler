@@ -5,7 +5,7 @@ occurrences,fsi_coupon,12,print,fsi_coupon,national,english,fsi_coupon,12,fsi_co
 occurrences,internet,25,online,internet,national,english,internet,25,internet,internet__national
 occurrences,internet,26,online,internet,local,english,internet,26,internet,internet__local
 occurrences,magazine,7,print,magazine,national,english,magazine,7,magazine,magazine__national
-occurrences,magazine,8,print,magazine,local,english,magazine,8,magazine,magazine_local
+occurrences,magazine,8,print,magazine,local,english,magazine,8,magazine,magazine__local
 occurrences,national_tv,1,tv,network_tv,national,english,network_tv,1,national_tv,national_tv__network
 occurrences,national_tv,4,tv,network_tv,national,spanish,network_tv,4,national_tv,national_tv__network_spanish
 occurrences,national_tv,2,tv,cable_tv,national,english,network_tv,2,national_tv,national_tv__cable
@@ -21,5 +21,5 @@ occurrences,radio,17,radio,spot_radio,local,english,radio,17,radio,spot_radio
 occurrences,local_tv,5,tv,spot_tv,local,english,spot_tv,5,local_tv,local_tv__spot
 occurrences,local_tv,13,tv,network_tv,local,english,spot_tv,13,local_tv,local_tv__network_clearance
 occurrences,local_tv,14,tv,syndicated_tv,local,english,spot_tv,14,local_tv,local_tv__syndicated_clearance
-occurrences,local_tv,24,tv,cable_tv,local,english,spot_tv,24,local_tv,local_tv___cable
+occurrences,local_tv,24,tv,cable_tv,local,english,spot_tv,24,local_tv,local_tv__cable
 occurrences,digital,31,online,digital,national,english,digital,31,digital,digital__national

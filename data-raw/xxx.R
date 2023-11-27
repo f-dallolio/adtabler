@@ -91,11 +91,17 @@ file <- x |> with(
 attributes(file)
 is_adintel_file(file)
 
+col_types <- c("INTEGER", "SMALLINT", "TEXT","VARCHAR", "DATE", "TIMESTAMP", "NUMERIC", "BOOLEAN")
+col_classes <- case_when(
+  col_types %in% c("INTEGER", "SMALLINT") ~ 'integer',
+  col_types %in% c('NUMERIC') ~ 'double',
+  col_types %in% c('BOOLEAN') ~ 'logical',
+  .default = 'character'
+)
+tibble(col_types,
+       col_classes)
 
-new_adintel_tbl <- function(
-    .dt,
-    attrib){
-  # = list(
+# = list(
     # tbl_type = character(),
     # is_dynamic = logical(),
     # tbl_name = character(),
