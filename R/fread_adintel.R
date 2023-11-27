@@ -19,7 +19,7 @@ fread_adintel <- function(file, col_names_std, col_classes, ...){
   )
 
   x <- decompose_file(file)
-  tbl_name <- x$file_name_std
+  tbl_name <- x$tbl_name
   year <- x$adintel_year
 
   if ( tbl_name == 'brand' & year >= 2018 ) {
