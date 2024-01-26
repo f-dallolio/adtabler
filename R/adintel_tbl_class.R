@@ -1,7 +1,9 @@
 #" Class adintel_tbl
 #"
 #" @name adintel_tbl_class
+#"
 NULL
+
 
 #" @rdname adintel_tbl_class
 #" @export
